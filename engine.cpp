@@ -3,7 +3,7 @@ using namespace std;
 
 Unit::Unit(){}
 
-Unit::Unit(bool s, unitType u): S(stand), lives(10)
+Unit::Unit(bool s, unitType u): S(stand), lives(100)
                                 , side(s), type(u),
                                 stateNum(0), face(!s),
                                 acceleration(500), canDoubleJump(true),
@@ -66,7 +66,7 @@ bool Example::OnUserUpdate(float fElapsedTime) {
         }
         //静止时的跳跃, 按下K键的瞬间获得一个极大的冲量。
         //A角色起跳用K键控制，跳跃最多可以二段跳。
-        if (GetKey(olc::Key::K).bPressed){
+        if (GetKey(olc::Key::K).bPressed && unitA.S != hit){
             if (unitA.S != jump)
             {
                 unitA.S = jump;
@@ -132,6 +132,7 @@ bool Example::OnUserUpdate(float fElapsedTime) {
         //A角色右跑
         if (GetKey(olc::Key::D).bHeld){
             switch (unitA.S) {
+                case fall:{}
                 case hit:{}
                 case attack: break;
                 case jump:{
@@ -152,6 +153,7 @@ bool Example::OnUserUpdate(float fElapsedTime) {
         //A角色左跑
         if (GetKey(olc::Key::A).bHeld){
             switch (unitA.S) {
+                case fall:{}
                 case hit:{}
                 case attack: break;
                 case jump:{
@@ -173,6 +175,7 @@ bool Example::OnUserUpdate(float fElapsedTime) {
         //B角色右跑
         if (GetKey(olc::Key::RIGHT).bHeld){
             switch (unitB.S) {
+                case fall:{}
                 case hit:{}
                 case attack: break;
                 case jump:{
@@ -194,6 +197,7 @@ bool Example::OnUserUpdate(float fElapsedTime) {
         //B角色左跑
         if (GetKey(olc::Key::LEFT).bHeld){
             switch (unitB.S) {
+                case fall: {}
                 case hit:{}
                 case attack: break;
                 case jump:{
@@ -474,14 +478,14 @@ void Example::fallDraw(Unit &unit, float offset_true, float offset_false) {
         }
         else{
             if (winner == unsettled){
-                if (clock() - unit.fallDownTime < 100) picNum.x = 0;
+                if (clock() - unit.fallDownTime < 100) picNum.x = 1;
                 if (clock() - unit.fallDownTime >= 100
-                    && clock() - unit.fallDownTime <= 1400) picNum.x = 1;
-                if (clock() - unit.fallDownTime >1400 ) picNum.x = 2;
+                    && clock() - unit.fallDownTime <= 1400) picNum.x = 2;
+                if (clock() - unit.fallDownTime >1400 ) picNum.x = 3;
             }
             else{
-                if (clock() - unit.fallDownTime < 100) picNum.x = 0;
-                if (clock() - unit.fallDownTime >= 100) picNum.x = 1;
+                if (clock() - unit.fallDownTime < 100) picNum.x = 1;
+                if (clock() - unit.fallDownTime >= 100) picNum.x = 2;
             }
             DrawPartialSprite(unit.position, fallRightPic.get(),
                               picNum * blockSize + offset, blockSize);
@@ -569,13 +573,14 @@ void Example::attackAction(Unit &unit, float fElapsedTime) {
 void Example::hitAction(Unit &unit, float fElapsedTime) {
     //如果角色处于hitArea中，则会收到伤害, 然后这个area自动消亡。
     for(int i = 0; i < areas.size(); i++) {
-        if (areas[i].inArea(unit) && areas[i].type == hitArea && unit.side != areas[i].side){
+        if (areas[i].inArea(unit) && areas[i].type == hitArea && unit.side != areas[i].side && unit.S != fall){
             unit.S = hit;
             unit.hitTime = clock();
             if (unit.hitNum == 0) unit.firstHitTime = clock();
             unit.lives -= 10;
             unit.hitNum++;
             areas[i].existence = false;
+            play(hitSound);
         }
     }
     if (unit.S == hit){
@@ -664,15 +669,18 @@ void Example::gameOver(){
     {
         unitA.fallDownTime = clock();
         winner = playerB;
+        play(ggSound);
     }
     if (unitB.lives <= 0)
     {
         unitB.fallDownTime = clock();
         winner = playerA;
+        play(ggSound);
     }
     if (unitA.lives == 0 && unitB.lives == 0)
     {
         winner = draw;
+        play(ggSound);
     }
 }
 
