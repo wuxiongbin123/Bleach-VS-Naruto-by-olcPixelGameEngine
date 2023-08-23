@@ -3,7 +3,7 @@ using namespace std;
 
 Unit::Unit(){}
 
-Unit::Unit(bool s, unitType u): S(stand), lives(100)
+Unit::Unit(bool s, unitType u): S(stand), lives(10)
                                 , side(s), type(u),
                                 stateNum(0), face(!s),
                                 acceleration(500), canDoubleJump(true),
@@ -49,6 +49,7 @@ bool Example::OnUserCreate() {
     hitLeftPic = std::make_unique<olc::Sprite>("./pic/Naruto/hit_left.png");
     fallRightPic = std::make_unique<olc::Sprite>("./pic/Naruto/fall_right.png");
     fallLeftPic = std::make_unique<olc::Sprite>("./pic/Naruto/fall_left.png");
+    gameOverPic = std::make_unique<olc::Sprite>("./pic/gameOver.png");
     return true;
 }
 
@@ -242,31 +243,51 @@ void Example::render() {
         floorSite.y = floorPos;
         DrawSprite(floorSite, tilePic.get());
     }
-    //根据不同的状态画不同的图像。
-    SetPixelMode(olc::Pixel::ALPHA);
-    switch (unitA.S) {
-        case jump:jumpDraw(unitA, 0, 16);break;
-        case stand:standDraw(unitA, 0, 3);break;
-        case run:runDraw(unitA, 0, 8);break;
-        case attack:attackDraw(unitA, -5, 10);break;
-        case hit:hitDraw(unitA, 0, 0);break;
-        case fall:fallDraw(unitA, 0, 0);break;
+    if (winner == unsettled){
+        //根据不同的状态画不同的图像。
+        SetPixelMode(olc::Pixel::ALPHA);
+        switch (unitA.S) {
+            case jump:jumpDraw(unitA, 0, 16);break;
+            case stand:standDraw(unitA, 0, 3);break;
+            case run:runDraw(unitA, 0, 8);break;
+            case attack:attackDraw(unitA, -5, 10);break;
+            case hit:hitDraw(unitA, 0, 0);break;
+            case fall:fallDraw(unitA, 0, 0);break;
+        }
+        switch(unitB.S){
+            case jump: jumpDraw(unitB, 0, 16);break;
+            case stand:standDraw(unitB, 0, 3);break;
+            case run:runDraw(unitB, 0, 8);break;
+            case attack:attackDraw(unitB, -5, 10);break;
+            case hit:hitDraw(unitB, 0, 0);break;
+            case fall:fallDraw(unitB, 0, 0);break;
+        }
     }
-    switch(unitB.S){
-        case jump: jumpDraw(unitB, 0, 16);break;
-        case stand:standDraw(unitB, 0, 3);break;
-        case run:runDraw(unitB, 0, 8);break;
-        case attack:attackDraw(unitB, -5, 10);break;
-        case hit:hitDraw(unitB, 0, 0);break;
-        case fall:fallDraw(unitB, 0, 0);break;
-    }
-
     if (winner != unsettled){
+
+        //Render game over.
+        olc::vf2d posOfGameOver;
+        posOfGameOver.x = 152;
+        posOfGameOver.y = 150;
+        DrawSprite(posOfGameOver, gameOverPic.get());
+
         switch(winner)
         {
-            case playerA:{}break;
-            case playerB:{}break;
-            case draw: {}break;
+            case playerA:{
+
+                standDraw(unitA, 0, 3);
+                fallDraw(unitB, 0, 0);
+            }break;
+            case playerB:{
+
+                standDraw(unitB, 0, 3);
+                fallDraw(unitA, 0, 0);
+            }
+                break;
+            case draw: {
+                standDraw(unitA, 0, 3);
+                standDraw(unitB, 0, 3);
+            }break;
         }
     }
 }
@@ -452,10 +473,16 @@ void Example::fallDraw(Unit &unit, float offset_true, float offset_false) {
                               picNum * blockSize + offset, blockSize);
         }
         else{
-            if (clock() - unit.fallDownTime < 100) picNum.x = 1;
-            if (clock() - unit.fallDownTime >= 100
-                && clock() - unit.fallDownTime <= 1400) picNum.x = 2;
-            if (clock() - unit.fallDownTime >1400) picNum.x = 3;
+            if (winner == unsettled){
+                if (clock() - unit.fallDownTime < 100) picNum.x = 0;
+                if (clock() - unit.fallDownTime >= 100
+                    && clock() - unit.fallDownTime <= 1400) picNum.x = 1;
+                if (clock() - unit.fallDownTime >1400 ) picNum.x = 2;
+            }
+            else{
+                if (clock() - unit.fallDownTime < 100) picNum.x = 0;
+                if (clock() - unit.fallDownTime >= 100) picNum.x = 1;
+            }
             DrawPartialSprite(unit.position, fallRightPic.get(),
                               picNum * blockSize + offset, blockSize);
         }
@@ -471,10 +498,16 @@ void Example::fallDraw(Unit &unit, float offset_true, float offset_false) {
                               picNum * blockSize + offset, blockSize);
         }
         else{
-            if (clock() - unit.fallDownTime < 100) picNum.x = 2;
-            if (clock() - unit.fallDownTime >= 100
-                && clock() - unit.fallDownTime <= 1400) picNum.x = 1;
-            if (clock() - unit.fallDownTime >1400) picNum.x = 0;
+            if (winner == unsettled){
+                if (clock() - unit.fallDownTime < 100) picNum.x = 2;
+                if (clock() - unit.fallDownTime >= 100
+                    && clock() - unit.fallDownTime <= 1400) picNum.x = 1;
+                if (clock() - unit.fallDownTime >1400 ) picNum.x = 0;
+            }
+            else{
+                if (clock() - unit.fallDownTime < 100) picNum.x = 2;
+                if (clock() - unit.fallDownTime >= 100) picNum.x = 1;
+            }
             DrawPartialSprite(unit.position, fallLeftPic.get(),
                               picNum * blockSize + offset, blockSize);
         }
@@ -629,10 +662,12 @@ bool Example::inBound(bool moveDirection, float positionX) {
 void Example::gameOver(){
     if (unitA.lives <= 0 )
     {
+        unitA.fallDownTime = clock();
         winner = playerB;
     }
     if (unitB.lives <= 0)
     {
+        unitB.fallDownTime = clock();
         winner = playerA;
     }
     if (unitA.lives == 0 && unitB.lives == 0)

@@ -107,6 +107,7 @@ public:
     std::unique_ptr<olc::Sprite> hitLeftPic;
     std::unique_ptr<olc::Sprite> fallRightPic;
     std::unique_ptr<olc::Sprite> fallLeftPic;
+    std::unique_ptr<olc::Sprite> gameOverPic;
     olc::vf2d blockSize = {63, 97};
     std::unique_ptr<olc::Sprite> tilePic;
 
