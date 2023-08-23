@@ -80,12 +80,14 @@ public:
     float gravity = 100;
     float floorPos = ScreenHeight() + 200;
     olc::vf2d floorSite;
+    float barLenOfA = 330;
+    float barLenOfB = 330;
     std::vector<Area> areas;
     friend Unit;
     Unit unitA;
     Unit unitB;
     std::vector<std::string> commands;
-    void render();
+    void render(float fElapsedTime);
     bool OnUserCreate() override;
     bool OnUserUpdate(float fElapsedTime) override;
 
@@ -109,6 +111,10 @@ public:
     std::unique_ptr<olc::Sprite> fallRightPic;
     std::unique_ptr<olc::Sprite> fallLeftPic;
     std::unique_ptr<olc::Sprite> gameOverPic;
+    std::unique_ptr<olc::Sprite> playerAPic;
+    std::unique_ptr<olc::Sprite> playerBPic;
+    std::unique_ptr<olc::Sprite> livesBarA;
+    std::unique_ptr<olc::Sprite> livesBarB;
     olc::vf2d blockSize = {63, 97};
     std::unique_ptr<olc::Sprite> tilePic;
 
@@ -126,6 +132,9 @@ public:
     void attackDraw(Unit& unit, float offset_true, float offset_false);
     void hitDraw(Unit& unit, float offset_true, float offset_false);
     void fallDraw(Unit& unit, float offset_true, float offset_false);
+
+    void drawSignal(Unit& unit);
+    void drawLivesBar(float fEplasedTime);
 
     bool inBound(bool moveDirection, float positionX);
     void recover(Unit& unit);

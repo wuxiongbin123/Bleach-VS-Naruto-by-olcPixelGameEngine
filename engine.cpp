@@ -50,6 +50,11 @@ bool Example::OnUserCreate() {
     fallRightPic = std::make_unique<olc::Sprite>("./pic/Naruto/fall_right.png");
     fallLeftPic = std::make_unique<olc::Sprite>("./pic/Naruto/fall_left.png");
     gameOverPic = std::make_unique<olc::Sprite>("./pic/gameOver.png");
+    playerAPic = std::make_unique<olc::Sprite>("./pic/playerA.png");
+    playerBPic = std::make_unique<olc::Sprite>("./pic/playerB.png");
+    livesBarA = std::make_unique<olc::Sprite>("./pic/livesBar_A.png");
+    livesBarB = std::make_unique<olc::Sprite>("./pic/livesBar_B.png");
+
     return true;
 }
 
@@ -234,12 +239,18 @@ bool Example::OnUserUpdate(float fElapsedTime) {
         removeDeadArea();
         gameOver();
     }
-
-    render();
+            //血条逐渐减少。
+    if (barLenOfA > 330 * unitA.lives / 100){
+            barLenOfA -= 50 * fElapsedTime ;
+        }
+    if (barLenOfB > 330 * unitB.lives / 100){
+            barLenOfB -= 50 * fElapsedTime ;
+        }
+    render(fElapsedTime);
     return true;
 }
 
-void Example::render() {
+void Example::render(float fElapsedTime) {
     Clear(olc::WHITE);
     //画地板
     for(int i = 0; i < ScreenWidth() / 16; i++){
@@ -247,6 +258,12 @@ void Example::render() {
         floorSite.y = floorPos;
         DrawSprite(floorSite, tilePic.get());
     }
+    drawSignal(unitA);
+    drawSignal(unitB);
+
+    //画血条和血条架。
+    drawLivesBar(fElapsedTime);
+
     if (winner == unsettled){
         //根据不同的状态画不同的图像。
         SetPixelMode(olc::Pixel::ALPHA);
@@ -682,6 +699,33 @@ void Example::gameOver(){
         winner = draw;
         play(ggSound);
     }
+}
+
+void Example::drawSignal(Unit& unit) {
+    olc::vf2d posOfSignal;
+    posOfSignal.x = unit.position.x - blockSize.x;
+    posOfSignal.y = unit.position.y + blockSize.y;
+    if (unit.side) DrawSprite(posOfSignal, playerAPic.get());
+    else DrawSprite(posOfSignal, playerBPic.get());
+}
+
+void Example::drawLivesBar(float fElapsedTime) {
+    olc::vf2d posOfLivesBarA;
+    olc::vf2d posOfLivesBarB;
+
+    posOfLivesBarA.x = 0;
+    posOfLivesBarA.y = 15;
+    posOfLivesBarB.x = ScreenWidth() - 341;
+    posOfLivesBarB.y = 15;
+
+    DrawSprite(posOfLivesBarA, livesBarA.get());
+    DrawSprite(posOfLivesBarB, livesBarB.get());
+
+
+
+    FillRect(posOfLivesBarA.x, posOfLivesBarB.y + 30, barLenOfA, 20, olc::RED);
+    FillRect(ScreenWidth() - barLenOfB, posOfLivesBarB.y + 30, barLenOfB, 20, olc::RED);
+
 }
 
 
