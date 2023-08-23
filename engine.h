@@ -5,11 +5,14 @@
 #ifndef BVN_ENGINE_H
 #define BVN_ENGINE_H
 #include "olcPixelGameEngine.h"
+#include "ActionDraw.h"
 #include "time.h"
 
-enum state {stand, run, jump, hit, attack};
+enum state {stand, run, jump, hit, attack, fall};
 enum unitType {Naruto, ichigo};
 enum areaType {hitArea};
+enum player {playerA, playerB, draw, unsettled};
+
 
 class Unit
 {
@@ -31,6 +34,10 @@ public:
     float attackTime;
     float hitTime;
     int hitNum;
+    float firstHitTime;
+    float fallDownTime;
+    olc::Key rightKey;    //抽象出向右键和向左键，这样可以使得recover对unitA和unitB都适用。
+    olc::Key leftKey;
 
     //规定：凡是右这个词都是对应true，左都是对应false
 };
@@ -67,6 +74,7 @@ public:
     }
 
 public:
+    player winner = unsettled;
     int mouse;
     float gravity = 100;
     float floorPos = ScreenHeight() + 200;
@@ -90,17 +98,24 @@ public:
     std::unique_ptr<olc::Sprite> attackRightPic_0;
     std::unique_ptr<olc::Sprite> attackRightPic_1;
     std::unique_ptr<olc::Sprite> attackRightPic_2;
+    std::unique_ptr<olc::Sprite> attackRightPic_3;
     std::unique_ptr<olc::Sprite> attackLeftPic_0;
     std::unique_ptr<olc::Sprite> attackLeftPic_1;
     std::unique_ptr<olc::Sprite> attackLeftPic_2;
+    std::unique_ptr<olc::Sprite> attackLeftPic_3;
     std::unique_ptr<olc::Sprite> hitRightPic;
     std::unique_ptr<olc::Sprite> hitLeftPic;
+    std::unique_ptr<olc::Sprite> fallRightPic;
+    std::unique_ptr<olc::Sprite> fallLeftPic;
     olc::vf2d blockSize = {63, 97};
     std::unique_ptr<olc::Sprite> tilePic;
+
 
     //动作封装
     void attackAction(Unit& unit, float fElapsedTime);
     void hitAction(Unit& unit, float fElapsedTime);
+    void fallAction(Unit& unit, float fElapsedTime);
+    void gameOver();
 
     //动作动画函数封装
     void jumpDraw(Unit& unit, float offset_true, float offset_false);
@@ -108,9 +123,10 @@ public:
     void standDraw(Unit& unit, float offset_true, float offset_false);
     void attackDraw(Unit& unit, float offset_true, float offset_false);
     void hitDraw(Unit& unit, float offset_true, float offset_false);
+    void fallDraw(Unit& unit, float offset_true, float offset_false);
 
-
-    void recover();
+    bool inBound(bool moveDirection, float positionX);
+    void recover(Unit& unit);
     void removeDeadArea();
 };
 
