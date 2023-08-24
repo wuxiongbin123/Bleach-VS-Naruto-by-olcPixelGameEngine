@@ -9,7 +9,7 @@
 #include "time.h"
 
 
-enum state {stand, run, jump, hit, attack, fall};
+enum state {stand, run, jump, hit, attack, fall, defend};
 enum unitType {Naruto, ichigo};
 enum areaType {hitArea};
 enum player {playerA, playerB, draw, unsettled};
@@ -39,6 +39,8 @@ public:
     float fallDownTime;
     olc::Key rightKey;    //抽象出向右键和向左键，这样可以使得recover对unitA和unitB都适用。
     olc::Key leftKey;
+    olc::Key upKey;
+    olc::Key downKey;
 
     //规定：凡是右这个词都是对应true，左都是对应false
 };
@@ -80,8 +82,16 @@ public:
     float gravity = 100;
     float floorPos = ScreenHeight() + 200;
     olc::vf2d floorSite;
-    float barLenOfA = 330;
-    float barLenOfB = 330;
+    float barGreenLenOfA = 330;
+    float barGreenLenOfB = 330;
+    float barRedLenOfA = 330;
+    float barRedLenOfB = 330;
+    olc::vf2d posOfLivesBarA;
+    olc::vf2d posOfLivesBarB;
+    olc::vf2d livesGreenBarSizeA;
+    olc::vf2d livesRedBarSizeA;
+    olc::vf2d livesRedBarSizeB;
+    olc::vf2d livesGreenBarSizeB;
     std::vector<Area> areas;
     friend Unit;
     Unit unitA;
@@ -91,7 +101,7 @@ public:
     bool OnUserCreate() override;
     bool OnUserUpdate(float fElapsedTime) override;
 
-    // 角色图片
+    // Sprites
     std::unique_ptr<olc::Sprite> standPicOfA;
     std::unique_ptr<olc::Sprite> standPicOfB;
     std::unique_ptr<olc::Sprite> runRightPic;
@@ -110,20 +120,52 @@ public:
     std::unique_ptr<olc::Sprite> hitLeftPic;
     std::unique_ptr<olc::Sprite> fallRightPic;
     std::unique_ptr<olc::Sprite> fallLeftPic;
+    std::unique_ptr<olc::Sprite> defendRightPic;
+    std::unique_ptr<olc::Sprite> defendLeftPic;
     std::unique_ptr<olc::Sprite> gameOverPic;
     std::unique_ptr<olc::Sprite> playerAPic;
     std::unique_ptr<olc::Sprite> playerBPic;
     std::unique_ptr<olc::Sprite> livesBarA;
     std::unique_ptr<olc::Sprite> livesBarB;
+
+    //Decals
+    std::unique_ptr<olc::Decal> standDecalOfA;
+    std::unique_ptr<olc::Decal> standDecalOfB;
+    std::unique_ptr<olc::Decal> runRightDecal;
+    std::unique_ptr<olc::Decal> runLeftDecal;
+    std::unique_ptr<olc::Decal> jumpRightDecal;
+    std::unique_ptr<olc::Decal> jumpLeftDecal;
+    std::unique_ptr<olc::Decal> attackRightDecal_0;
+    std::unique_ptr<olc::Decal> attackRightDecal_1;
+    std::unique_ptr<olc::Decal> attackRightDecal_2;
+    std::unique_ptr<olc::Decal> attackRightDecal_3;
+    std::unique_ptr<olc::Decal> attackLeftDecal_0;
+    std::unique_ptr<olc::Decal> attackLeftDecal_1;
+    std::unique_ptr<olc::Decal> attackLeftDecal_2;
+    std::unique_ptr<olc::Decal> attackLeftDecal_3;
+    std::unique_ptr<olc::Decal> hitRightDecal;
+    std::unique_ptr<olc::Decal> hitLeftDecal;
+    std::unique_ptr<olc::Decal> fallRightDecal;
+    std::unique_ptr<olc::Decal> fallLeftDecal;
+    std::unique_ptr<olc::Decal> defendRightDecal;
+    std::unique_ptr<olc::Decal> defendLeftDecal;
+    std::unique_ptr<olc::Decal> gameOverDecal;
+    std::unique_ptr<olc::Decal> playerADecal;
+    std::unique_ptr<olc::Decal> playerBDecal;
+    std::unique_ptr<olc::Decal> livesBarADecal;
+    std::unique_ptr<olc::Decal> livesBarBDecal;
     olc::vf2d blockSize = {63, 97};
     std::unique_ptr<olc::Sprite> tilePic;
+    std::unique_ptr<olc::Decal> tileDecal;
 
 
     //动作封装
     void attackAction(Unit& unit, float fElapsedTime);
     void hitAction(Unit& unit, float fElapsedTime);
     void fallAction(Unit& unit, float fElapsedTime);
+    void defendAction(Unit& unit, float fElapsedTime);
     void gameOver();
+    void moveUnit(Unit& unit, float fElapsedTime);
 
     //动作动画函数封装
     void jumpDraw(Unit& unit, float offset_true, float offset_false);
@@ -132,6 +174,7 @@ public:
     void attackDraw(Unit& unit, float offset_true, float offset_false);
     void hitDraw(Unit& unit, float offset_true, float offset_false);
     void fallDraw(Unit& unit, float offset_true, float offset_false);
+    void defendDraw(Unit& unit, float offset_true, float offset_false);
 
     void drawSignal(Unit& unit);
     void drawLivesBar(float fEplasedTime);

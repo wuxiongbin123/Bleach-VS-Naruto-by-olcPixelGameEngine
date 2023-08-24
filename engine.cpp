@@ -14,9 +14,13 @@ Unit::Unit(bool s, unitType u): S(stand), lives(100)
     if (side){
         rightKey = olc::Key::D;
         leftKey = olc::Key::A;
+        upKey = olc::Key::W;
+        downKey = olc::Key::S;
     } else {
         rightKey = olc::Key::RIGHT;
         leftKey = olc::Key::LEFT;
+        upKey = olc::Key::UP;
+        downKey = olc::Key::DOWN;
     }
 }
 
@@ -49,11 +53,39 @@ bool Example::OnUserCreate() {
     hitLeftPic = std::make_unique<olc::Sprite>("./pic/Naruto/hit_left.png");
     fallRightPic = std::make_unique<olc::Sprite>("./pic/Naruto/fall_right.png");
     fallLeftPic = std::make_unique<olc::Sprite>("./pic/Naruto/fall_left.png");
+    defendRightPic = std::make_unique<olc::Sprite>("./pic/Naruto/defend_right.png");
+    defendLeftPic = std::make_unique<olc::Sprite>("./pic/Naruto/defend_left.png");
     gameOverPic = std::make_unique<olc::Sprite>("./pic/gameOver.png");
     playerAPic = std::make_unique<olc::Sprite>("./pic/playerA.png");
     playerBPic = std::make_unique<olc::Sprite>("./pic/playerB.png");
     livesBarA = std::make_unique<olc::Sprite>("./pic/livesBar_A.png");
     livesBarB = std::make_unique<olc::Sprite>("./pic/livesBar_B.png");
+    standDecalOfA = std::make_unique<olc::Decal>(standPicOfA.get());
+    standDecalOfB = std::make_unique<olc::Decal>(standPicOfB.get());
+    runRightDecal = std::make_unique<olc::Decal>(runRightPic.get());
+    runLeftDecal = std::make_unique<olc::Decal>(runLeftPic.get());
+    jumpRightDecal = std::make_unique<olc::Decal>(jumpRightPic.get());
+    jumpLeftDecal = std::make_unique<olc::Decal>(jumpLeftPic.get());
+    attackRightDecal_0 = std::make_unique<olc::Decal>(attackRightPic_0.get());
+    attackRightDecal_1 = std::make_unique<olc::Decal>(attackRightPic_1.get());
+    attackRightDecal_2 = std::make_unique<olc::Decal>(attackRightPic_2.get());
+    attackRightDecal_3 = std::make_unique<olc::Decal>(attackRightPic_3.get());
+    attackLeftDecal_0 = std::make_unique<olc::Decal>(attackLeftPic_0.get());
+    attackLeftDecal_1 = std::make_unique<olc::Decal>(attackLeftPic_1.get());
+    attackLeftDecal_2 = std::make_unique<olc::Decal>(attackLeftPic_2.get());
+    attackLeftDecal_3 = std::make_unique<olc::Decal>(attackLeftPic_3.get());
+    hitRightDecal = std::make_unique<olc::Decal>(hitRightPic.get());
+    hitLeftDecal = std::make_unique<olc::Decal>(hitLeftPic.get());
+    fallRightDecal = std::make_unique<olc::Decal>(fallRightPic.get());
+    fallLeftDecal = std::make_unique<olc::Decal>(fallLeftPic.get());
+    defendRightDecal = std::make_unique<olc::Decal>(defendRightPic.get());
+    defendLeftDecal = std::make_unique<olc::Decal>(defendLeftPic.get());
+    gameOverDecal = std::make_unique<olc::Decal>(gameOverPic.get());
+    playerADecal = std::make_unique<olc::Decal>(playerAPic.get());
+    playerBDecal = std::make_unique<olc::Decal>(playerBPic.get());
+    livesBarADecal = std::make_unique<olc::Decal>(livesBarA.get());
+    livesBarBDecal = std::make_unique<olc::Decal>(livesBarB.get());
+    tileDecal = std::make_unique<olc::Decal>(tilePic.get());
 
     return true;
 }
@@ -227,6 +259,14 @@ bool Example::OnUserUpdate(float fElapsedTime) {
         if(GetMouse(0).bPressed){
             attackAction(unitB, fElapsedTime);
         }
+        //攻击时进行移动。
+        moveUnit(unitA, fElapsedTime);
+        moveUnit(unitB, fElapsedTime);
+
+        //防御
+        defendAction(unitA, fElapsedTime);
+        defendAction(unitB, fElapsedTime);
+
 
         //回合结束，结算是否被攻击中。如果被击中则会移动。
         hitAction(unitA, fElapsedTime);
@@ -240,11 +280,11 @@ bool Example::OnUserUpdate(float fElapsedTime) {
         gameOver();
     }
             //血条逐渐减少。
-    if (barLenOfA > 330 * unitA.lives / 100){
-            barLenOfA -= 50 * fElapsedTime ;
+    if (barRedLenOfA > 330 * unitA.lives / 100){
+            barRedLenOfA -= 35 * fElapsedTime ;
         }
-    if (barLenOfB > 330 * unitB.lives / 100){
-            barLenOfB -= 50 * fElapsedTime ;
+    if (barRedLenOfB > 330 * unitB.lives / 100){
+            barRedLenOfB -= 35 * fElapsedTime ;
         }
     render(fElapsedTime);
     return true;
@@ -256,7 +296,7 @@ void Example::render(float fElapsedTime) {
     for(int i = 0; i < ScreenWidth() / 16; i++){
         floorSite.x = i * 16;
         floorSite.y = floorPos;
-        DrawSprite(floorSite, tilePic.get());
+        DrawDecal(floorSite, tileDecal.get());
     }
     drawSignal(unitA);
     drawSignal(unitB);
@@ -274,6 +314,7 @@ void Example::render(float fElapsedTime) {
             case attack:attackDraw(unitA, -5, 10);break;
             case hit:hitDraw(unitA, 0, 0);break;
             case fall:fallDraw(unitA, 0, 0);break;
+            case defend:defendDraw(unitA, 0, 0);break;
         }
         switch(unitB.S){
             case jump: jumpDraw(unitB, 0, 16);break;
@@ -282,6 +323,7 @@ void Example::render(float fElapsedTime) {
             case attack:attackDraw(unitB, -5, 10);break;
             case hit:hitDraw(unitB, 0, 0);break;
             case fall:fallDraw(unitB, 0, 0);break;
+            case defend:defendDraw(unitB, 0, 0);break;
         }
     }
     if (winner != unsettled){
@@ -290,7 +332,7 @@ void Example::render(float fElapsedTime) {
         olc::vf2d posOfGameOver;
         posOfGameOver.x = 152;
         posOfGameOver.y = 150;
-        DrawSprite(posOfGameOver, gameOverPic.get());
+        DrawDecal(posOfGameOver, gameOverDecal.get());
 
         switch(winner)
         {
@@ -321,12 +363,12 @@ void Example::jumpDraw(Unit& unit, float offset_true, float offset_false) {
         olc::vi2d picNum;
         if (unit.speed.y < 0) {//speed.y < 0 代表朝上跳.
             picNum.x = 1;
-            DrawPartialSprite(unit.position, jumpRightPic.get(),
+            DrawPartialDecal(unit.position, jumpRightDecal.get(),
                               picNum * blockSize + offset, blockSize - olc::vf2d(5, 0));
         }
         else{
             picNum.x = 3;
-            DrawPartialSprite(unit.position, jumpRightPic.get(),
+            DrawPartialDecal(unit.position, jumpRightDecal.get(),
                               picNum * blockSize + offset, blockSize);
         }
     }
@@ -337,13 +379,13 @@ void Example::jumpDraw(Unit& unit, float offset_true, float offset_false) {
         if (unit.speed.y < 0) {//speed.y < 0 代表朝上跳.
             picNum.x = 3;
 
-            DrawPartialSprite(unit.position, jumpLeftPic.get(),
+            DrawPartialDecal(unit.position, jumpLeftDecal.get(),
                               picNum * blockSize + offset , blockSize - olc::vf2d(10, 0));
 
         }
         else{
             picNum.x = 1;
-            DrawPartialSprite(unit.position, jumpLeftPic.get(),
+            DrawPartialDecal(unit.position, jumpLeftDecal.get(),
                               picNum * blockSize + offset, blockSize - olc::vf2d(10, 0));
         }
     }
@@ -355,14 +397,14 @@ void Example::standDraw(Unit& unit, float offset_true, float offset_false) {
     if (unit.face){
         offset.x += offset_true;
         olc::vi2d picNum = { int(unit.stateNum) % 6, 0};
-        DrawPartialSprite(unit.position, standPicOfA.get(),
+        DrawPartialDecal(unit.position, standDecalOfA.get(),
                           picNum * blockSize + offset, blockSize);
         unit.stateNum += 0.02;
     }
     else{
         offset.x += offset_false;
         olc::vi2d picNum = { int(unit.stateNum) % 6, 0};
-        DrawPartialSprite(unit.position, standPicOfB.get(),
+        DrawPartialDecal(unit.position, standDecalOfB.get(),
                           picNum * blockSize + offset, blockSize);
         unit.stateNum += 0.02;
     }
@@ -375,7 +417,7 @@ void Example::runDraw(Unit& unit, float offset_true, float offset_false) {
     {
         offset.x += offset_true;
         olc::vi2d picNum = {int(unit.stateNum)% 6, 0};
-        DrawPartialSprite(unit.position, runRightPic.get(),
+        DrawPartialDecal(unit.position, runRightDecal.get(),
                           picNum * blockSize + offset, blockSize);
         unit.stateNum += 0.02;
     }
@@ -383,7 +425,7 @@ void Example::runDraw(Unit& unit, float offset_true, float offset_false) {
     {
         offset.x += offset_false;
         olc::vi2d picNum = {int(unit.stateNum)  % 6, 0};
-        DrawPartialSprite(unit.position,runLeftPic.get(),
+        DrawPartialDecal(unit.position,runLeftDecal.get(),
                           picNum * blockSize + offset, blockSize);
         unit.stateNum += 0.02;
     }
@@ -399,21 +441,21 @@ void Example::attackDraw(Unit &unit, float offset_true, float offset_false) {
             {
                 int num = (clock() - unit.attackTime) / 125;
                 olc::vi2d picNum = {num, 0};
-                DrawPartialSprite(unit.position, attackRightPic_0.get(),
+                DrawPartialDecal(unit.position, attackRightDecal_0.get(),
                                   picNum * blockSize + offset, blockSize);
             }break;
             case 1:
             {
                 int num = (clock() - unit.attackTime) / 125;
                 olc::vi2d picNum = {num, 0};
-                DrawPartialSprite(unit.position, attackRightPic_1.get(),
+                DrawPartialDecal(unit.position, attackRightDecal_1.get(),
                                   picNum * blockSize + offset, blockSize);
             }break;
             case 2:
             {
                 int num = (clock() - unit.attackTime) / 125;
                 olc::vi2d picNum = {num, 0};
-                DrawPartialSprite(unit.position, attackRightPic_2.get(),
+                DrawPartialDecal(unit.position, attackRightDecal_2.get(),
                                   picNum * blockSize + offset, blockSize);
             }break;
             case 3:
@@ -421,7 +463,7 @@ void Example::attackDraw(Unit &unit, float offset_true, float offset_false) {
                 offset.y += 5;
                 int num = (clock() - unit.attackTime) / 125;
                 olc::vi2d picNum = {num, 0};
-                DrawPartialSprite(unit.position, attackRightPic_3.get(),
+                DrawPartialDecal(unit.position, attackRightDecal_3.get(),
                                   picNum * blockSize + offset, blockSize);
         }
     }
@@ -433,21 +475,21 @@ void Example::attackDraw(Unit &unit, float offset_true, float offset_false) {
             {
                 int num = (clock() - unit.attackTime) / 125;
                 olc::vi2d picNum = {num, 0};
-                DrawPartialSprite(unit.position, attackLeftPic_0.get(),
+                DrawPartialDecal(unit.position, attackLeftDecal_0.get(),
                                   picNum * blockSize + offset, blockSize);
             }break;
             case 1:
             {
                 int num = (clock() - unit.attackTime) / 125;
                 olc::vi2d picNum = {num, 0};
-                DrawPartialSprite(unit.position, attackLeftPic_1.get(),
+                DrawPartialDecal(unit.position, attackLeftDecal_1.get(),
                                   picNum * blockSize + offset, blockSize);
             }break;
             case 2:
             {
                 int num = (clock() - unit.attackTime) / 125;
                 olc::vi2d picNum = {num, 0};
-                DrawPartialSprite(unit.position, attackLeftPic_2.get(),
+                DrawPartialDecal(unit.position, attackLeftDecal_2.get(),
                                   picNum * blockSize + offset, blockSize);
             }break;
             case 3:
@@ -455,7 +497,7 @@ void Example::attackDraw(Unit &unit, float offset_true, float offset_false) {
                 offset.y += 5;
                 int num = (clock() - unit.attackTime) / 125;
                 olc::vi2d picNum = {num, 0};
-                DrawPartialSprite(unit.position, attackLeftPic_3.get(),
+                DrawPartialDecal(unit.position, attackLeftDecal_3.get(),
                                   picNum * blockSize + offset, blockSize);
         }
     }
@@ -468,7 +510,7 @@ void Example::hitDraw(Unit &unit, float offset_true, float offset_false) {
         olc::vi2d picNum;
         picNum.x = unit.hitNum % 2;
         picNum.y = 0;
-        DrawPartialSprite(unit.position, hitRightPic.get(),
+        DrawPartialDecal(unit.position, hitRightDecal.get(),
                           picNum * blockSize + offset, blockSize);
     }
     else{
@@ -476,7 +518,7 @@ void Example::hitDraw(Unit &unit, float offset_true, float offset_false) {
         olc::vi2d picNum;
         picNum.x = unit.hitNum % 2;
         picNum.y = 0;
-        DrawPartialSprite(unit.position, hitLeftPic.get(),
+        DrawPartialDecal(unit.position, hitLeftDecal.get(),
                           picNum * blockSize + offset, blockSize);
     }
 }
@@ -489,9 +531,14 @@ void Example::fallDraw(Unit &unit, float offset_true, float offset_false) {
         offset.x = offset_true;
         if (unit.speed.y != 0)// 还在飞行中
         {
-            picNum.x = 0;
-            DrawPartialSprite(unit.position, fallRightPic.get(),
-                              picNum * blockSize + offset, blockSize);
+            if (winner == unsettled){
+                picNum.x = 0;
+            }else{
+                if (clock() - unit.fallDownTime < 100) picNum.x = 1;
+                if (clock() - unit.fallDownTime >= 100) picNum.x = 2;
+            }
+            DrawPartialDecal(unit.position, fallRightDecal.get(),
+                             picNum * blockSize + offset, blockSize);
         }
         else{
             if (winner == unsettled){
@@ -504,7 +551,7 @@ void Example::fallDraw(Unit &unit, float offset_true, float offset_false) {
                 if (clock() - unit.fallDownTime < 100) picNum.x = 1;
                 if (clock() - unit.fallDownTime >= 100) picNum.x = 2;
             }
-            DrawPartialSprite(unit.position, fallRightPic.get(),
+            DrawPartialDecal(unit.position, fallRightDecal.get(),
                               picNum * blockSize + offset, blockSize);
         }
     }
@@ -514,8 +561,13 @@ void Example::fallDraw(Unit &unit, float offset_true, float offset_false) {
         offset.x = offset_true;
         if (unit.speed.y != 0)// 还在飞行中
         {
-            picNum.x = 3;
-            DrawPartialSprite(unit.position, fallLeftPic.get(),
+            if (winner == unsettled){
+                picNum.x = 3;
+            }else{
+                if (clock() - unit.fallDownTime < 100) picNum.x = 2;
+                if (clock() - unit.fallDownTime >= 100) picNum.x = 1;
+            }
+            DrawPartialDecal(unit.position, fallLeftDecal.get(),
                               picNum * blockSize + offset, blockSize);
         }
         else{
@@ -529,7 +581,7 @@ void Example::fallDraw(Unit &unit, float offset_true, float offset_false) {
                 if (clock() - unit.fallDownTime < 100) picNum.x = 2;
                 if (clock() - unit.fallDownTime >= 100) picNum.x = 1;
             }
-            DrawPartialSprite(unit.position, fallLeftPic.get(),
+            DrawPartialDecal(unit.position, fallLeftDecal.get(),
                               picNum * blockSize + offset, blockSize);
         }
     }
@@ -546,7 +598,11 @@ void Example::recover(Unit& unit) {
             if( (clock() - unit.attackTime) > 500) unit.S = stand;
         }break;
         case hit:{
-            if( (clock() - unit.hitTime) > 1000) unit.S = stand;
+            if( (clock() - unit.hitTime) > 500) unit.S = stand;
+        }break;
+        case defend:
+        {
+            if ((GetKey(unit.downKey).bReleased)) unit.S = stand;
         }break;
         default:{}
         break;
@@ -561,12 +617,7 @@ void Example::attackAction(Unit &unit, float fElapsedTime) {
         unit.attackNum = (unit.attackNum + 1) % 4;
         //更新攻击时间
         unit.attackTime = clock();
-        //攻击时进行移动。
-        if (unit.face) {
-            unit.position.x += unit.speed.x * 20 * fElapsedTime;
-        } else {
-            unit.position.x -= unit.speed.x * 20 * fElapsedTime;
-        }
+
         //攻击时创造伤害区域，维持一定时间。
         //朝右边攻击
         if (unit.face){
@@ -590,24 +641,21 @@ void Example::attackAction(Unit &unit, float fElapsedTime) {
 void Example::hitAction(Unit &unit, float fElapsedTime) {
     //如果角色处于hitArea中，则会收到伤害, 然后这个area自动消亡。
     for(int i = 0; i < areas.size(); i++) {
-        if (areas[i].inArea(unit) && areas[i].type == hitArea && unit.side != areas[i].side && unit.S != fall){
+        if (areas[i].inArea(unit) && areas[i].type == hitArea && unit.side != areas[i].side && unit.S != fall
+            && unit.S != defend){
             unit.S = hit;
             unit.hitTime = clock();
             if (unit.hitNum == 0) unit.firstHitTime = clock();
-            unit.lives -= 10;
+            unit.lives -= 5;
             unit.hitNum++;
             areas[i].existence = false;
             play(hitSound);
+        }if (unit.S == defend){
+            areas[i].existence = false;
+            unit.lives -= 1;
         }
     }
     if (unit.S == hit){
-        if (unit.face){
-            if (unit.position.x - unit.speed.x * 0.3 * fElapsedTime >= 0)
-            unit.position.x -= unit.speed.x * 0.3 * fElapsedTime;
-        }else{
-            if (unit.position.x + unit.speed.x * 0.3 * fElapsedTime <= ScreenWidth() - blockSize.x)
-            unit.position.x += unit.speed.x * 0.3 * fElapsedTime;
-        }
         //如果3秒之内连续收到四次攻击，则会被击飞。然后firstHitTime和hitNum重置
         if (clock() - unit.firstHitTime < 5000 && unit.hitNum == 4){
             unit.S = fall;
@@ -694,7 +742,7 @@ void Example::gameOver(){
         winner = playerA;
         play(ggSound);
     }
-    if (unitA.lives == 0 && unitB.lives == 0)
+    if (unitA.lives <= 0 && unitB.lives <= 0)
     {
         winner = draw;
         play(ggSound);
@@ -705,27 +753,83 @@ void Example::drawSignal(Unit& unit) {
     olc::vf2d posOfSignal;
     posOfSignal.x = unit.position.x - blockSize.x;
     posOfSignal.y = unit.position.y + blockSize.y;
-    if (unit.side) DrawSprite(posOfSignal, playerAPic.get());
-    else DrawSprite(posOfSignal, playerBPic.get());
+    if (unit.side) DrawDecal(posOfSignal, playerADecal.get());
+    else DrawDecal(posOfSignal, playerBDecal.get());
 }
 
 void Example::drawLivesBar(float fElapsedTime) {
-    olc::vf2d posOfLivesBarA;
-    olc::vf2d posOfLivesBarB;
-
     posOfLivesBarA.x = 0;
     posOfLivesBarA.y = 15;
     posOfLivesBarB.x = ScreenWidth() - 341;
     posOfLivesBarB.y = 15;
+    //红色血条会逐渐变短
+    livesRedBarSizeA.x = barRedLenOfA;
+    livesRedBarSizeB.x = barRedLenOfB;
+    //绿色血条瞬间变短
+    livesGreenBarSizeA.x = 330 * unitA.lives / 100;
+    livesGreenBarSizeB.x = 330 * unitB.lives / 100;
 
-    DrawSprite(posOfLivesBarA, livesBarA.get());
-    DrawSprite(posOfLivesBarB, livesBarB.get());
+    livesRedBarSizeA.y = 20;
+    livesRedBarSizeB.y = 20;
+    livesGreenBarSizeA.y = 20;
+    livesGreenBarSizeB.y = 20;
 
+    DrawDecal(posOfLivesBarA, livesBarADecal.get());
+    DrawDecal(posOfLivesBarB, livesBarBDecal.get());
 
+    FillRectDecal(olc::vf2d(posOfLivesBarA.x, posOfLivesBarA.y + 30) , livesRedBarSizeA, olc::RED);
+    FillRectDecal(olc::vf2d(ScreenWidth() - livesRedBarSizeB.x, posOfLivesBarB.y + 30), livesRedBarSizeB, olc::RED);
+    FillRectDecal(olc::vf2d(posOfLivesBarA.x, posOfLivesBarA.y + 30) , livesGreenBarSizeA, olc::GREEN);
+    FillRectDecal(olc::vf2d(ScreenWidth() - livesGreenBarSizeB.x, posOfLivesBarB.y + 30), livesGreenBarSizeB, olc::GREEN);
+}
 
-    FillRect(posOfLivesBarA.x, posOfLivesBarB.y + 30, barLenOfA, 20, olc::RED);
-    FillRect(ScreenWidth() - barLenOfB, posOfLivesBarB.y + 30, barLenOfB, 20, olc::RED);
+void Example::moveUnit(Unit &unit, float fElapsedTime) {
+    switch(unit.S){
+        case attack: {
+//            if (unitA.face) {
+//                if(unit.position.x - unit.speed.x * 0.1 * fElapsedTime >= 0)
+//                unit.position.x += 0.2 * unit.speed.x * fElapsedTime;
+//            } else {
+//                if(unit.position.x + unit.speed.x * 0.1 * fElapsedTime <= ScreenWidth() - blockSize.x)
+//                unit.position.x -= 0.2 * unit.speed.x * fElapsedTime;
+//            }
+        }break;
+        case hit: {
+            if (unit.face){
+                if (unit.position.x - unit.speed.x * 0.2 * fElapsedTime >= 0)
+                    unit.position.x -= unit.speed.x * 0.2 * fElapsedTime;
+            }else{
+                if (unit.position.x + unit.speed.x * 0.2 * fElapsedTime <= ScreenWidth() - blockSize.x)
+                    unit.position.x += unit.speed.x * 0.2 * fElapsedTime;
+            }break;
+        }
+    }
+}
 
+void Example::defendAction(Unit &unit, float fElapsedTime) {
+    if (GetKey(unit.downKey).bHeld){
+        switch(unit.S){
+            //攻击、跳跃、被攻击、击飞时不能通过按键改变状态。
+            case attack:{}
+            case jump:{}
+            case fall:{}
+            case hit:{}break;
+            default: unit.S = defend;
+        }
+    }
+}
+
+void Example::defendDraw(Unit &unit, float offset_true, float offset_false) {
+    olc::vf2d offset(0, 0);
+    if (unit.face){//面向右边防御
+        offset.x = offset_true;
+        DrawDecal(unit.position, defendRightDecal.get(), {1.1, 0.9});
+    }
+    else
+    {
+        offset.x = offset_false;
+        DrawDecal(unit.position, defendLeftDecal.get(), {1.1, 0.9});
+    }
 }
 
 
