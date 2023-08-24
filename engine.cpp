@@ -7,7 +7,7 @@ Unit::Unit(bool s, unitType u): S(stand), lives(100)
                                 , side(s), type(u),
                                 stateNum(0), face(!s),
                                 acceleration(500), canDoubleJump(true),
-                                attackNum(3), attackTime(clock() - 500),
+                                attackNum(3), attackTime(clock() - 1000),
                                 hitTime(clock() - 500), hitNum(0)
                                 {
     speed = {250, 0};
@@ -16,11 +16,21 @@ Unit::Unit(bool s, unitType u): S(stand), lives(100)
         leftKey = olc::Key::A;
         upKey = olc::Key::W;
         downKey = olc::Key::S;
+        attackKey = olc::Key::R;
+        flashKey = olc::Key::F;
+        skillKey = olc::Key::T;
+
+        oppoentNum = 1;
     } else {
         rightKey = olc::Key::RIGHT;
         leftKey = olc::Key::LEFT;
         upKey = olc::Key::UP;
         downKey = olc::Key::DOWN;
+        attackKey = olc::Key::PGDN;
+        flashKey = olc::Key::PGUP;
+        skillKey = olc::Key::END;
+
+        oppoentNum = 0;
     }
 }
 
@@ -91,6 +101,12 @@ bool Example::OnUserCreate() {
 }
 
 bool Example::OnUserUpdate(float fElapsedTime) {
+    //每回合开始前,记录两个角色的位置,和运动状态,用于物理碰撞.
+    unitA.moveFlag = isMoving(unitA);
+    unitB.moveFlag = isMoving(unitB);
+    unitAreas.push_back(unitArea(unitA.position, blockSize, true, unitA.moveFlag, unitA.face));
+    unitAreas.push_back(unitArea(unitB.position, blockSize, false, unitB.moveFlag, unitB.face));
+
     if (winner == unsettled) {
         //两个角色自动互相面对
         if (unitA.S == stand) {
@@ -101,164 +117,19 @@ bool Example::OnUserUpdate(float fElapsedTime) {
             if (unitB.position.x < unitA.position.x ) unitB.face = true;
             else unitB.face = false;
         }
-        //静止时的跳跃, 按下K键的瞬间获得一个极大的冲量。
-        //A角色起跳用K键控制，跳跃最多可以二段跳。
-        if (GetKey(olc::Key::K).bPressed && unitA.S != hit){
-            if (unitA.S != jump)
-            {
-                unitA.S = jump;
-                unitA.speed.y = -400;
-            }
-            else
-            {
-                if(unitA.canDoubleJump)
-                {
-                    unitA.speed.y = -400;
-                    unitA.canDoubleJump = false;
-                }
-            }
-        }
-        //B角色的起跳用鼠标右键控制
-        if (GetMouse(1).bPressed ){
-            if (unitB.S != jump)
-            {
-                unitB.S = jump;
-                unitB.speed.y = -400;
-            }
-            else
-            {
-                if (unitB.canDoubleJump)
-                {
-                    unitB.speed.y = -400;
-                    unitB.canDoubleJump = false;
-                }
-            }
-        }
 
-        //落体过程。
-        if (unitA.S == jump) {
-            if ((unitA.position.y + unitA.speed.y * fElapsedTime) <= floorPos-blockSize.y + 15){
-                unitA.position.y += unitA.speed.y * fElapsedTime;
-                unitA.speed.y += unitB.acceleration * fElapsedTime;
-            }
-            else
-            {
-                unitA.position.y = floorPos-blockSize.y + 15;
-                unitA.speed.y = 0;
-                unitA.S = stand;
-                unitA.canDoubleJump = true;
-            }
-        }
-
-        if (unitB.S == jump) {
-            if ((unitB.position.y + unitB.speed.y * fElapsedTime) <= floorPos-blockSize.y + 15){
-                unitB.position.y += unitB.speed.y * fElapsedTime;
-                unitB.speed.y += unitB.acceleration * fElapsedTime;
-            }
-            else
-            {
-                unitB.position.y = floorPos-blockSize.y + 15;
-                unitB.speed.y = 0;
-                unitB.S = stand;
-                unitB.canDoubleJump = true;
-            }
-        }
-
+        jumpAction(unitA, fElapsedTime);
+        jumpAction(unitB, fElapsedTime);
 
         //当按住方向键时将状态设定为奔跑。
-        //A角色右跑
-        if (GetKey(olc::Key::D).bHeld){
-            switch (unitA.S) {
-                case fall:{}
-                case hit:{}
-                case attack: break;
-                case jump:{
-                    unitA.face = true;
-                    if (unitA.position.x + unitA.speed.x * fElapsedTime <= ScreenWidth() - blockSize.x)
-                        unitA.position.x += unitA.speed.x * fElapsedTime;
-                }break;
-                default:{
-                    unitA.S = run;
-                    unitA.face = true;
-                    //右边不能过右界限
-                    if (unitA.position.x + unitA.speed.x * fElapsedTime <= ScreenWidth() - blockSize.x)
-                        unitA.position.x += unitA.speed.x * fElapsedTime;
-                }break;
-            }
-        }
+        runAction(unitA, fElapsedTime);
+        runAction(unitB, fElapsedTime);
 
-        //A角色左跑
-        if (GetKey(olc::Key::A).bHeld){
-            switch (unitA.S) {
-                case fall:{}
-                case hit:{}
-                case attack: break;
-                case jump:{
-                    unitA.face = false;
-                    //左边不能过左界限
-                    if (unitA.position.x + unitA.speed.x * fElapsedTime >=0)
-                        unitA.position.x -= unitA.speed.x * fElapsedTime;
-                }break;
-                default:{
-                    unitA.S = run;
-                    unitA.face = false;
-                    //左边不能过左界限
-                    if (unitA.position.x + unitA.speed.x * fElapsedTime >=0)
-                        unitA.position.x -= unitA.speed.x * fElapsedTime;
-                }break;
-            }
-        }
 
-        //B角色右跑
-        if (GetKey(olc::Key::RIGHT).bHeld){
-            switch (unitB.S) {
-                case fall:{}
-                case hit:{}
-                case attack: break;
-                case jump:{
-                    unitB.face = true;
-                    float futurePos = unitB.position.x += unitB.speed.x * fElapsedTime;
-                    if (inBound(unitB.face, futurePos))
-                        unitB.position.x = futurePos;
-                }break;
-                default:{
-                    unitB.S = run;
-                    unitB.face = true;
-                    //右边不能过右界限
-                    float futurePos = unitB.position.x + unitB.speed.x * fElapsedTime;
-                    if (inBound(unitB.face, futurePos))
-                        unitB.position.x = futurePos;
-                }break;
-            }
-        }
-        //B角色左跑
-        if (GetKey(olc::Key::LEFT).bHeld){
-            switch (unitB.S) {
-                case fall: {}
-                case hit:{}
-                case attack: break;
-                case jump:{
-                    unitB.face = false;
-                    //左边不能过左界限
-                    if (unitB.position.x + unitB.speed.x * fElapsedTime >=0)
-                        unitB.position.x -= unitB.speed.x * fElapsedTime;
-                }break;
-                default:{
-                    unitB.S = run;
-                    unitB.face = false;
-                    //左边不能过左界限
-                    if (unitB.position.x + unitB.speed.x * fElapsedTime >=0)
-                        unitB.position.x -= unitB.speed.x * fElapsedTime;
-                }break;
-            }
-        }
         //两个角色的攻击
-        if(GetKey(olc::Key::J).bPressed){
-            attackAction(unitA, fElapsedTime);
-        }
-        if(GetMouse(0).bPressed){
-            attackAction(unitB, fElapsedTime);
-        }
+        attackAction(unitA, fElapsedTime);
+        attackAction(unitB, fElapsedTime);
+
         //攻击时进行移动。
         moveUnit(unitA, fElapsedTime);
         moveUnit(unitB, fElapsedTime);
@@ -274,8 +145,14 @@ bool Example::OnUserUpdate(float fElapsedTime) {
         fallAction(unitA, fElapsedTime);
         fallAction(unitB, fElapsedTime);
 
+        collision(fElapsedTime);
+
         recover(unitA);
         recover(unitB);
+        //回合结束后需要删除unitArea
+        unitAreas[0].existence = false;
+        unitAreas[1].existence = false;
+        //删除所有已死的区域
         removeDeadArea();
         gameOver();
     }
@@ -337,17 +214,19 @@ void Example::render(float fElapsedTime) {
         switch(winner)
         {
             case playerA:{
-
+                fallAction(unitB, fElapsedTime);
                 standDraw(unitA, 0, 3);
                 fallDraw(unitB, 0, 0);
             }break;
             case playerB:{
-
+                fallAction(unitA, fElapsedTime);
                 standDraw(unitB, 0, 3);
                 fallDraw(unitA, 0, 0);
             }
                 break;
             case draw: {
+                fallAction(unitB, fElapsedTime);
+                fallAction(unitA, fElapsedTime);
                 standDraw(unitA, 0, 3);
                 standDraw(unitB, 0, 3);
             }break;
@@ -439,21 +318,21 @@ void Example::attackDraw(Unit &unit, float offset_true, float offset_false) {
         switch(unit.attackNum){
             case 0:
             {
-                int num = (clock() - unit.attackTime) / 125;
+                int num = (clock() - unit.attackTime) / 200;
                 olc::vi2d picNum = {num, 0};
                 DrawPartialDecal(unit.position, attackRightDecal_0.get(),
                                   picNum * blockSize + offset, blockSize);
             }break;
             case 1:
             {
-                int num = (clock() - unit.attackTime) / 125;
+                int num = (clock() - unit.attackTime) / 200;
                 olc::vi2d picNum = {num, 0};
                 DrawPartialDecal(unit.position, attackRightDecal_1.get(),
                                   picNum * blockSize + offset, blockSize);
             }break;
             case 2:
             {
-                int num = (clock() - unit.attackTime) / 125;
+                int num = (clock() - unit.attackTime) / 200;
                 olc::vi2d picNum = {num, 0};
                 DrawPartialDecal(unit.position, attackRightDecal_2.get(),
                                   picNum * blockSize + offset, blockSize);
@@ -461,7 +340,7 @@ void Example::attackDraw(Unit &unit, float offset_true, float offset_false) {
             case 3:
                 offset.x += 5;
                 offset.y += 5;
-                int num = (clock() - unit.attackTime) / 125;
+                int num = (clock() - unit.attackTime) / 200;
                 olc::vi2d picNum = {num, 0};
                 DrawPartialDecal(unit.position, attackRightDecal_3.get(),
                                   picNum * blockSize + offset, blockSize);
@@ -473,21 +352,21 @@ void Example::attackDraw(Unit &unit, float offset_true, float offset_false) {
         switch(unit.attackNum){
             case 0:
             {
-                int num = (clock() - unit.attackTime) / 125;
+                int num = (clock() - unit.attackTime) / 200;
                 olc::vi2d picNum = {num, 0};
                 DrawPartialDecal(unit.position, attackLeftDecal_0.get(),
                                   picNum * blockSize + offset, blockSize);
             }break;
             case 1:
             {
-                int num = (clock() - unit.attackTime) / 125;
+                int num = (clock() - unit.attackTime) / 200;
                 olc::vi2d picNum = {num, 0};
                 DrawPartialDecal(unit.position, attackLeftDecal_1.get(),
                                   picNum * blockSize + offset, blockSize);
             }break;
             case 2:
             {
-                int num = (clock() - unit.attackTime) / 125;
+                int num = (clock() - unit.attackTime) / 200;
                 olc::vi2d picNum = {num, 0};
                 DrawPartialDecal(unit.position, attackLeftDecal_2.get(),
                                   picNum * blockSize + offset, blockSize);
@@ -495,7 +374,7 @@ void Example::attackDraw(Unit &unit, float offset_true, float offset_false) {
             case 3:
                 offset.x -= 5;
                 offset.y += 5;
-                int num = (clock() - unit.attackTime) / 125;
+                int num = (clock() - unit.attackTime) / 200;
                 olc::vi2d picNum = {num, 0};
                 DrawPartialDecal(unit.position, attackLeftDecal_3.get(),
                                   picNum * blockSize + offset, blockSize);
@@ -595,7 +474,10 @@ void Example::recover(Unit& unit) {
                 unit.S = stand;
         }break;
         case attack:{
-            if( (clock() - unit.attackTime) > 500) unit.S = stand;
+            if( (clock() - unit.attackTime) > 800){
+                unit.S = stand;
+                unit.attackNum = 3;
+            }
         }break;
         case hit:{
             if( (clock() - unit.hitTime) > 500) unit.S = stand;
@@ -604,34 +486,53 @@ void Example::recover(Unit& unit) {
         {
             if ((GetKey(unit.downKey).bReleased)) unit.S = stand;
         }break;
-        default:{}
+        default:{
+            if ((clock() - unit.attackTime) > 500) {
+                unit.attackNum = 3;
+            }
+        }
         break;
     }
 }
 
 //角色发动攻击技能
 void Example::attackAction(Unit &unit, float fElapsedTime) {
-    //跳跃状态下不进行普攻。
-    if (unit.S != jump && (clock() - unit.attackTime) > 500) {
-        unit.S = attack;
-        unit.attackNum = (unit.attackNum + 1) % 4;
-        //更新攻击时间
-        unit.attackTime = clock();
+    if (GetKey(unit.attackKey).bPressed){
+        //跳跃状态下不进行普攻。
+        if (unit.S != jump && (clock() - unit.attackTime) > 500) {
+            //第四次攻击后需要更长的cd
+            if (unit.attackNum == 3){
+                if(clock() - unit.attackTime >= 1000)
+                {
+                    unit.S = attack;
+                    unit.attackNum = (unit.attackNum + 1) % 4;
+                    //更新攻击时间
+                    unit.attackTime = clock();
+                }
+            }
+            else{
+                unit.S = attack;
+                unit.attackNum = (unit.attackNum + 1) % 4;
+                //更新攻击时间
+                unit.attackTime = clock();
+            }
 
-        //攻击时创造伤害区域，维持一定时间。
-        //朝右边攻击
-        if (unit.face){
-            olc::vf2d northwest;
-            northwest.x= unit.position.x- 5;
-            northwest.y = unit.position.y - blockSize.y;
-            areas.push_back(Area(northwest, blockSize * olc::vf2d(1.3, 1), hitArea, 500, unit.side));
-        }
-        else{
-            //朝左边攻击
-            olc::vf2d northwest;
-            northwest.x = unit.position.x - blockSize.x * 1.1;
-            northwest.y = unit.position.y - blockSize.y;
-            areas.push_back(Area(northwest, blockSize * olc::vf2d(1.3, 1), hitArea, 500, unit.side));
+
+            //攻击时创造伤害区域，维持一定时间。
+            //朝右边攻击
+            if (unit.face){
+                olc::vf2d northwest;
+                northwest.x= unit.position.x- 5;
+                northwest.y = unit.position.y - blockSize.y;
+                hitAreas.push_back(hitArea(northwest, blockSize * olc::vf2d(1.3, 1), 500, unit.side));
+            }
+            else{
+                //朝左边攻击
+                olc::vf2d northwest;
+                northwest.x = unit.position.x - blockSize.x * 1.1;
+                northwest.y = unit.position.y - blockSize.y;
+                hitAreas.push_back(hitArea(northwest, blockSize * olc::vf2d(1.3, 1), 500, unit.side));
+            }
         }
     }
 }
@@ -640,18 +541,18 @@ void Example::attackAction(Unit &unit, float fElapsedTime) {
 
 void Example::hitAction(Unit &unit, float fElapsedTime) {
     //如果角色处于hitArea中，则会收到伤害, 然后这个area自动消亡。
-    for(int i = 0; i < areas.size(); i++) {
-        if (areas[i].inArea(unit) && areas[i].type == hitArea && unit.side != areas[i].side && unit.S != fall
+    for(int i = 0; i < hitAreas.size(); i++) {
+        if (hitAreas[i].inArea(unit) && unit.side != hitAreas[i].side && unit.S != fall
             && unit.S != defend){
             unit.S = hit;
             unit.hitTime = clock();
             if (unit.hitNum == 0) unit.firstHitTime = clock();
             unit.lives -= 5;
             unit.hitNum++;
-            areas[i].existence = false;
+            hitAreas[i].existence = false;
             play(hitSound);
         }if (unit.S == defend){
-            areas[i].existence = false;
+            hitAreas[i].existence = false;
             unit.lives -= 1;
         }
     }
@@ -714,12 +615,15 @@ bool Area::inArea(Unit u) {
 
 //删除经过这个循环后不存在的area
 void Example::removeDeadArea() {
-    for(int i = 0; i < areas.size(); i++){
-        if (clock() - areas[i].startTime > areas[i].duration) areas[i].existence = false;
+    for(int i = 0; i < hitAreas.size(); i++){
+        if (clock() - hitAreas[i].startTime > hitAreas[i].duration) hitAreas[i].existence = false;
     }
-    areas.erase(
-            std::remove_if(areas.begin(), areas.end(), [](const Area& area) { return !area.existence; }),
-            areas.end());
+    hitAreas.erase(
+            std::remove_if(hitAreas.begin(), hitAreas.end(), [](const hitArea& hArea) { return !hArea.existence; }),
+            hitAreas.end());
+    unitAreas.erase(
+            std::remove_if(unitAreas.begin(), unitAreas.end(), [](const unitArea& uArea) { return !uArea.existence; }),
+            unitAreas.end());
 }
 
 bool Example::inBound(bool moveDirection, float positionX) {
@@ -783,29 +687,32 @@ void Example::drawLivesBar(float fElapsedTime) {
     FillRectDecal(olc::vf2d(ScreenWidth() - livesGreenBarSizeB.x, posOfLivesBarB.y + 30), livesGreenBarSizeB, olc::GREEN);
 }
 
+
+//根据状态移动角色
 void Example::moveUnit(Unit &unit, float fElapsedTime) {
     switch(unit.S){
         case attack: {
-//            if (unitA.face) {
-//                if(unit.position.x - unit.speed.x * 0.1 * fElapsedTime >= 0)
-//                unit.position.x += 0.2 * unit.speed.x * fElapsedTime;
-//            } else {
-//                if(unit.position.x + unit.speed.x * 0.1 * fElapsedTime <= ScreenWidth() - blockSize.x)
-//                unit.position.x -= 0.2 * unit.speed.x * fElapsedTime;
-//            }
+            if (unitA.face) {
+                if(unit.position.x - unit.speed.x * 0.1 * fElapsedTime >= 0)
+                unit.position.x += 0.2 * unit.speed.x * fElapsedTime;
+            } else {
+                if(unit.position.x + unit.speed.x * 0.1 * fElapsedTime <= ScreenWidth() - blockSize.x)
+                unit.position.x -= 0.2 * unit.speed.x * fElapsedTime;
+            }
         }break;
         case hit: {
-            if (unit.face){
-                if (unit.position.x - unit.speed.x * 0.2 * fElapsedTime >= 0)
-                    unit.position.x -= unit.speed.x * 0.2 * fElapsedTime;
-            }else{
-                if (unit.position.x + unit.speed.x * 0.2 * fElapsedTime <= ScreenWidth() - blockSize.x)
-                    unit.position.x += unit.speed.x * 0.2 * fElapsedTime;
-            }break;
+//            if (unit.face){
+//                if (unit.position.x - unit.speed.x * 0.2 * fElapsedTime >= 0)
+//                    unit.position.x -= unit.speed.x * 0.2 * fElapsedTime;
+//            }else{
+//                if (unit.position.x + unit.speed.x * 0.2 * fElapsedTime <= ScreenWidth() - blockSize.x)
+//                    unit.position.x += unit.speed.x * 0.2 * fElapsedTime;
+//            }break;
         }
     }
 }
 
+//防御
 void Example::defendAction(Unit &unit, float fElapsedTime) {
     if (GetKey(unit.downKey).bHeld){
         switch(unit.S){
@@ -829,6 +736,213 @@ void Example::defendDraw(Unit &unit, float offset_true, float offset_false) {
     {
         offset.x = offset_false;
         DrawDecal(unit.position, defendLeftDecal.get(), {1.1, 0.9});
+    }
+}
+//当在跑动或者跳跃,且有方向键按住时,或者在攻击时可以判断在运动.
+bool Example::isMoving(Unit &unit) {
+    return (unit.S == run || unit.S == jump)
+            && (GetKey(unit.rightKey).bHeld ||GetKey(unit.leftKey).bHeld)
+            || unit.S == attack;
+}
+
+void Example::runAction(Unit &unit, float fElapsedTime) {
+
+    //右跑
+    if (GetKey(unit.rightKey).bHeld){
+        switch (unit.S) {
+            case fall:{}
+            case hit:{}
+            case attack: break;
+            case jump:{}
+            default: {
+                if (unit.S != jump) unit.S = run;
+                unit.moveFlag = true;
+                unit.face = true;
+                float futurePos = unit.position.x + unit.speed.x * fElapsedTime;
+                //没有被阻挡
+                if (!isBlocked(unit, futurePos)){
+                    if (futurePos <= ScreenWidth() - blockSize.x)
+                        //右边不能过右界限
+                        unit.position.x = futurePos;
+                }
+                else{//被阻挡
+                    //迎面相撞
+                    unitArea oppoentArea = unitAreas[unit.oppoentNum];
+                    if (oppoentArea.moveFlag && oppoentArea.moveDirection != unit.face){
+                        //该角色不动
+                    }
+                    //该角色撞击对面角色, 对面角色没有走路的意思
+                    if (!oppoentArea.moveFlag){
+                        //该角色减速, 对面角色被推着.
+                        futurePos = unit.position.x + unit.speed.x * fElapsedTime * 0.5;
+                        float futurePosOfOppent;
+
+                        if (unit.side){//此时unit为A
+                            futurePosOfOppent = unitB.position.x + unit.speed.x * fElapsedTime * 0.5;
+                            //该角色运动,但人物图像不能重合
+                            unitA.position.x = futurePos;
+                            //对手运动,但不能过右边界
+                            if (futurePosOfOppent <= ScreenWidth() - blockSize.x)
+                                unitB.position.x = futurePosOfOppent;
+                        }
+                        else{
+                            //此时该角色为B
+                            futurePosOfOppent = unitA.position.x + unit.speed.x * fElapsedTime * 0.5;
+                            //该角色运动,但人物图像不能重合
+                            unitB.position.x = futurePos;
+                            //对手运动,但不能过右边界
+                            if (futurePosOfOppent <= ScreenWidth() - blockSize.x)
+                                unitA.position.x = futurePosOfOppent;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    //角色左跑
+    if (GetKey(unit.leftKey).bHeld){
+        switch (unit.S) {
+            case fall:{}
+            case hit:{}
+            case attack: break;
+            case jump:{}
+            default:{
+                if (unit.S != jump) unit.S = run;
+                unit.moveFlag = true;
+                unit.face = false;
+                float futurePos = unit.position.x - unit.speed.x * fElapsedTime;
+                //没有被阻挡
+                if (!isBlocked(unit, futurePos)){
+                    if (futurePos >= 0)
+                        //左跑不能过左边界
+                        unit.position.x = futurePos;
+                }
+                else{//被阻挡
+                    //迎面相撞
+                    unitArea oppoentArea = unitAreas[unit.oppoentNum];
+                    if (oppoentArea.moveFlag && oppoentArea.moveDirection != unit.face){
+                        //该角色不动
+                    }
+                    //该角色撞击对面角色, 对面角色没有走路的意思
+                    if (!oppoentArea.moveFlag){
+                        //该角色减速, 对面角色被推着.
+                        futurePos = unit.position.x - unit.speed.x * fElapsedTime * 0.5;
+                        float futurePosOfOppent;
+
+                        if (unit.side){//此时unit为A
+                            futurePosOfOppent = unitB.position.x - unit.speed.x * fElapsedTime * 0.5;
+                            //该角色运动,但人物图像不能重合
+                            unitA.position.x = futurePos;
+                            //对手运动,但不能过右边界
+                            if (futurePosOfOppent >= 0)
+                                unitB.position.x = futurePosOfOppent;
+                        }
+                        else{
+                            //此时该角色为B
+                            futurePosOfOppent = unitA.position.x - unit.speed.x * fElapsedTime * 0.5;
+                            //该角色运动,但人物图像不能重合
+                            unitB.position.x = futurePos;
+                            //对手运动,但不能过右边界
+                            if (futurePosOfOppent >= 0)
+                                unitA.position.x = futurePosOfOppent;
+                        }
+                    }
+                }
+            }break;
+        }
+    }
+}
+
+//判断主动运动过程中是否被对方阻挡.
+bool Example::isBlocked(Unit& unit, float futurePos) {
+    int oppoentNum;
+    switch(unit.side){
+        case true: oppoentNum = 1;break;
+        case false: oppoentNum = 0;break;
+    }
+
+    unitArea oppoentArea = unitAreas[oppoentNum];
+
+    if (unit.face){//向右面主动运动时被阻挡.
+        return (unit.position.y - oppoentArea.northwest.y <= blockSize.y * 0.75
+            &&  oppoentArea.northwest.y - unit.position.y <= blockSize.y * 0.75
+            &&  oppoentArea.northwest.x - futurePos <= blockSize.x * 0.9
+            &&  oppoentArea.northwest.x - futurePos >= blockSize.x * 0.8);
+    }else{
+        return (unit.position.y - oppoentArea.northwest.y <= blockSize.y * 0.75
+                &&  oppoentArea.northwest.y - unit.position.y <= blockSize.y * 0.75
+                &&  futurePos - oppoentArea.northwest.x <= blockSize.x * 0.9
+                &&  futurePos - oppoentArea.northwest.x >= blockSize.x * 0.8);
+    }
+}
+
+void Example::collision(float fElapsedTime) {
+    //当两者相距非常近的时候
+    //A在B的右侧时
+    if ((unitA.position.x - unitB.position.x) <= blockSize.x
+     &&  unitA.position.x >= unitB.position.x
+     &&  abs(unitA.position.y - unitB.position.y) <= blockSize.y * 0.75){
+        float futurePosOfA = unitA.position.x + unitA.speed.x * 0.5 * fElapsedTime;
+        if (futurePosOfA <= ScreenWidth() - blockSize.x){
+            //不能碰到边界
+            unitA.position.x = futurePosOfA;
+        }
+        float futurePosOfB = unitB.position.x - unitB.speed.x * 0.5 * fElapsedTime;
+        if (futurePosOfB >= 0){
+            //不能碰到边界
+            unitB.position.x = futurePosOfB;
+        }
+    }
+
+    //B在A的右侧
+    if ((unitB.position.x - unitA.position.x) <= blockSize.x
+        &&  unitB.position.x >= unitA.position.x
+        &&  abs(unitA.position.y - unitB.position.y) <= blockSize.y * 0.75){
+        float futurePosOfA = unitB.position.x + unitB.speed.x * fElapsedTime * 0.5;
+        if (futurePosOfA <= ScreenWidth() - blockSize.x){
+            //不能碰到边界
+            unitB.position.x = futurePosOfA;
+        }
+        float futurePosOfB = unitA.position.x - unitA.speed.x * fElapsedTime * 0.5;
+        if (futurePosOfB >= 0){
+            //不能碰到边界
+            unitA.position.x = futurePosOfB;
+        }
+    }
+}
+
+void Example::jumpAction(Unit &unit, float fElapsedTime) {
+    //静止时的跳跃, 按下K键的瞬间获得一个极大的冲量。
+    //A角色起跳用K键控制，跳跃最多可以二段跳。
+    if (GetKey(unit.upKey).bPressed && unit.S != hit){
+        if (unit.S != jump)
+        {
+            unit.S = jump;
+            unit.speed.y = -400;
+        }
+        else
+        {
+            if(unit.canDoubleJump)
+            {
+                unit.speed.y = -400;
+                unit.canDoubleJump = false;
+            }
+        }
+    }
+    //落体过程。
+    if (unit.S == jump) {
+        if ((unit.position.y + unit.speed.y * fElapsedTime) <= floorPos-blockSize.y + 15){
+            unit.position.y += unit.speed.y * fElapsedTime;
+            unit.speed.y += unitB.acceleration * fElapsedTime;
+        }
+        else
+        {
+            unit.position.y = floorPos-blockSize.y + 15;
+            unit.speed.y = 0;
+            unit.S = stand;
+            unit.canDoubleJump = true;
+        }
     }
 }
 

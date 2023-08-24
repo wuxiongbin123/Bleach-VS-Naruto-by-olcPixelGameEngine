@@ -11,7 +11,6 @@
 
 enum state {stand, run, jump, hit, attack, fall, defend};
 enum unitType {Naruto, ichigo};
-enum areaType {hitArea};
 enum player {playerA, playerB, draw, unsettled};
 
 
@@ -31,17 +30,22 @@ public:
     bool face;
     bool canDoubleJump;
     int attackNum;
-    bool wait;
     float attackTime;
     float hitTime;
     int hitNum;
     float firstHitTime;
     float fallDownTime;
-    olc::Key rightKey;    //抽象出向右键和向左键，这样可以使得recover对unitA和unitB都适用。
+
+    //抽象出按键,从而可以使得行为单独编入一个函数.
+    olc::Key rightKey;
     olc::Key leftKey;
     olc::Key upKey;
     olc::Key downKey;
-
+    olc::Key attackKey;
+    olc::Key flashKey;
+    olc::Key skillKey;
+    bool moveFlag;//判断是否跑动、跳跃或者攻击.
+    int oppoentNum;
     //规定：凡是右这个词都是对应true，左都是对应false
 };
 
@@ -50,22 +54,50 @@ class Area{
 public:
     Area(){}
     Area(olc::vf2d nw, olc::vf2d sz,
-         areaType tp, float Duration, bool Sd):northwest(nw),
-                                      size(sz),
-                                      type(tp),
-                                      startTime(clock()),
-                                      duration(Duration),
-                                      existence(true),
-                                      side(Sd){}
+         bool Sd):northwest(nw),
+                  size(sz),
+                  existence(true),
+                  side(Sd){}
     bool inArea(Unit u);
 public:
+    friend Unit;
     olc::vf2d northwest;
     olc::vf2d size;
-    areaType type;
-    float startTime;
-    float duration;
+
     bool existence;
     bool side;//true代表是A的攻击，false代表是B的攻击。
+};
+
+//攻击存在区域
+class hitArea: public Area
+{
+public:
+    hitArea(olc::vf2d nw, olc::vf2d sz,
+            float Duration, bool Sd
+            ): Area(nw, sz, Sd)
+            {
+                startTime = clock();
+                duration = Duration;
+            }
+    float startTime;
+    float duration;
+};
+
+//角色存在的区域,用于碰撞检测
+class unitArea: public Area
+{
+public:
+    unitArea(olc::vf2d nw,
+             olc::vf2d sz,
+             bool Sd,
+             bool mFlag,
+             bool mD):
+             Area(nw, sz, Sd)
+             {  moveFlag = mFlag;
+                moveDirection = mD;}
+public:
+    bool moveFlag;//指是否主动运动, 如果主动运动,运动方向一定和face一致
+    bool moveDirection;//right == true, left == false;
 };
 
 class Example : public olc::PixelGameEngine
@@ -82,8 +114,6 @@ public:
     float gravity = 100;
     float floorPos = ScreenHeight() + 200;
     olc::vf2d floorSite;
-    float barGreenLenOfA = 330;
-    float barGreenLenOfB = 330;
     float barRedLenOfA = 330;
     float barRedLenOfB = 330;
     olc::vf2d posOfLivesBarA;
@@ -92,7 +122,8 @@ public:
     olc::vf2d livesRedBarSizeA;
     olc::vf2d livesRedBarSizeB;
     olc::vf2d livesGreenBarSizeB;
-    std::vector<Area> areas;
+    std::vector<hitArea> hitAreas;
+    std::vector<unitArea> unitAreas;
     friend Unit;
     Unit unitA;
     Unit unitB;
@@ -160,6 +191,8 @@ public:
 
 
     //动作封装
+    void runAction(Unit& unit, float fElapsedTime);
+    void jumpAction(Unit& unit, float fElapsedTime);
     void attackAction(Unit& unit, float fElapsedTime);
     void hitAction(Unit& unit, float fElapsedTime);
     void fallAction(Unit& unit, float fElapsedTime);
@@ -179,6 +212,10 @@ public:
     void drawSignal(Unit& unit);
     void drawLivesBar(float fEplasedTime);
 
+    //引擎中的交互函数
+    void collision(float fElapsedTime);
+    bool isBlocked(Unit& unit, float futurePos);
+    bool isMoving(Unit& unit);
     bool inBound(bool moveDirection, float positionX);
     void recover(Unit& unit);
     void removeDeadArea();
