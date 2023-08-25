@@ -790,6 +790,7 @@ void Example::runAction(Unit &unit, float fElapsedTime) {
     //右跑
     if (GetKey(unit.rightKey).bHeld){
         switch (unit.S) {
+            case farAttack:{}
             case flash:{}
             case defend:{}
             case fall:{}
@@ -1061,11 +1062,12 @@ void Example::farAttackAction(Unit &unit, float fElapsedTime) {
     if (GetKey(unit.farAttackKey).bPressed){
         switch(unit.S)
         {
+            case attack:{}
             case fall:{}
             case hit:{}
             case farAttack:{}break;
             default:{
-
+                //成功进行攻击
                 if (unit.farAttackFrames == 0){
                     unit.S = farAttack;
                     items.push_back(
@@ -1073,7 +1075,7 @@ void Example::farAttackAction(Unit &unit, float fElapsedTime) {
                                      unit.side, unit.face,
                                      olc::vf2d(51, 97), true)
                     );
-                    unit.farAttackFrames = 1000;//cd为1s
+                    unit.farAttackFrames = 600;//cd为600帧
                 }
             }
         }
@@ -1082,13 +1084,13 @@ void Example::farAttackAction(Unit &unit, float fElapsedTime) {
     if (unit.S == farAttack){
         unit.farAttackFrames--;
         if (unit.farAttackFrames <= 0){
+            unit.farAttackFrames = 0;
             if (unit.acceleration != 0) {
                 unit.S = jump;
             }else{
                 unit.S = stand;
             }
         }
-
     }
 }
 
@@ -1096,11 +1098,11 @@ void Example::farAttackAction(Unit &unit, float fElapsedTime) {
 void Example::farAttackDraw(Unit &unit, float offset_true, float offset_false) {
     //根据留存的farAttackFrames决定该画哪张图像.
     int picNum;
-    if (unit.farAttackFrames >= 700){
+    if (unit.farAttackFrames >= 400){
         picNum = 0;
     }
     else{
-        if (unit.farAttackFrames >= 400)
+        if (unit.farAttackFrames >= 200)
             picNum = 1;
         else picNum = 2;
     }
