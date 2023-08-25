@@ -6,9 +6,11 @@ Unit::Unit(){}
 Unit::Unit(bool s, unitType u): S(stand), lives(100)
                                 , side(s), type(u),
                                 stateNum(0), face(!s),
-                                acceleration(500), canDoubleJump(true),
+                                acceleration(0), canDoubleJump(true),
                                 attackNum(3), attackTime(clock() - 1000),
-                                hitTime(clock() - 500), hitNum(0)
+                                hitTime(clock() - 500), hitNum(0),
+                                farAttackFrames(0),
+                                flashFrames(0)
                                 {
     speed = {250, 0};
     if (side){
@@ -18,7 +20,9 @@ Unit::Unit(bool s, unitType u): S(stand), lives(100)
         downKey = olc::Key::S;
         attackKey = olc::Key::R;
         flashKey = olc::Key::F;
+        farAttackKey = olc::Key::G;
         skillKey = olc::Key::T;
+
 
         oppoentNum = 1;
     } else {
@@ -28,6 +32,7 @@ Unit::Unit(bool s, unitType u): S(stand), lives(100)
         downKey = olc::Key::DOWN;
         attackKey = olc::Key::PGDN;
         flashKey = olc::Key::PGUP;
+        farAttackKey = olc::Key::ENTER;
         skillKey = olc::Key::END;
 
         oppoentNum = 0;
@@ -70,6 +75,17 @@ bool Example::OnUserCreate() {
     playerBPic = std::make_unique<olc::Sprite>("./pic/playerB.png");
     livesBarA = std::make_unique<olc::Sprite>("./pic/livesBar_A.png");
     livesBarB = std::make_unique<olc::Sprite>("./pic/livesBar_B.png");
+    flashRightPic = std::make_unique<olc::Sprite>("./pic/Naruto/flash_right.png");
+    flashLeftPic = std::make_unique<olc::Sprite>("./pic/Naruto/flash_left.png");
+    farAttackRightPic_0 = std::make_unique<olc::Sprite>("./pic/Naruto/farAttack/0_right.png");
+    farAttackRightPic_1 = std::make_unique<olc::Sprite>("./pic/Naruto/farAttack/1_right.png");
+    farAttackRightPic_2 = std::make_unique<olc::Sprite>("./pic/Naruto/farAttack/2_right.png");
+    farAttackLeftPic_0 = std::make_unique<olc::Sprite>("./pic/Naruto/farAttack/0_left.png");
+    farAttackLeftPic_1 = std::make_unique<olc::Sprite>("./pic/Naruto/farAttack/1_left.png");
+    farAttackLeftPic_2 = std::make_unique<olc::Sprite>("./pic/Naruto/farAttack/2_left.png");
+    shurikenPic = std::make_unique<olc::Sprite>("./pic/Naruto/farAttack/shuriken.png");
+
+
     standDecalOfA = std::make_unique<olc::Decal>(standPicOfA.get());
     standDecalOfB = std::make_unique<olc::Decal>(standPicOfB.get());
     runRightDecal = std::make_unique<olc::Decal>(runRightPic.get());
@@ -96,6 +112,15 @@ bool Example::OnUserCreate() {
     livesBarADecal = std::make_unique<olc::Decal>(livesBarA.get());
     livesBarBDecal = std::make_unique<olc::Decal>(livesBarB.get());
     tileDecal = std::make_unique<olc::Decal>(tilePic.get());
+    flashRightDecal = std::make_unique<olc::Decal>(flashRightPic.get());
+    flashLeftDecal = std::make_unique<olc::Decal>(flashLeftPic.get());
+    farAttackRightDecal_0 = std::make_unique<olc::Decal>(farAttackRightPic_0.get());
+    farAttackRightDecal_1 = std::make_unique<olc::Decal>(farAttackRightPic_1.get());
+    farAttackRightDecal_2 = std::make_unique<olc::Decal>(farAttackRightPic_2.get());
+    farAttackLeftDecal_0 = std::make_unique<olc::Decal>(farAttackLeftPic_0.get());
+    farAttackLeftDecal_1 = std::make_unique<olc::Decal>(farAttackLeftPic_1.get());
+    farAttackLeftDecal_2 = std::make_unique<olc::Decal>(farAttackLeftPic_2.get());
+    shurikenDecal = std::make_unique<olc::Decal>(shurikenPic.get());
 
     return true;
 }
@@ -138,6 +163,13 @@ bool Example::OnUserUpdate(float fElapsedTime) {
         defendAction(unitA, fElapsedTime);
         defendAction(unitB, fElapsedTime);
 
+        //闪现
+        flashAction(unitA, fElapsedTime);
+        flashAction(unitB, fElapsedTime);
+
+        //远攻
+        farAttackAction(unitA, fElapsedTime);
+        farAttackAction(unitB, fElapsedTime);
 
         //回合结束，结算是否被攻击中。如果被击中则会移动。
         hitAction(unitA, fElapsedTime);
@@ -180,10 +212,10 @@ void Example::render(float fElapsedTime) {
 
     //画血条和血条架。
     drawLivesBar(fElapsedTime);
-
+    SetPixelMode(olc::Pixel::ALPHA);
     if (winner == unsettled){
         //根据不同的状态画不同的图像。
-        SetPixelMode(olc::Pixel::ALPHA);
+
         switch (unitA.S) {
             case jump:jumpDraw(unitA, 0, 16);break;
             case stand:standDraw(unitA, 0, 3);break;
@@ -192,6 +224,8 @@ void Example::render(float fElapsedTime) {
             case hit:hitDraw(unitA, 0, 0);break;
             case fall:fallDraw(unitA, 0, 0);break;
             case defend:defendDraw(unitA, 0, 0);break;
+            case flash: flashDraw(unitA, 0, 0);break;
+            case farAttack:farAttackDraw(unitA, 0, 0);break;
         }
         switch(unitB.S){
             case jump: jumpDraw(unitB, 0, 16);break;
@@ -201,6 +235,8 @@ void Example::render(float fElapsedTime) {
             case hit:hitDraw(unitB, 0, 0);break;
             case fall:fallDraw(unitB, 0, 0);break;
             case defend:defendDraw(unitB, 0, 0);break;
+            case flash:flashDraw(unitB, 0, 0);break;
+            case farAttack: farAttackDraw(unitB, 0, 0);break;
         }
     }
     if (winner != unsettled){
@@ -469,6 +505,9 @@ void Example::fallDraw(Unit &unit, float offset_true, float offset_false) {
 //recover进行状态转移。
 void Example::recover(Unit& unit) {
     switch (unit.S) {
+        case farAttack:{}
+        case jump:{}//jump也只能在自身函数内恢复
+        case flash:{}break;//闪现状态只能在其自身函数内恢复为stand.
         case run:{
             if ((GetKey(unit.rightKey).bReleased || GetKey(unit.leftKey).bReleased))
                 unit.S = stand;
@@ -562,6 +601,7 @@ void Example::hitAction(Unit &unit, float fElapsedTime) {
             unit.S = fall;
             unit.hitNum = 0;
             unit.speed.y = -400;
+            unit.acceleration = 500;
         }
     }
 }
@@ -572,7 +612,7 @@ void Example::fallAction(Unit &unit, float fElapsedTime) {
         //竖直方向的飞行无关朝向，fall时间等于飞行时间加上躺在地上的时间。飞行的逻辑和jump一样
         if ((unit.position.y + unit.speed.y * fElapsedTime) < floorPos-blockSize.y + 15){
             unit.position.y += unit.speed.y * fElapsedTime;
-            unit.speed.y += unitB.acceleration * fElapsedTime;
+            unit.speed.y += unit.acceleration * fElapsedTime;
         }
         else
         {
@@ -692,11 +732,11 @@ void Example::drawLivesBar(float fElapsedTime) {
 void Example::moveUnit(Unit &unit, float fElapsedTime) {
     switch(unit.S){
         case attack: {
-            if (unitA.face) {
-                if(unit.position.x - unit.speed.x * 0.1 * fElapsedTime >= 0)
+            if (unit.face) {
+                if(unit.position.x + unit.speed.x * 0.1 * fElapsedTime <= ScreenWidth() - blockSize.x)
                 unit.position.x += 0.2 * unit.speed.x * fElapsedTime;
             } else {
-                if(unit.position.x + unit.speed.x * 0.1 * fElapsedTime <= ScreenWidth() - blockSize.x)
+                if(unit.position.x - unit.speed.x * 0.1 * fElapsedTime >= 0)
                 unit.position.x -= 0.2 * unit.speed.x * fElapsedTime;
             }
         }break;
@@ -750,6 +790,8 @@ void Example::runAction(Unit &unit, float fElapsedTime) {
     //右跑
     if (GetKey(unit.rightKey).bHeld){
         switch (unit.S) {
+            case flash:{}
+            case defend:{}
             case fall:{}
             case hit:{}
             case attack: break;
@@ -803,6 +845,8 @@ void Example::runAction(Unit &unit, float fElapsedTime) {
     //角色左跑
     if (GetKey(unit.leftKey).bHeld){
         switch (unit.S) {
+            case flash:{}
+            case defend:{}
             case fall:{}
             case hit:{}
             case attack: break;
@@ -915,36 +959,205 @@ void Example::collision(float fElapsedTime) {
 void Example::jumpAction(Unit &unit, float fElapsedTime) {
     //静止时的跳跃, 按下K键的瞬间获得一个极大的冲量。
     //A角色起跳用K键控制，跳跃最多可以二段跳。
-    if (GetKey(unit.upKey).bPressed && unit.S != hit){
-        if (unit.S != jump)
-        {
-            unit.S = jump;
-            unit.speed.y = -400;
-        }
-        else
-        {
-            if(unit.canDoubleJump)
-            {
+    if (GetKey(unit.upKey).bPressed){
+        switch(unit.S){
+            case flash:{}
+            case hit:{}
+            case fall:{}break;
+            case jump:{
+                if(unit.canDoubleJump)
+                {
+                    unit.speed.y = -400;
+                    unit.canDoubleJump = false;
+                }
+            }break;
+            default:{
+                unit.S = jump;
                 unit.speed.y = -400;
-                unit.canDoubleJump = false;
             }
         }
     }
+
     //落体过程。
     if (unit.S == jump) {
+        unit.acceleration = 500;
         if ((unit.position.y + unit.speed.y * fElapsedTime) <= floorPos-blockSize.y + 15){
             unit.position.y += unit.speed.y * fElapsedTime;
-            unit.speed.y += unitB.acceleration * fElapsedTime;
+            unit.speed.y += unit.acceleration * fElapsedTime;
         }
         else
         {
             unit.position.y = floorPos-blockSize.y + 15;
             unit.speed.y = 0;
+            unit.acceleration = 0;
             unit.S = stand;
             unit.canDoubleJump = true;
         }
     }
 }
 
+void Example::flashAction(Unit &unit, float fElapsedTime) {
+    if(GetKey(unit.flashKey).bReleased){
+        switch(unit.S){
+            //从这里到default都为空,代表着这些状态都不能直接到flash
+            case hit:{}
+            case attack:{}
+            case defend:{}
+            case fall: {}
+            case flash:{}break;
+            default:{
+                unit.S = flash;
+                unit.flashFrames += 500;
+                unit.speed.y = 0;
+                if (unit.face){
+                    float futurePos = unit.position.x + 100;
+                    if (futurePos <= ScreenWidth() - blockSize.x){
+                        unit.position.x = futurePos;
+                    }
+                    else{
+                        unit.position.x = ScreenWidth() - blockSize.x;
+                    }
+                }
+                else{
+                    float futurePos = unit.position.x - 100;
+                    if (futurePos >= 0){
+                        unit.position.x = futurePos;
+                    }
+                    else{
+                        unit.position.x = 0;
+                    }
+                }
+            }
+        }
 
+    }
 
+    //每次刷新扣一, 归零时回到stand.
+    if (unit.S == flash){
+        unit.flashFrames--;
+        if (unit.flashFrames <= 0){
+            if (unit.acceleration != 0) {
+                unit.S = jump;
+            }else{
+                unit.S = stand;
+            }
+        }
+    }
+}
+
+void Example::flashDraw(Unit &unit, float offset_true, float offset_false) {
+    if (unit.face){
+        DrawDecal(unit.position, flashRightDecal.get(), {1.1, 0.9});
+    }
+    else{
+        DrawDecal(unit.position, flashLeftDecal.get(), {1.1, 0.9});
+    }
+}
+
+//远攻,除非击飞和僵直,其余主动状态都可以转位远攻状态且释放手里剑.
+//但有cd,在一定时间内不能再放远攻且保持该状态.
+void Example::farAttackAction(Unit &unit, float fElapsedTime) {
+
+    if (GetKey(unit.farAttackKey).bPressed){
+        switch(unit.S)
+        {
+            case fall:{}
+            case hit:{}
+            case farAttack:{}break;
+            default:{
+
+                if (unit.farAttackFrames == 0){
+                    unit.S = farAttack;
+                    items.push_back(
+                            shuriken(unit.position + blockSize,
+                                     unit.side, unit.face,
+                                     olc::vf2d(51, 97), true)
+                    );
+                    unit.farAttackFrames = 1000;//cd为1s
+                }
+            }
+        }
+    }
+    //自动恢复的过程.
+    if (unit.S == farAttack){
+        unit.farAttackFrames--;
+        if (unit.farAttackFrames <= 0){
+            if (unit.acceleration != 0) {
+                unit.S = jump;
+            }else{
+                unit.S = stand;
+            }
+        }
+
+    }
+}
+
+//远攻的图像函数
+void Example::farAttackDraw(Unit &unit, float offset_true, float offset_false) {
+    //根据留存的farAttackFrames决定该画哪张图像.
+    int picNum;
+    if (unit.farAttackFrames >= 700){
+        picNum = 0;
+    }
+    else{
+        if (unit.farAttackFrames >= 400)
+            picNum = 1;
+        else picNum = 2;
+    }
+
+    if (unit.face){
+        switch(picNum){
+            case 0:
+                DrawDecal(unit.position, farAttackRightDecal_0.get(),
+                    {1.1, 0.9});break;
+            case 1:
+                DrawDecal(unit.position, farAttackRightDecal_1.get(),
+                          {0.99, 0.9});break;
+            case 2:
+                DrawDecal(unit.position, farAttackRightDecal_2.get(),
+                          {1.1, 0.9});break;
+        }
+    }
+    else{
+        switch(picNum) {
+            case 0:
+                DrawDecal(unit.position, farAttackLeftDecal_0.get(),
+                          {1.1, 0.9});
+                break;
+            case 1:
+                DrawDecal(unit.position, farAttackLeftDecal_1.get(),
+                          {0.99, 0.9});
+                break;
+            case 2:
+                DrawDecal(unit.position, farAttackLeftDecal_2.get(),
+                          {1.1, 0.9});
+                break;
+        }
+    }
+}
+
+//判断角色是否被该道具影响
+bool shuriken::isEffected(Unit &unit) {
+    //向右运动时,人物若在图像上和shuriken重叠,那么就会判定为true
+    return (unit.position.x <= size.x + position.x
+    &&  unit.position.x >= position.x -  unit.size.x);
+}
+
+void shuriken::effect(Unit &unit) {
+    if (isEffected(unit)){
+        switch(unit.S){
+            case defend:{
+                unit.lives --;
+            }break;
+            case fall:{}break;
+            default:{
+                //和击飞效果类似, 但不会飞那么高, 会扣血,也会攒能量,后期可以用于放技能.
+                unit.S = fall;
+                unit.lives -= 5;
+                unit.hitNum = 0;
+                unit.speed.y = -100;
+                unit.acceleration = 500;
+            }
+        }
+    }
+}

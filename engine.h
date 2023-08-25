@@ -9,10 +9,10 @@
 #include "time.h"
 
 
-enum state {stand, run, jump, hit, attack, fall, defend};
+enum state {stand, run, jump, hit, attack, fall, defend,
+            flash, farAttack};
 enum unitType {Naruto, ichigo};
 enum player {playerA, playerB, draw, unsettled};
-
 
 class Unit
 {
@@ -23,6 +23,7 @@ public:
     float stateNum;
     int lives;
     olc::vf2d position;
+    olc::vf2d size = {64, 97};
     olc::vf2d speed;
     float acceleration;
     bool side;
@@ -36,6 +37,7 @@ public:
     float firstHitTime;
     float fallDownTime;
 
+
     //抽象出按键,从而可以使得行为单独编入一个函数.
     olc::Key rightKey;
     olc::Key leftKey;
@@ -43,9 +45,12 @@ public:
     olc::Key downKey;
     olc::Key attackKey;
     olc::Key flashKey;
+    olc::Key farAttackKey;
     olc::Key skillKey;
     bool moveFlag;//判断是否跑动、跳跃或者攻击.
     int oppoentNum;
+    int flashFrames;//闪现姿势持续的帧数
+    int farAttackFrames;//远攻姿势维持的帧数.
     //规定：凡是右这个词都是对应true，左都是对应false
 };
 
@@ -100,6 +105,48 @@ public:
     bool moveDirection;//right == true, left == false;
 };
 
+class Item
+{
+public:
+    Item(olc::vf2d pos, bool sd):position(pos),
+                                side(sd),
+                                existence(true){}
+    void effect(){}
+public:
+    olc::vf2d position = {0, 0};
+    bool existence;
+    bool side;
+};
+
+class shuriken: public Item
+{
+public:
+    shuriken(olc::vf2d pos, bool sd,
+             bool Direction, olc::vf2d sz,
+             bool isHorizontal):Item(pos, sd){
+        //设定水平速度为350, 可以斜向上投射,也可以水平投射.
+        speed.x = 350;
+        if (isHorizontal){
+            speed.y = 0;
+        }else{
+            speed.y = 350;
+        }
+
+        size = sz;
+        direction = Direction;
+    }
+
+    bool isEffected(Unit& unit);
+    void effect(Unit& unit);
+    void move();
+
+public:
+    olc::vf2d speed;
+    bool direction;
+    olc::vf2d size;
+};
+
+
 class Example : public olc::PixelGameEngine
 {
 public:
@@ -127,6 +174,7 @@ public:
     friend Unit;
     Unit unitA;
     Unit unitB;
+    std::vector<Item> items;
     std::vector<std::string> commands;
     void render(float fElapsedTime);
     bool OnUserCreate() override;
@@ -158,6 +206,15 @@ public:
     std::unique_ptr<olc::Sprite> playerBPic;
     std::unique_ptr<olc::Sprite> livesBarA;
     std::unique_ptr<olc::Sprite> livesBarB;
+    std::unique_ptr<olc::Sprite> flashRightPic;
+    std::unique_ptr<olc::Sprite> flashLeftPic;
+    std::unique_ptr<olc::Sprite> farAttackRightPic_0;
+    std::unique_ptr<olc::Sprite> farAttackRightPic_1;
+    std::unique_ptr<olc::Sprite> farAttackRightPic_2;
+    std::unique_ptr<olc::Sprite> farAttackLeftPic_0;
+    std::unique_ptr<olc::Sprite> farAttackLeftPic_1;
+    std::unique_ptr<olc::Sprite> farAttackLeftPic_2;
+    std::unique_ptr<olc::Sprite> shurikenPic;
 
     //Decals
     std::unique_ptr<olc::Decal> standDecalOfA;
@@ -185,6 +242,16 @@ public:
     std::unique_ptr<olc::Decal> playerBDecal;
     std::unique_ptr<olc::Decal> livesBarADecal;
     std::unique_ptr<olc::Decal> livesBarBDecal;
+    std::unique_ptr<olc::Decal> flashRightDecal;
+    std::unique_ptr<olc::Decal> flashLeftDecal;
+    std::unique_ptr<olc::Decal> farAttackRightDecal_0;
+    std::unique_ptr<olc::Decal> farAttackRightDecal_1;
+    std::unique_ptr<olc::Decal> farAttackRightDecal_2;
+    std::unique_ptr<olc::Decal> farAttackLeftDecal_0;
+    std::unique_ptr<olc::Decal> farAttackLeftDecal_1;
+    std::unique_ptr<olc::Decal> farAttackLeftDecal_2;
+    std::unique_ptr<olc::Decal> shurikenDecal;
+
     olc::vf2d blockSize = {63, 97};
     std::unique_ptr<olc::Sprite> tilePic;
     std::unique_ptr<olc::Decal> tileDecal;
@@ -197,6 +264,8 @@ public:
     void hitAction(Unit& unit, float fElapsedTime);
     void fallAction(Unit& unit, float fElapsedTime);
     void defendAction(Unit& unit, float fElapsedTime);
+    void flashAction(Unit& unit, float fElapsedTime);
+    void farAttackAction(Unit& unit, float fElapsedTime);
     void gameOver();
     void moveUnit(Unit& unit, float fElapsedTime);
 
@@ -208,11 +277,17 @@ public:
     void hitDraw(Unit& unit, float offset_true, float offset_false);
     void fallDraw(Unit& unit, float offset_true, float offset_false);
     void defendDraw(Unit& unit, float offset_true, float offset_false);
+    void flashDraw(Unit& unit, float offset_true, float offset_false);
+    void farAttackDraw(Unit& unit, float offset_true, float offset_false);
 
     void drawSignal(Unit& unit);
     void drawLivesBar(float fEplasedTime);
 
     //引擎中的交互函数
+
+    //道具效果函数.
+    void shurikenEffect(Unit& unit, olc::vf2d effectSize);
+
     void collision(float fElapsedTime);
     bool isBlocked(Unit& unit, float futurePos);
     bool isMoving(Unit& unit);
