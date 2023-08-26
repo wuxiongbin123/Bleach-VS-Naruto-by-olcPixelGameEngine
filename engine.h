@@ -12,6 +12,7 @@
 enum state {stand, run, jump, hit, attack, fall, defend,
             flash, farAttack};
 enum unitType {Naruto, ichigo};
+enum itemType {none, shurikenItem};
 enum player {playerA, playerB, draw, unsettled};
 
 class Unit
@@ -110,11 +111,14 @@ class Item
 public:
     Item(olc::vf2d pos, bool sd):position(pos),
                                 side(sd),
-                                existence(true){}
+                                existence(true),
+                                tp(none){}
     void effect(Unit& unit){};
     void move(float fElapsedTime){};
+
 public:
     olc::vf2d position = {0, 0};
+    itemType tp;
     bool existence;
     bool side;
 };
@@ -136,11 +140,13 @@ public:
         size = sz;
         direction = Direction;
         existFrams = 4000;
+        tp = shurikenItem;
     }
 
     bool isEffected(Unit& unit);
     void effect(Unit& unit);
     void move(float fElapsedTime);
+
 
 public:
     int existFrams;
@@ -282,6 +288,7 @@ public:
     void defendDraw(Unit& unit, float offset_true, float offset_false);
     void flashDraw(Unit& unit, float offset_true, float offset_false);
     void farAttackDraw(Unit& unit, float offset_true, float offset_false);
+    void itemDraw();
 
     void drawSignal(Unit& unit);
     void drawLivesBar(float fEplasedTime);

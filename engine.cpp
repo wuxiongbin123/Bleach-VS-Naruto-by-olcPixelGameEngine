@@ -222,9 +222,12 @@ void Example::render(float fElapsedTime) {
     //画血条和血条架。
     drawLivesBar(fElapsedTime);
     SetPixelMode(olc::Pixel::ALPHA);
+
+    //画道具
+    itemDraw();
+
     if (winner == unsettled){
         //根据不同的状态画不同的图像。
-
         switch (unitA.S) {
             case jump:jumpDraw(unitA, 0, 16);break;
             case stand:standDraw(unitA, 0, 3);break;
@@ -1092,9 +1095,12 @@ void Example::farAttackAction(Unit &unit, float fElapsedTime) {
             default:{
                 //成功进行攻击
                 if (unit.farAttackFrames == 0){
+                    olc::vf2d offset(0, 0);
+                    if (unit.face) offset.x = blockSize.x;
+                    else offset.x = - blockSize.x;
                     unit.S = farAttack;
                     items.push_back(
-                            shuriken(unit.position + blockSize,
+                            shuriken(unit.position + offset,
                                      unit.side, unit.face,
                                      olc::vf2d(51, 97), true)
                     );
@@ -1154,6 +1160,14 @@ void Example::farAttackDraw(Unit &unit, float offset_true, float offset_false) {
                 DrawDecal(unit.position, farAttackLeftDecal_2.get(),
                           {1.1, 0.9});
                 break;
+        }
+    }
+}
+
+void Example::itemDraw() {
+    for(int i = 0; i < items.size(); i++){
+        if (items[i].tp == shurikenItem){
+            DrawDecal(items[i].position, shurikenDecal.get());
         }
     }
 }
