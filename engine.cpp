@@ -10,7 +10,8 @@ Unit::Unit(bool s, unitType u): S(stand), lives(100)
                                 attackNum(3), attackTime(clock() - 1000),
                                 hitTime(clock() - 500), hitNum(0),
                                 farAttackFrames(0),
-                                flashFrames(0), chakra(0)
+                                flashFrames(0), chakra(0),
+                                skill_1_Frames(0), skill_2_Frames(0)
                                 {
     speed = {250, 0};
     if (side){
@@ -277,6 +278,12 @@ bool Example::OnUserUpdate(float fElapsedTime) {
         farAttackAction(unitA, fElapsedTime);
         farAttackAction(unitB, fElapsedTime);
 
+        //释放技能
+        skill_1_Action(unitA, fElapsedTime);
+        skill_1_Action(unitB, fElapsedTime);
+        skill_2_Action(unitA, fElapsedTime);
+        skill_2_Action(unitB, fElapsedTime);
+
         //回合结束，结算是否被攻击中。如果被击中则会移动。
         hitAction(unitA, fElapsedTime);
         hitAction(unitB, fElapsedTime);
@@ -356,6 +363,8 @@ void Example::render(float fElapsedTime) {
             case defend:defendDraw(unitA, 0, 0);break;
             case flash: flashDraw(unitA, 0, 0);break;
             case farAttack:farAttackDraw(unitA, 0, 0);break;
+            case skill_1:flashDraw(unitA, 0, 0);break;
+            case skill_2:defendDraw(unitA, 0, 0);break;
         }
         switch(unitB.S){
             case jump: jumpDraw(unitB, 0, 16);break;
@@ -367,6 +376,8 @@ void Example::render(float fElapsedTime) {
             case defend:defendDraw(unitB, 0, 0);break;
             case flash:flashDraw(unitB, 0, 0);break;
             case farAttack: farAttackDraw(unitB, 0, 0);break;
+            case skill_1:flashDraw(unitB, 0, 0);break;
+            case skill_2:defendDraw(unitB, 0, 0);break;
         }
     }
     if (winner != unsettled){
@@ -741,6 +752,8 @@ void Example::hitAction(Unit &unit, float fElapsedTime) {
     }
     if (unit.S == hit){
         //如果3秒之内连续收到四次攻击，则会被击飞。然后firstHitTime和hitNum重置
+        unit.skill_1_Frames = 0;
+        unit.skill_2_Frames = 0;
         if (clock() - unit.firstHitTime < 5000 && unit.hitNum == 4){
             play(NarutoHitSound);
             unit.S = fall;
@@ -785,6 +798,10 @@ void Example::fallAction(Unit &unit, float fElapsedTime) {
                 else unit.position.x = ScreenWidth() - blockSize.x;
             }
         }
+
+        //如果被击飞,则将其主动维持的frames清零.
+        unit.skill_1_Frames = 0;
+        unit.skill_2_Frames = 0;
     }
 }
 
@@ -908,6 +925,7 @@ void Example::defendAction(Unit &unit, float fElapsedTime) {
     if (GetKey(unit.downKey).bHeld){
         switch(unit.S){
             //攻击、跳跃、被攻击、击飞时不能通过按键改变状态。
+            case flash:{}
             case farAttack:{}
             case attack:{}
             case jump:{}
@@ -1415,6 +1433,129 @@ void Example::chakraDraw(Unit *unit) {
     }
 }
 
+void Example::skill_1_Action(Unit &unit, float fElapsedTime) {
+    if (GetKey(unit.skillKey).bPressed){
+        switch(unit.S)
+        {
+            case jump:{}
+            case hit:{}
+            case attack:{}
+            case fall:{}
+            case defend:{}
+            case flash:{}
+            case farAttack:{}
+            case skill_1:{}
+            case skill_2:{}break;
+            default:
+            {
+                if (unit.chakra >= 100)
+                {
+                    unit.chakra -= 100;
+                    unit.S = skill_1;
+                    unit.skill_1_Frames = 800;
+                }
+            }
+        }
+    }
+
+    //在技能状态一的情况下, 鸣人会运动.
+
+    if (unit.S == skill_1)
+    {
+        //移动.
+        if (unit.face)
+        {
+            float futurePos = unit.position.x + unit.speed.x * 1.2 * fElapsedTime;
+            if (futurePos <= ScreenWidth() - blockSize.x) unit.position.x = futurePos;
+            else unit.position.x = ScreenWidth() - blockSize.x;
+        }
+        else
+        {
+            float futurePos = unit.position.x - unit.speed.x * 1.2 * fElapsedTime;
+            if (futurePos >= 0) unit.position.x = futurePos;
+            else unit.position.x = 0;
+        }
+
+        Unit* oppoent = units[unit.oppoentNum];
+        //如果击中对方,则自身进入状态二,敌方受到伤害.
+        if (skillHit(&unit, oppoent))
+        {
+            unit.skill_1_Frames = 0;
+            unit.S = skill_2;
+            unit.skill_2_Frames = 1000;
+            return;
+        }
+
+        //持续时间减一.
+        unit.skill_1_Frames--;
+        if (unit.skill_1_Frames <= 0) unit.S = stand;
+    }
+}
+
+//技能第二阶段,每隔0.25s,检查一次,造成伤害.
+void Example::skill_2_Action(Unit &unit, float fElapsedTime) {
+    if (unit.S == skill_2)
+    {
+        Unit* oppoent = units[unit.oppoentNum];
+        switch(unit.skill_2_Frames)
+        {
+            case 1000:{}
+            case 750:{}
+            case 500:{}
+            case 250:{
+                //每次造成伤害前检查是否击中角色.
+                if (skillHit(&unit, oppoent))
+                {
+                    if(oppoent->S != defend)
+                    {
+
+                        oppoent->S = hit;
+                        oppoent->lives -= 8;
+                        oppoent->hitTime = clock();
+                        play(hitSound);
+                    }
+                    else
+                    {
+                        oppoent->lives -= 3;
+                        play(hitSound);
+                    }
+                }
+            }break;
+
+            case 0:
+            {
+                if (skillHit(&unit, oppoent))
+                {
+                    //被防御住了
+                    if(oppoent->S != defend)
+                    {
+                        oppoent->lives -= 3;
+                        play(hitSound);
+                    }
+                    else
+                    {
+                        oppoent->S = fall;
+                        oppoent->speed.y = -4;
+                        oppoent->acceleration = 500;
+                        play(hitSound);
+                        play(NarutoHitSound);
+                    }
+                }
+            }
+            default:{}break;
+        }
+
+        //自然状态下,帧时间归零时状态恢复stand.
+        if (unit.skill_2_Frames <= 0) unit.S = stand;
+        else unit.skill_2_Frames--;
+    }
+}
+
+bool Example::skillHit(Unit* unit, Unit* oppoent) {
+    return (oppoent->position.x <= unit->position.x + blockSize.x * 0.9
+        &&  oppoent->position.x <= unit->position.x - blockSize.x * 0.9);
+}
+
 
 //判断角色是否被该道具影响
 bool shuriken::isEffected(Unit* unit) {
@@ -1433,7 +1574,6 @@ void shuriken::effect(Unit* unit, Unit* oppoent) {
                 else unit->chakra = 300;
                 if (oppoent->chakra < 300) oppoent->chakra += 5;
                 else oppoent->chakra = 300;
-
             }break;
 
             case fall:{

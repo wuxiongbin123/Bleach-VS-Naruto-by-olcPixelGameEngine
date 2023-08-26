@@ -10,7 +10,7 @@
 
 
 enum state {stand, run, jump, hit, attack, fall, defend,
-            flash, farAttack};
+            flash, farAttack, skill_1, skill_2};
 enum unitType {Naruto, ichigo};
 enum itemType {none, shurikenItem};
 enum player {playerA, playerB, draw, unsettled};
@@ -41,6 +41,7 @@ public:
     int chakraBarLen;
     int chakraColor;
 
+
     //抽象出按键,从而可以使得行为单独编入一个函数.
     olc::Key rightKey;
     olc::Key leftKey;
@@ -54,6 +55,8 @@ public:
     int oppoentNum;
     int flashFrames;//闪现姿势持续的帧数
     int farAttackFrames;//远攻姿势维持的帧数.
+    int skill_1_Frames;
+    int skill_2_Frames;
     //规定：凡是右这个词都是对应true，左都是对应false
 };
 
@@ -389,6 +392,8 @@ public:
     void defendAction(Unit& unit, float fElapsedTime);
     void flashAction(Unit& unit, float fElapsedTime);
     void farAttackAction(Unit& unit, float fElapsedTime);
+    void skill_1_Action(Unit& unit, float fElapsedTime);
+    void skill_2_Action(Unit& unit, float fElapsedTime);
     void gameOver();
     void moveUnit(Unit& unit, float fElapsedTime);
 
@@ -402,6 +407,8 @@ public:
     void defendDraw(Unit& unit, float offset_true, float offset_false);
     void flashDraw(Unit& unit, float offset_true, float offset_false);
     void farAttackDraw(Unit& unit, float offset_true, float offset_false);
+    void skill_1_Draw(Unit& unit, float offset_true, float offset_false);
+    void skill_2_Draw(Unit& unit, float offset_true, float offset_false);
     void itemDraw();
     void chakraDraw(Unit* unit);
 
@@ -411,6 +418,7 @@ public:
 
     //引擎中的交互函数
 
+    bool skillHit(Unit* unit, Unit* oppoent);
     void item_moveAndEffect(float fElapsedTime);
     void collision(float fElapsedTime);
     bool isBlocked(Unit& unit, float futurePos);
