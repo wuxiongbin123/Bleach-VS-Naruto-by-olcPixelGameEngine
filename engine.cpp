@@ -49,6 +49,7 @@ bool Example::OnUserCreate() {
 
     //为了简便，规定两个都是Naruto。
 
+    backgroundPic = std::make_unique<olc::Sprite>("./pic/background.jpg");
     standPicOfA = std::make_unique<olc::Sprite>("./pic/Naruto/stand_A.png");
     standPicOfB = std::make_unique<olc::Sprite>("./pic/Naruto/stand_B.png");
     tilePic = std::make_unique<olc::Sprite>("./pic/tile.png");
@@ -85,7 +86,7 @@ bool Example::OnUserCreate() {
     farAttackLeftPic_2 = std::make_unique<olc::Sprite>("./pic/Naruto/farAttack/2_left.png");
     shurikenPic = std::make_unique<olc::Sprite>("./pic/Naruto/farAttack/shuriken.png");
 
-
+    backgroundDecal = std::make_unique<olc::Decal>(backgroundPic.get());
     standDecalOfA = std::make_unique<olc::Decal>(standPicOfA.get());
     standDecalOfB = std::make_unique<olc::Decal>(standPicOfB.get());
     runRightDecal = std::make_unique<olc::Decal>(runRightPic.get());
@@ -189,10 +190,12 @@ bool Example::OnUserUpdate(float fElapsedTime) {
         unitAreas[1].existence = false;
         //删除所有已死的区域
         removeDeadArea();
-        //删除失效道具.
-        removeDeadItem();
         gameOver();
     }
+
+    //删除失效道具.
+    removeDeadItem();
+
             //血条逐渐减少。
     if (barRedLenOfA > 330 * unitA.lives / 100){
             barRedLenOfA -= 35 * fElapsedTime ;
@@ -206,12 +209,16 @@ bool Example::OnUserUpdate(float fElapsedTime) {
 
 void Example::render(float fElapsedTime) {
     Clear(olc::WHITE);
+
+    //画背景
+    DrawDecal(olc::vf2d(0, 0), backgroundDecal.get());
+
     //画地板
-    for(int i = 0; i < ScreenWidth() / 16; i++){
-        floorSite.x = i * 16;
-        floorSite.y = floorPos;
-        DrawDecal(floorSite, tileDecal.get());
-    }
+//    for(int i = 0; i < ScreenWidth() / 16; i++){
+//        floorSite.x = i * 16;
+//        floorSite.y = floorPos;
+//        DrawDecal(floorSite, tileDecal.get());
+//    }
     drawSignal(unitA);
     drawSignal(unitB);
 
@@ -606,6 +613,7 @@ void Example::hitAction(Unit &unit, float fElapsedTime) {
     if (unit.S == hit){
         //如果3秒之内连续收到四次攻击，则会被击飞。然后firstHitTime和hitNum重置
         if (clock() - unit.firstHitTime < 5000 && unit.hitNum == 4){
+            play(NarutoHitSound);
             unit.S = fall;
             unit.hitNum = 0;
             unit.speed.y = -400;
@@ -801,7 +809,6 @@ bool Example::isMoving(Unit &unit) {
 }
 
 void Example::runAction(Unit &unit, float fElapsedTime) {
-
     //右跑
     if (GetKey(unit.rightKey).bHeld){
         switch (unit.S) {
@@ -813,53 +820,60 @@ void Example::runAction(Unit &unit, float fElapsedTime) {
             case attack:{} break;
             case jump:{}
             default: {
-                if (unit.S != jump) unit.S = run;
-                unit.moveFlag = true;
-                unit.face = true;
-                float futurePos = unit.position.x + unit.speed.x * fElapsedTime;
-                //没有被阻挡
-                if (!isBlocked(unit, futurePos)){
-                    if (futurePos <= ScreenWidth() - blockSize.x)
-                        //右边不能过右界限
-                        unit.position.x = futurePos;
-                }
-                else{//被阻挡
-                    //迎面相撞
-                    unitArea oppoentArea = unitAreas[unit.oppoentNum];
-                    if (oppoentArea.moveFlag && oppoentArea.moveDirection != unit.face){
-                        //该角色不动
+                if (!GetKey(unit.leftKey).bHeld){
+                    if (unit.S != jump) unit.S = run;
+                    unit.moveFlag = true;
+                    unit.face = true;
+                    float futurePos = unit.position.x + unit.speed.x * fElapsedTime;
+                    //没有被阻挡
+                    if (!isBlocked(unit, futurePos)){
+                        if (futurePos <= ScreenWidth() - blockSize.x)
+                            //右边不能过右界限
+                            unit.position.x = futurePos;
                     }
-                    //该角色撞击对面角色, 对面角色没有走路的意思
-                    if (!oppoentArea.moveFlag){
-                        //该角色减速, 对面角色被推着.
-                        futurePos = unit.position.x + unit.speed.x * fElapsedTime * 0.5;
-                        float futurePosOfOppent;
+                    else{//被阻挡
+                        //迎面相撞
+                        unitArea oppoentArea = unitAreas[unit.oppoentNum];
+                        if (oppoentArea.moveFlag && oppoentArea.moveDirection != unit.face){
+                            //该角色不动
+                        }
+                        //该角色撞击对面角色, 对面角色没有走路的意思
+                        if (!oppoentArea.moveFlag){
+                            //该角色减速, 对面角色被推着.
+                            futurePos = unit.position.x + unit.speed.x * fElapsedTime * 0.5;
+                            float futurePosOfOppent;
 
-                        if (unit.side){//此时unit为A
-                            futurePosOfOppent = unitB.position.x + unit.speed.x * fElapsedTime * 0.5;
-                            //该角色运动,但人物图像不能重合
-                            unitA.position.x = futurePos;
-                            //对手运动,但不能过右边界
-                            if (futurePosOfOppent <= ScreenWidth() - blockSize.x)
-                                unitB.position.x = futurePosOfOppent;
-                        }
-                        else{
-                            //此时该角色为B
-                            futurePosOfOppent = unitA.position.x + unit.speed.x * fElapsedTime * 0.5;
-                            //该角色运动,但人物图像不能重合
-                            unitB.position.x = futurePos;
-                            //对手运动,但不能过右边界
-                            if (futurePosOfOppent <= ScreenWidth() - blockSize.x)
-                                unitA.position.x = futurePosOfOppent;
+                            if (unit.side){//此时unit为A
+                                futurePosOfOppent = unitB.position.x + unit.speed.x * fElapsedTime * 0.5;
+                                //该角色运动,但人物图像不能重合
+                                unitA.position.x = futurePos;
+                                //对手运动,但不能过右边界
+                                if (futurePosOfOppent <= ScreenWidth() - blockSize.x)
+                                    unitB.position.x = futurePosOfOppent;
+                            }
+                            else{
+                                //此时该角色为B
+                                futurePosOfOppent = unitA.position.x + unit.speed.x * fElapsedTime * 0.5;
+                                //该角色运动,但人物图像不能重合
+                                unitB.position.x = futurePos;
+                                //对手运动,但不能过右边界
+                                if (futurePosOfOppent <= ScreenWidth() - blockSize.x)
+                                    unitA.position.x = futurePosOfOppent;
+                            }
                         }
                     }
+                }
+                else
+                {
+                    if (unit.acceleration != 0) unit.S = jump;
+                    else unit.S = stand;
                 }
             }
         }
     }
 
     //角色左跑
-    if (GetKey(unit.leftKey).bHeld){
+    if (GetKey(unit.leftKey).bHeld && !GetKey(unit.rightKey).bHeld){
         switch (unit.S) {
             case farAttack: {}
             case flash:{}
@@ -869,47 +883,50 @@ void Example::runAction(Unit &unit, float fElapsedTime) {
             case attack:{}break;
             case jump:{}
             default:{
-                if (unit.S != jump) unit.S = run;
-                unit.moveFlag = true;
-                unit.face = false;
-                float futurePos = unit.position.x - unit.speed.x * fElapsedTime;
-                //没有被阻挡
-                if (!isBlocked(unit, futurePos)){
-                    if (futurePos >= 0)
-                        //左跑不能过左边界
-                        unit.position.x = futurePos;
-                }
-                else{//被阻挡
-                    //迎面相撞
-                    unitArea oppoentArea = unitAreas[unit.oppoentNum];
-                    if (oppoentArea.moveFlag && oppoentArea.moveDirection != unit.face){
-                        //该角色不动
+                //两个键同时按,则状态出口为stand
+                if (!GetKey(unit.rightKey).bHeld){
+                    if (unit.S != jump) unit.S = run;
+                    unit.moveFlag = true;
+                    unit.face = false;
+                    float futurePos = unit.position.x - unit.speed.x * fElapsedTime;
+                    //没有被阻挡
+                    if (!isBlocked(unit, futurePos)){
+                        if (futurePos >= 0)
+                            //左跑不能过左边界
+                            unit.position.x = futurePos;
                     }
-                    //该角色撞击对面角色, 对面角色没有走路的意思
-                    if (!oppoentArea.moveFlag){
-                        //该角色减速, 对面角色被推着.
-                        futurePos = unit.position.x - unit.speed.x * fElapsedTime * 0.5;
-                        float futurePosOfOppent;
+                    else{//被阻挡
+                        //迎面相撞
+                        unitArea oppoentArea = unitAreas[unit.oppoentNum];
+                        if (oppoentArea.moveFlag && oppoentArea.moveDirection != unit.face){
+                            //该角色不动
+                        }
+                        //该角色撞击对面角色, 对面角色没有走路的意思
+                        if (!oppoentArea.moveFlag){
+                            //该角色减速, 对面角色被推着.
+                            futurePos = unit.position.x - unit.speed.x * fElapsedTime * 0.5;
+                            float futurePosOfOppent;
 
-                        if (unit.side){//此时unit为A
-                            futurePosOfOppent = unitB.position.x - unit.speed.x * fElapsedTime * 0.5;
-                            //该角色运动,但人物图像不能重合
-                            unitA.position.x = futurePos;
-                            //对手运动,但不能过右边界
-                            if (futurePosOfOppent >= 0)
-                                unitB.position.x = futurePosOfOppent;
-                        }
-                        else{
-                            //此时该角色为B
-                            futurePosOfOppent = unitA.position.x - unit.speed.x * fElapsedTime * 0.5;
-                            //该角色运动,但人物图像不能重合
-                            unitB.position.x = futurePos;
-                            //对手运动,但不能过右边界
-                            if (futurePosOfOppent >= 0)
-                                unitA.position.x = futurePosOfOppent;
+                            if (unit.side){//此时unit为A
+                                futurePosOfOppent = unitB.position.x - unit.speed.x * fElapsedTime * 0.5;
+                                //该角色运动,但人物图像不能重合
+                                unitA.position.x = futurePos;
+                                //对手运动,但不能过右边界
+                                if (futurePosOfOppent >= 0)
+                                    unitB.position.x = futurePosOfOppent;
+                            }
+                            else{
+                                //此时该角色为B
+                                futurePosOfOppent = unitA.position.x - unit.speed.x * fElapsedTime * 0.5;
+                                //该角色运动,但人物图像不能重合
+                                unitB.position.x = futurePos;
+                                //对手运动,但不能过右边界
+                                if (futurePosOfOppent >= 0)
+                                    unitA.position.x = futurePosOfOppent;
+                            }
                         }
                     }
-                }
+                }else unit.S = stand;
             }break;
         }
     }
@@ -1203,11 +1220,14 @@ void shuriken::effect(Unit* oppoent) {
             case fall:{}break;
             default:{
                 //和击飞效果类似, 但不会飞那么高, 会扣血,也会攒能量,后期可以用于放技能.
+                play(hitSound);
+                play(NarutoHitSound);
                 oppoent->S = fall;
                 oppoent->lives -= 5;
                 oppoent->hitNum = 0;
                 oppoent->speed.y = -100;
                 oppoent->acceleration = 500;
+                existence = false;
             }
         }
     }

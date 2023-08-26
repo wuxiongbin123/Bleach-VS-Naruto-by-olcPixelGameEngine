@@ -194,6 +194,7 @@ public:
     bool OnUserUpdate(float fElapsedTime) override;
 
     // Sprites
+    std::unique_ptr<olc::Sprite> backgroundPic;
     std::unique_ptr<olc::Sprite> standPicOfA;
     std::unique_ptr<olc::Sprite> standPicOfB;
     std::unique_ptr<olc::Sprite> runRightPic;
@@ -230,6 +231,7 @@ public:
     std::unique_ptr<olc::Sprite> shurikenPic;
 
     //Decals
+    std::unique_ptr<olc::Decal> backgroundDecal;
     std::unique_ptr<olc::Decal> standDecalOfA;
     std::unique_ptr<olc::Decal> standDecalOfB;
     std::unique_ptr<olc::Decal> runRightDecal;
