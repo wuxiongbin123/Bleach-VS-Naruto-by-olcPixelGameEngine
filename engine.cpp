@@ -126,6 +126,108 @@ bool Example::OnUserCreate() {
     farAttackLeftDecal_2 = std::make_unique<olc::Decal>(farAttackLeftPic_2.get());
     shurikenDecal = std::make_unique<olc::Decal>(shurikenPic.get());
 
+    //大招的图片
+    skill_1_right_0_P = std::make_unique<olc::Sprite>("./pic/Naruto/skill_1/right/0.png");
+    skill_1_right_1_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_1/right/1.png");
+    skill_1_right_2_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_1/right/2.png");
+    skill_1_right_3_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_1/right/3.png");
+    skill_1_right_4_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_1/right/4.png");
+    skill_1_right_5_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_1/right/5.png");
+    skill_1_right_6_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_1/right/6.png");
+    skill_1_right_7_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_1/right/7.png");
+    skill_1_right_8_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_1/right/8.png");
+    skill_1_right_9_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_1/right/9.png");
+    skill_1_right_10_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_1/right/10.png");
+
+    skill_1_left_0_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_1/left/0.png");
+    skill_1_left_1_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_1/left/1.png");
+    skill_1_left_2_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_1/left/2.png");
+    skill_1_left_3_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_1/left/3.png");
+    skill_1_left_4_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_1/left/4.png");
+    skill_1_left_5_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_1/left/5.png");
+    skill_1_left_6_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_1/left/6.png");
+    skill_1_left_7_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_1/left/7.png");
+    skill_1_left_8_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_1/left/8.png");
+    skill_1_left_9_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_1/left/9.png");
+    skill_1_left_10_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_1/left/10.png");
+
+    skill_1_right_0_D = std::make_unique<olc::Decal>(skill_1_right_0_P.get());
+    skill_1_right_1_D = std::make_unique<olc::Decal>(skill_1_right_1_P.get());
+    skill_1_right_2_D = std::make_unique<olc::Decal>(skill_1_right_2_P.get());
+    skill_1_right_3_D = std::make_unique<olc::Decal>(skill_1_right_3_P.get());
+    skill_1_right_4_D = std::make_unique<olc::Decal>(skill_1_right_4_P.get());
+    skill_1_right_5_D = std::make_unique<olc::Decal>(skill_1_right_5_P.get());
+    skill_1_right_6_D = std::make_unique<olc::Decal>(skill_1_right_6_P.get());
+    skill_1_right_7_D = std::make_unique<olc::Decal>(skill_1_right_7_P.get());
+    skill_1_right_8_D = std::make_unique<olc::Decal>(skill_1_right_8_P.get());
+    skill_1_right_9_D = std::make_unique<olc::Decal>(skill_1_right_9_P.get());
+    skill_1_right_10_D = std::make_unique<olc::Decal>(skill_1_right_10_P.get());
+
+    skill_1_left_0_D = std::make_unique<olc::Decal>(skill_1_left_0_P.get());
+    skill_1_left_1_D = std::make_unique<olc::Decal>(skill_1_left_1_P.get());
+    skill_1_left_2_D = std::make_unique<olc::Decal>(skill_1_left_2_P.get());
+    skill_1_left_3_D = std::make_unique<olc::Decal>(skill_1_left_3_P.get());
+    skill_1_left_4_D = std::make_unique<olc::Decal>(skill_1_left_4_P.get());
+    skill_1_left_5_D = std::make_unique<olc::Decal>(skill_1_left_5_P.get());
+    skill_1_left_6_D = std::make_unique<olc::Decal>(skill_1_left_6_P.get());
+    skill_1_left_7_D = std::make_unique<olc::Decal>(skill_1_left_7_P.get());
+    skill_1_left_8_D = std::make_unique<olc::Decal>(skill_1_left_8_P.get());
+    skill_1_left_9_D = std::make_unique<olc::Decal>(skill_1_left_9_P.get());
+    skill_1_left_10_D = std::make_unique<olc::Decal>(skill_1_left_10_P.get());
+
+    //第二阶段的图片
+    skill_2_right_0_P = std::make_unique<olc::Sprite>("./pic/Naruto/skill_2/right/0.png");
+    skill_2_right_1_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_2/right/1.png");
+    skill_2_right_2_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_2/right/2.png");
+    skill_2_right_3_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_2/right/3.png");
+    skill_2_right_4_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_2/right/4.png");
+    skill_2_right_5_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_2/right/5.png");
+    skill_2_right_6_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_2/right/6.png");
+    skill_2_right_7_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_2/right/7.png");
+    skill_2_right_8_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_2/right/8.png");
+    skill_2_right_9_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_2/right/9.png");
+    skill_2_right_10_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_2/right/10.png");
+    skill_2_right_10_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_2/right/11.png");
+
+    skill_2_left_0_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_2/left/0.png");
+    skill_2_left_1_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_2/left/1.png");
+    skill_2_left_2_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_2/left/2.png");
+    skill_2_left_3_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_2/left/3.png");
+    skill_2_left_4_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_2/left/4.png");
+    skill_2_left_5_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_2/left/5.png");
+    skill_2_left_6_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_2/left/6.png");
+    skill_2_left_7_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_2/left/7.png");
+    skill_2_left_8_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_2/left/8.png");
+    skill_2_left_9_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_2/left/9.png");
+    skill_2_left_10_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_2/left/10.png");
+    skill_2_left_10_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_2/left/11.png");
+
+    skill_2_right_0_D = std::make_unique<olc::Decal>(skill_2_right_0_P.get());
+    skill_2_right_1_D = std::make_unique<olc::Decal>(skill_2_right_1_P.get());
+    skill_2_right_2_D = std::make_unique<olc::Decal>(skill_2_right_2_P.get());
+    skill_2_right_3_D = std::make_unique<olc::Decal>(skill_2_right_3_P.get());
+    skill_2_right_4_D = std::make_unique<olc::Decal>(skill_2_right_4_P.get());
+    skill_2_right_5_D = std::make_unique<olc::Decal>(skill_2_right_5_P.get());
+    skill_2_right_6_D = std::make_unique<olc::Decal>(skill_2_right_6_P.get());
+    skill_2_right_7_D = std::make_unique<olc::Decal>(skill_2_right_7_P.get());
+    skill_2_right_8_D = std::make_unique<olc::Decal>(skill_2_right_8_P.get());
+    skill_2_right_9_D = std::make_unique<olc::Decal>(skill_2_right_9_P.get());
+    skill_2_right_10_D = std::make_unique<olc::Decal>(skill_2_right_10_P.get());
+    skill_2_right_10_D = std::make_unique<olc::Decal>(skill_2_right_11_P.get());
+
+    skill_2_left_0_D = std::make_unique<olc::Decal>(skill_2_left_0_P.get());
+    skill_2_left_1_D = std::make_unique<olc::Decal>(skill_2_left_1_P.get());
+    skill_2_left_2_D = std::make_unique<olc::Decal>(skill_2_left_2_P.get());
+    skill_2_left_3_D = std::make_unique<olc::Decal>(skill_2_left_3_P.get());
+    skill_2_left_4_D = std::make_unique<olc::Decal>(skill_2_left_4_P.get());
+    skill_2_left_5_D = std::make_unique<olc::Decal>(skill_2_left_5_P.get());
+    skill_2_left_6_D = std::make_unique<olc::Decal>(skill_2_left_6_P.get());
+    skill_2_left_7_D = std::make_unique<olc::Decal>(skill_2_left_7_P.get());
+    skill_2_left_8_D = std::make_unique<olc::Decal>(skill_2_left_8_P.get());
+    skill_2_left_9_D = std::make_unique<olc::Decal>(skill_2_left_9_P.get());
+    skill_2_left_10_D = std::make_unique<olc::Decal>(skill_2_left_10_P.get());
+    skill_2_left_10_D = std::make_unique<olc::Decal>(skill_2_left_11_P.get());
+
     return true;
 }
 
@@ -178,6 +280,7 @@ bool Example::OnUserUpdate(float fElapsedTime) {
         //回合结束，结算是否被攻击中。如果被击中则会移动。
         hitAction(unitA, fElapsedTime);
         hitAction(unitB, fElapsedTime);
+
         fallAction(unitA, fElapsedTime);
         fallAction(unitB, fElapsedTime);
 
@@ -229,8 +332,8 @@ void Example::render(float fElapsedTime) {
     drawLivesBar(fElapsedTime);
 
     //画查克拉条
-    //先画两个角色的查克拉槽.
 
+    //先画两个角色的查克拉槽.
     FillRectDecal(olc::vf2d(posOfLivesBarA.x, posOfLivesBarA.y + 53), darkBarSize, olc::DARK_RED);
     FillRectDecal(olc::vf2d(ScreenWidth() - 200, posOfLivesBarA.y + 53), darkBarSize, olc::DARK_RED);
     chakraDraw(&unitA);
@@ -899,7 +1002,7 @@ void Example::runAction(Unit &unit, float fElapsedTime) {
     }
 
     //角色左跑
-    if (GetKey(unit.leftKey).bHeld && !GetKey(unit.rightKey).bHeld){
+    if (GetKey(unit.leftKey).bHeld){
         switch (unit.S) {
             case farAttack: {}
             case flash:{}
@@ -952,7 +1055,12 @@ void Example::runAction(Unit &unit, float fElapsedTime) {
                             }
                         }
                     }
-                }else unit.S = stand;
+                }
+                else
+                {
+                    if (unit.acceleration != 0) unit.S = jump;
+                    else unit.S = stand;
+                }
             }break;
         }
     }

@@ -271,6 +271,110 @@ public:
     std::unique_ptr<olc::Decal> farAttackLeftDecal_2;
     std::unique_ptr<olc::Decal> shurikenDecal;
 
+    //大招的图片
+    std::unique_ptr<olc::Sprite> skill_1_right_0_P;
+    std::unique_ptr<olc::Sprite> skill_1_right_1_P;
+    std::unique_ptr<olc::Sprite> skill_1_right_2_P;
+    std::unique_ptr<olc::Sprite> skill_1_right_3_P;
+    std::unique_ptr<olc::Sprite> skill_1_right_4_P;
+    std::unique_ptr<olc::Sprite> skill_1_right_5_P;
+    std::unique_ptr<olc::Sprite> skill_1_right_6_P;
+    std::unique_ptr<olc::Sprite> skill_1_right_7_P;
+    std::unique_ptr<olc::Sprite> skill_1_right_8_P;
+    std::unique_ptr<olc::Sprite> skill_1_right_9_P;
+    std::unique_ptr<olc::Sprite> skill_1_right_10_P;
+
+    std::unique_ptr<olc::Sprite> skill_1_left_0_P;
+    std::unique_ptr<olc::Sprite> skill_1_left_1_P;
+    std::unique_ptr<olc::Sprite> skill_1_left_2_P;
+    std::unique_ptr<olc::Sprite> skill_1_left_3_P;
+    std::unique_ptr<olc::Sprite> skill_1_left_4_P;
+    std::unique_ptr<olc::Sprite> skill_1_left_5_P;
+    std::unique_ptr<olc::Sprite> skill_1_left_6_P;
+    std::unique_ptr<olc::Sprite> skill_1_left_7_P;
+    std::unique_ptr<olc::Sprite> skill_1_left_8_P;
+    std::unique_ptr<olc::Sprite> skill_1_left_9_P;
+    std::unique_ptr<olc::Sprite> skill_1_left_10_P;
+
+    std::unique_ptr<olc::Decal> skill_1_right_0_D;
+    std::unique_ptr<olc::Decal> skill_1_right_1_D;
+    std::unique_ptr<olc::Decal> skill_1_right_2_D;
+    std::unique_ptr<olc::Decal> skill_1_right_3_D;
+    std::unique_ptr<olc::Decal> skill_1_right_4_D;
+    std::unique_ptr<olc::Decal> skill_1_right_5_D;
+    std::unique_ptr<olc::Decal> skill_1_right_6_D;
+    std::unique_ptr<olc::Decal> skill_1_right_7_D;
+    std::unique_ptr<olc::Decal> skill_1_right_8_D;
+    std::unique_ptr<olc::Decal> skill_1_right_9_D;
+    std::unique_ptr<olc::Decal> skill_1_right_10_D;
+
+    std::unique_ptr<olc::Decal> skill_1_left_0_D;
+    std::unique_ptr<olc::Decal> skill_1_left_1_D;
+    std::unique_ptr<olc::Decal> skill_1_left_2_D;
+    std::unique_ptr<olc::Decal> skill_1_left_3_D;
+    std::unique_ptr<olc::Decal> skill_1_left_4_D;
+    std::unique_ptr<olc::Decal> skill_1_left_5_D;
+    std::unique_ptr<olc::Decal> skill_1_left_6_D;
+    std::unique_ptr<olc::Decal> skill_1_left_7_D;
+    std::unique_ptr<olc::Decal> skill_1_left_8_D;
+    std::unique_ptr<olc::Decal> skill_1_left_9_D;
+    std::unique_ptr<olc::Decal> skill_1_left_10_D;
+
+    std::unique_ptr<olc::Sprite> skill_2_right_0_P;
+    std::unique_ptr<olc::Sprite> skill_2_right_1_P;
+    std::unique_ptr<olc::Sprite> skill_2_right_2_P;
+    std::unique_ptr<olc::Sprite> skill_2_right_3_P;
+    std::unique_ptr<olc::Sprite> skill_2_right_4_P;
+    std::unique_ptr<olc::Sprite> skill_2_right_5_P;
+    std::unique_ptr<olc::Sprite> skill_2_right_6_P;
+    std::unique_ptr<olc::Sprite> skill_2_right_7_P;
+    std::unique_ptr<olc::Sprite> skill_2_right_8_P;
+    std::unique_ptr<olc::Sprite> skill_2_right_9_P;
+    std::unique_ptr<olc::Sprite> skill_2_right_10_P;
+    std::unique_ptr<olc::Sprite> skill_2_right_11_P;
+
+    std::unique_ptr<olc::Sprite> skill_2_left_0_P;
+    std::unique_ptr<olc::Sprite> skill_2_left_1_P;
+    std::unique_ptr<olc::Sprite> skill_2_left_2_P;
+    std::unique_ptr<olc::Sprite> skill_2_left_3_P;
+    std::unique_ptr<olc::Sprite> skill_2_left_4_P;
+    std::unique_ptr<olc::Sprite> skill_2_left_5_P;
+    std::unique_ptr<olc::Sprite> skill_2_left_6_P;
+    std::unique_ptr<olc::Sprite> skill_2_left_7_P;
+    std::unique_ptr<olc::Sprite> skill_2_left_8_P;
+    std::unique_ptr<olc::Sprite> skill_2_left_9_P;
+    std::unique_ptr<olc::Sprite> skill_2_left_10_P;
+    std::unique_ptr<olc::Sprite> skill_2_left_11_P;
+
+    std::unique_ptr<olc::Decal> skill_2_right_0_D;
+    std::unique_ptr<olc::Decal> skill_2_right_1_D;
+    std::unique_ptr<olc::Decal> skill_2_right_2_D;
+    std::unique_ptr<olc::Decal> skill_2_right_3_D;
+    std::unique_ptr<olc::Decal> skill_2_right_4_D;
+    std::unique_ptr<olc::Decal> skill_2_right_5_D;
+    std::unique_ptr<olc::Decal> skill_2_right_6_D;
+    std::unique_ptr<olc::Decal> skill_2_right_7_D;
+    std::unique_ptr<olc::Decal> skill_2_right_8_D;
+    std::unique_ptr<olc::Decal> skill_2_right_9_D;
+    std::unique_ptr<olc::Decal> skill_2_right_10_D;
+    std::unique_ptr<olc::Decal> skill_2_right_11_D;
+
+    std::unique_ptr<olc::Decal> skill_2_left_0_D;
+    std::unique_ptr<olc::Decal> skill_2_left_1_D;
+    std::unique_ptr<olc::Decal> skill_2_left_2_D;
+    std::unique_ptr<olc::Decal> skill_2_left_3_D;
+    std::unique_ptr<olc::Decal> skill_2_left_4_D;
+    std::unique_ptr<olc::Decal> skill_2_left_5_D;
+    std::unique_ptr<olc::Decal> skill_2_left_6_D;
+    std::unique_ptr<olc::Decal> skill_2_left_7_D;
+    std::unique_ptr<olc::Decal> skill_2_left_8_D;
+    std::unique_ptr<olc::Decal> skill_2_left_9_D;
+    std::unique_ptr<olc::Decal> skill_2_left_10_D;
+    std::unique_ptr<olc::Decal> skill_2_left_11_D;
+
+
+
+
     olc::vf2d blockSize = {63, 97};
     std::unique_ptr<olc::Sprite> tilePic;
     std::unique_ptr<olc::Decal> tileDecal;
