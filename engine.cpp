@@ -171,20 +171,14 @@ bool Example::OnUserUpdate(float fElapsedTime) {
         farAttackAction(unitA, fElapsedTime);
         farAttackAction(unitB, fElapsedTime);
 
-        //道具进行移动和作用.
-        for (int i = 0; i < items.size(); i++){
-            items[i].effect(unitA);
-            items[i].effect(unitB);
-            items[i].move(fElapsedTime);
-        }
-
         //回合结束，结算是否被攻击中。如果被击中则会移动。
         hitAction(unitA, fElapsedTime);
         hitAction(unitB, fElapsedTime);
         fallAction(unitA, fElapsedTime);
         fallAction(unitB, fElapsedTime);
 
-
+        //道具移动与生效.
+        item_moveAndEffect(fElapsedTime);
 
         collision(fElapsedTime);
 
@@ -195,6 +189,8 @@ bool Example::OnUserUpdate(float fElapsedTime) {
         unitAreas[1].existence = false;
         //删除所有已死的区域
         removeDeadArea();
+        //删除失效道具.
+        removeDeadItem();
         gameOver();
     }
             //血条逐渐减少。
@@ -1033,7 +1029,7 @@ void Example::flashAction(Unit &unit, float fElapsedTime) {
             case flash:{}break;
             default:{
                 unit.S = flash;
-                unit.flashFrames += 500;
+                unit.flashFrames += 300;
                 unit.speed.y = 0;
                 if (unit.face){
                     float futurePos = unit.position.x + 150;
@@ -1099,8 +1095,9 @@ void Example::farAttackAction(Unit &unit, float fElapsedTime) {
                     if (unit.face) offset.x = blockSize.x;
                     else offset.x = - blockSize.x;
                     unit.S = farAttack;
+
                     items.push_back(
-                            shuriken(unit.position + offset,
+                            std::make_shared<shuriken>(unit.position + offset,
                                      unit.side, unit.face,
                                      olc::vf2d(51, 97), true)
                     );
@@ -1165,34 +1162,51 @@ void Example::farAttackDraw(Unit &unit, float offset_true, float offset_false) {
 }
 
 void Example::itemDraw() {
-    for(int i = 0; i < items.size(); i++){
-        if (items[i].tp == shurikenItem){
-            DrawDecal(items[i].position, shurikenDecal.get());
+    for (int i = 0; i < items.size(); i++) {
+        if (items[i]->tp == shurikenItem) {
+            DrawDecal(items[i]->position, shurikenDecal.get());
         }
     }
 }
 
-//判断角色是否被该道具影响
-bool shuriken::isEffected(Unit &unit) {
-    //向右运动时,人物若在图像上和shuriken重叠,那么就会判定为true
-    return (unit.position.x <= size.x + position.x
-    &&  unit.position.x >= position.x -  unit.size.x);
+void Example::removeDeadItem() {
+    items.erase(
+            std::remove_if(items.begin(), items.end(), [](const std::shared_ptr<Item>& itm) { return !itm->existence; }),
+            items.end());
 }
 
-void shuriken::effect(Unit &unit) {
+void Example::item_moveAndEffect(float fElapsedTime) {
+    for (int i = 0; i < items.size(); i++) {
+        items[i]->move(fElapsedTime);
+        Unit* opponent;
+        if (items[i]->side) opponent = &unitB;
+        else opponent = &unitA;
+        items[i]->effect(opponent);
+    }
+}
+
+
+//判断角色是否被该道具影响
+bool shuriken::isEffected(Unit* unit) {
+    //向右运动时,人物若在图像上和shuriken重叠,那么就会判定为true
+    return (unit->position.x <= size.x + position.x
+    &&  unit->position.x >= position.x -  unit->size.x);
+}
+
+void shuriken::effect(Unit* unit) {
     if (isEffected(unit)){
-        switch(unit.S){
+        switch(unit->S){
             case defend:{
-                unit.lives --;
+                unit->lives --;
             }break;
             case fall:{}break;
             default:{
                 //和击飞效果类似, 但不会飞那么高, 会扣血,也会攒能量,后期可以用于放技能.
-                unit.S = fall;
-                unit.lives -= 5;
-                unit.hitNum = 0;
-                unit.speed.y = -100;
-                unit.acceleration = 500;
+                unit->S = fall;
+                unit->lives -= 5;
+                unit->hitNum = 0;
+                unit->speed.y = -100;
+                unit->acceleration = 500;
             }
         }
     }
@@ -1200,7 +1214,7 @@ void shuriken::effect(Unit &unit) {
 
 //手里剑移动.每过一帧,存在帧数减少,位置移动.
 void shuriken::move(float fElapsedTime) {
-    if (existFrams <= 0){
+    if (existFrams >= 0){
         existFrams--;
         if (direction) position.x += speed.x * fElapsedTime;
         else position.x -= speed.x * fElapsedTime;

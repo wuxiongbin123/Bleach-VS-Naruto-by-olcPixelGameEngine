@@ -113,8 +113,12 @@ public:
                                 side(sd),
                                 existence(true),
                                 tp(none){}
-    void effect(Unit& unit){};
-    void move(float fElapsedTime){};
+    virtual void effect(Unit* unit){
+        std::cout << "none" << std::endl;
+    };
+    virtual void move(float fElapsedTime){
+        std::cout << "none" << std::endl;
+    };
 
 public:
     olc::vf2d position = {0, 0};
@@ -134,7 +138,7 @@ public:
         if (isHorizontal){
             speed.y = 0;
         }else{
-            speed.y = 350;
+            speed.y = 400;
         }
 
         size = sz;
@@ -143,9 +147,9 @@ public:
         tp = shurikenItem;
     }
 
-    bool isEffected(Unit& unit);
-    void effect(Unit& unit);
-    void move(float fElapsedTime);
+    bool isEffected(Unit* unit);
+    void effect(Unit* unit) override;
+    void move(float fElapsedTime) override;
 
 
 public:
@@ -183,7 +187,7 @@ public:
     friend Unit;
     Unit unitA;
     Unit unitB;
-    std::vector<Item> items;
+    std::vector<std::shared_ptr<Item>> items;
     std::vector<std::string> commands;
     void render(float fElapsedTime);
     bool OnUserCreate() override;
@@ -295,15 +299,14 @@ public:
 
     //引擎中的交互函数
 
-    //道具效果函数.
-    void shurikenEffect(Unit& unit, olc::vf2d effectSize);
-
+    void item_moveAndEffect(float fElapsedTime);
     void collision(float fElapsedTime);
     bool isBlocked(Unit& unit, float futurePos);
     bool isMoving(Unit& unit);
     bool inBound(bool moveDirection, float positionX);
     void recover(Unit& unit);
     void removeDeadArea();
+    void removeDeadItem();
 };
 
 
