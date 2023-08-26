@@ -143,7 +143,7 @@ public:
 
         size = sz;
         direction = Direction;
-        existFrams = 4000;
+        existFrams = 800;
         tp = shurikenItem;
     }
 

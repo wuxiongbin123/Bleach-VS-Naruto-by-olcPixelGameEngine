@@ -1189,24 +1189,25 @@ void Example::item_moveAndEffect(float fElapsedTime) {
 //判断角色是否被该道具影响
 bool shuriken::isEffected(Unit* unit) {
     //向右运动时,人物若在图像上和shuriken重叠,那么就会判定为true
-    return (unit->position.x <= size.x + position.x
-    &&  unit->position.x >= position.x -  unit->size.x);
+    return (unit->position.x <= size.x * 0.6 + position.x
+    &&  unit->position.x >= position.x -  unit->size.x * 0.6);
 }
 
-void shuriken::effect(Unit* unit) {
-    if (isEffected(unit)){
-        switch(unit->S){
+void shuriken::effect(Unit* oppoent) {
+    if (isEffected(oppoent)){
+        switch(oppoent->S){
             case defend:{
-                unit->lives --;
+                oppoent->lives -= 1;
+                existence = false;
             }break;
             case fall:{}break;
             default:{
                 //和击飞效果类似, 但不会飞那么高, 会扣血,也会攒能量,后期可以用于放技能.
-                unit->S = fall;
-                unit->lives -= 5;
-                unit->hitNum = 0;
-                unit->speed.y = -100;
-                unit->acceleration = 500;
+                oppoent->S = fall;
+                oppoent->lives -= 5;
+                oppoent->hitNum = 0;
+                oppoent->speed.y = -100;
+                oppoent->acceleration = 500;
             }
         }
     }
