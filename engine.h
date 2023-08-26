@@ -111,7 +111,8 @@ public:
     Item(olc::vf2d pos, bool sd):position(pos),
                                 side(sd),
                                 existence(true){}
-    void effect(){}
+    void effect(Unit& unit){};
+    void move(float fElapsedTime){};
 public:
     olc::vf2d position = {0, 0};
     bool existence;
@@ -134,13 +135,15 @@ public:
 
         size = sz;
         direction = Direction;
+        existFrams = 4000;
     }
 
     bool isEffected(Unit& unit);
     void effect(Unit& unit);
-    void move();
+    void move(float fElapsedTime);
 
 public:
+    int existFrams;
     olc::vf2d speed;
     bool direction;
     olc::vf2d size;

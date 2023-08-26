@@ -171,11 +171,20 @@ bool Example::OnUserUpdate(float fElapsedTime) {
         farAttackAction(unitA, fElapsedTime);
         farAttackAction(unitB, fElapsedTime);
 
+        //道具进行移动和作用.
+        for (int i = 0; i < items.size(); i++){
+            items[i].effect(unitA);
+            items[i].effect(unitB);
+            items[i].move(fElapsedTime);
+        }
+
         //回合结束，结算是否被攻击中。如果被击中则会移动。
         hitAction(unitA, fElapsedTime);
         hitAction(unitB, fElapsedTime);
         fallAction(unitA, fElapsedTime);
         fallAction(unitB, fElapsedTime);
+
+
 
         collision(fElapsedTime);
 
@@ -519,7 +528,7 @@ void Example::recover(Unit& unit) {
             }
         }break;
         case hit:{
-            if( (clock() - unit.hitTime) > 500) unit.S = stand;
+            if( (clock() - unit.hitTime) > 1000) unit.S = stand;
         }break;
         case defend:
         {
@@ -538,7 +547,7 @@ void Example::recover(Unit& unit) {
 void Example::attackAction(Unit &unit, float fElapsedTime) {
     if (GetKey(unit.attackKey).bPressed){
         //跳跃状态下不进行普攻。
-        if (unit.S != jump && (clock() - unit.attackTime) > 500) {
+        if (unit.S != farAttack && unit.S != jump && (clock() - unit.attackTime) > 500) {
             //第四次攻击后需要更长的cd
             if (unit.attackNum == 3){
                 if(clock() - unit.attackTime >= 1000)
@@ -730,15 +739,21 @@ void Example::drawLivesBar(float fElapsedTime) {
 
 //根据状态移动角色
 void Example::moveUnit(Unit &unit, float fElapsedTime) {
+    Unit oppoent;
+    if (unit.side) oppoent = unitB;
+    else oppoent = unitA;
     switch(unit.S){
         case attack: {
-            if (unit.face) {
-                if(unit.position.x + unit.speed.x * 0.1 * fElapsedTime <= ScreenWidth() - blockSize.x)
-                unit.position.x += 0.2 * unit.speed.x * fElapsedTime;
-            } else {
-                if(unit.position.x - unit.speed.x * 0.1 * fElapsedTime >= 0)
-                unit.position.x -= 0.2 * unit.speed.x * fElapsedTime;
+            if (oppoent.S != defend){
+                if (unit.face) {
+                    if(unit.position.x + unit.speed.x * 0.1 * fElapsedTime <= ScreenWidth() - blockSize.x)
+                        unit.position.x += 0.2 * unit.speed.x * fElapsedTime;
+                } else {
+                    if(unit.position.x - unit.speed.x * 0.1 * fElapsedTime >= 0)
+                        unit.position.x -= 0.2 * unit.speed.x * fElapsedTime;
+                }
             }
+
         }break;
         case hit: {
 //            if (unit.face){
@@ -757,6 +772,7 @@ void Example::defendAction(Unit &unit, float fElapsedTime) {
     if (GetKey(unit.downKey).bHeld){
         switch(unit.S){
             //攻击、跳跃、被攻击、击飞时不能通过按键改变状态。
+            case farAttack:{}
             case attack:{}
             case jump:{}
             case fall:{}
@@ -795,7 +811,7 @@ void Example::runAction(Unit &unit, float fElapsedTime) {
             case defend:{}
             case fall:{}
             case hit:{}
-            case attack: break;
+            case attack:{} break;
             case jump:{}
             default: {
                 if (unit.S != jump) unit.S = run;
@@ -846,11 +862,12 @@ void Example::runAction(Unit &unit, float fElapsedTime) {
     //角色左跑
     if (GetKey(unit.leftKey).bHeld){
         switch (unit.S) {
+            case farAttack: {}
             case flash:{}
             case defend:{}
             case fall:{}
             case hit:{}
-            case attack: break;
+            case attack:{}break;
             case jump:{}
             default:{
                 if (unit.S != jump) unit.S = run;
@@ -962,6 +979,7 @@ void Example::jumpAction(Unit &unit, float fElapsedTime) {
     //A角色起跳用K键控制，跳跃最多可以二段跳。
     if (GetKey(unit.upKey).bPressed){
         switch(unit.S){
+            case farAttack:{}
             case flash:{}
             case hit:{}
             case fall:{}break;
@@ -993,6 +1011,9 @@ void Example::jumpAction(Unit &unit, float fElapsedTime) {
             unit.acceleration = 0;
             unit.S = stand;
             unit.canDoubleJump = true;
+
+            //落地之后可以刷新远攻.
+
         }
     }
 }
@@ -1001,6 +1022,7 @@ void Example::flashAction(Unit &unit, float fElapsedTime) {
     if(GetKey(unit.flashKey).bReleased){
         switch(unit.S){
             //从这里到default都为空,代表着这些状态都不能直接到flash
+            case farAttack:{}
             case hit:{}
             case attack:{}
             case defend:{}
@@ -1011,7 +1033,7 @@ void Example::flashAction(Unit &unit, float fElapsedTime) {
                 unit.flashFrames += 500;
                 unit.speed.y = 0;
                 if (unit.face){
-                    float futurePos = unit.position.x + 100;
+                    float futurePos = unit.position.x + 150;
                     if (futurePos <= ScreenWidth() - blockSize.x){
                         unit.position.x = futurePos;
                     }
@@ -1020,7 +1042,7 @@ void Example::flashAction(Unit &unit, float fElapsedTime) {
                     }
                 }
                 else{
-                    float futurePos = unit.position.x - 100;
+                    float futurePos = unit.position.x - 150;
                     if (futurePos >= 0){
                         unit.position.x = futurePos;
                     }
@@ -1062,6 +1084,7 @@ void Example::farAttackAction(Unit &unit, float fElapsedTime) {
     if (GetKey(unit.farAttackKey).bPressed){
         switch(unit.S)
         {
+            case jump:{}
             case attack:{}
             case fall:{}
             case hit:{}
@@ -1076,20 +1099,17 @@ void Example::farAttackAction(Unit &unit, float fElapsedTime) {
                                      olc::vf2d(51, 97), true)
                     );
                     unit.farAttackFrames = 600;//cd为600帧
+
                 }
             }
         }
     }
-    //自动恢复的过程.
+    //自动恢复的过程.只能从这里改变farAttack的状态,其余的不能改变farAttack的状态
     if (unit.S == farAttack){
         unit.farAttackFrames--;
         if (unit.farAttackFrames <= 0){
             unit.farAttackFrames = 0;
-            if (unit.acceleration != 0) {
-                unit.S = jump;
-            }else{
-                unit.S = stand;
-            }
+            unit.S = stand;
         }
     }
 }
@@ -1162,4 +1182,14 @@ void shuriken::effect(Unit &unit) {
             }
         }
     }
+}
+
+//手里剑移动.每过一帧,存在帧数减少,位置移动.
+void shuriken::move(float fElapsedTime) {
+    if (existFrams <= 0){
+        existFrams--;
+        if (direction) position.x += speed.x * fElapsedTime;
+        else position.x -= speed.x * fElapsedTime;
+    }
+    else existence = false;
 }
