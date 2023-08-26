@@ -10,7 +10,7 @@ Unit::Unit(bool s, unitType u): S(stand), lives(100)
                                 attackNum(3), attackTime(clock() - 1000),
                                 hitTime(clock() - 500), hitNum(0),
                                 farAttackFrames(0),
-                                flashFrames(0)
+                                flashFrames(0), chakra(0)
                                 {
     speed = {250, 0};
     if (side){
@@ -44,6 +44,9 @@ bool Example::OnUserCreate() {
     //初始化人物位置
     unitA = Unit(true, Naruto);
     unitB = Unit(false, Naruto);
+    units.push_back(&unitA);
+    units.push_back(&unitB);
+
     unitA.position = { 1024 * 0.2 - 120, floorPos-blockSize.y + 15};
     unitB.position = {1024 * 0.8 , floorPos - blockSize.y + 15};//170是hard code上去的，是人物的高度。
 
@@ -214,16 +217,25 @@ void Example::render(float fElapsedTime) {
     DrawDecal(olc::vf2d(0, 0), backgroundDecal.get());
 
     //画地板
-//    for(int i = 0; i < ScreenWidth() / 16; i++){
-//        floorSite.x = i * 16;
-//        floorSite.y = floorPos;
-//        DrawDecal(floorSite, tileDecal.get());
-//    }
+    for(int i = 0; i < ScreenWidth() / 16; i++){
+        floorSite.x = i * 16;
+        floorSite.y = floorPos;
+        DrawDecal(floorSite, tileDecal.get());
+    }
     drawSignal(unitA);
     drawSignal(unitB);
 
     //画血条和血条架。
     drawLivesBar(fElapsedTime);
+
+    //画查克拉条
+    //先画两个角色的查克拉槽.
+
+    FillRectDecal(olc::vf2d(posOfLivesBarA.x, posOfLivesBarA.y + 53), darkBarSize, olc::DARK_RED);
+    FillRectDecal(olc::vf2d(ScreenWidth() - 200, posOfLivesBarA.y + 53), darkBarSize, olc::DARK_RED);
+    chakraDraw(&unitA);
+    chakraDraw(&unitB);
+
     SetPixelMode(olc::Pixel::ALPHA);
 
     //画道具
@@ -605,7 +617,21 @@ void Example::hitAction(Unit &unit, float fElapsedTime) {
             unit.hitNum++;
             hitAreas[i].existence = false;
             play(hitSound);
+
+            //被攻击成功后双方都会增加查克拉.
+            Unit* oppoent = units[unit.oppoentNum];
+            if (unit.chakra < 300) unit.chakra += 15;
+            else unit.chakra = 300;
+            if (oppoent->chakra < 300) oppoent->chakra += 10;
+            else oppoent->chakra = 300;
+
         }if (unit.S == defend){
+            //防御状态下击中同样会增加查克拉,但是更少.而对方仍增加10.
+            Unit* oppoent = units[unit.oppoentNum];
+            if (unit.chakra < 300) unit.chakra += 5;
+            else unit.chakra = 300;
+            if (oppoent->chakra < 300) oppoent->chakra += 10;
+            else oppoent->chakra = 300;
             hitAreas[i].existence = false;
             unit.lives -= 1;
         }
@@ -1112,6 +1138,7 @@ void Example::farAttackAction(Unit &unit, float fElapsedTime) {
                     if (unit.face) offset.x = blockSize.x;
                     else offset.x = - blockSize.x;
                     unit.S = farAttack;
+                    if(unit.chakra < 300) unit.chakra += 10;
 
                     items.push_back(
                             std::make_shared<shuriken>(unit.position + offset,
@@ -1196,9 +1223,87 @@ void Example::item_moveAndEffect(float fElapsedTime) {
     for (int i = 0; i < items.size(); i++) {
         items[i]->move(fElapsedTime);
         Unit* opponent;
-        if (items[i]->side) opponent = &unitB;
-        else opponent = &unitA;
-        items[i]->effect(opponent);
+        Unit* unit;
+        if (items[i]->side){
+            opponent = &unitB;
+            unit = &unitA;
+        }
+
+        else{
+            opponent = &unitA;
+            unit = &unitA;
+        }
+
+        items[i]->effect(unit, opponent);
+
+    }
+}
+
+void Example::chakraDraw(Unit *unit) {
+    unit->chakraBarLen = (int(unit->chakra) % 100) / 100.0 * 200;
+    unit->chakraColor = unit->chakra / 100;
+    olc::vf2d chakraBarSize(unit->chakraBarLen, 7);
+
+
+    if (unit->side){
+        switch(unit->chakraColor){
+            case 0:{
+                //蓝色
+                FillRectDecal(olc::vf2d(posOfLivesBarA.x, posOfLivesBarA.y + 54),
+                              chakraBarSize, olc::BLUE);
+
+            }break;
+            case 1:
+            {
+                FillRectDecal(olc::vf2d(posOfLivesBarA.x, posOfLivesBarA.y + 54),
+                              {200, 7}, olc::BLUE);
+                FillRectDecal(olc::vf2d(posOfLivesBarA.x, posOfLivesBarA.y + 54),
+                              chakraBarSize, olc::YELLOW);
+            }break;
+            //黄色
+            case 2:
+            {
+                FillRectDecal(olc::vf2d(posOfLivesBarA.x, posOfLivesBarA.y + 54),
+                              {200, 7}, olc::YELLOW);
+                FillRectDecal(olc::vf2d(posOfLivesBarA.x, posOfLivesBarA.y + 54),
+                              chakraBarSize, olc::RED);
+            }break;
+            //红色
+            case 3:{
+                FillRectDecal(olc::vf2d(posOfLivesBarA.x, posOfLivesBarA.y + 54),
+                              {200, 7}, olc::RED);
+            }break;//红
+        }
+    }
+    else{
+        switch(unit->chakraColor) {
+            case 0: {
+                //蓝色
+                FillRectDecal(olc::vf2d(ScreenWidth() - unit->chakraBarLen, posOfLivesBarB.y + 54),
+                              chakraBarSize, olc::BLUE);
+
+            }
+                break;
+            case 1: {
+                FillRectDecal(olc::vf2d(ScreenWidth() - 200, posOfLivesBarB.y + 54),
+                              {200, 7}, olc::BLUE);
+                FillRectDecal(olc::vf2d(ScreenWidth() - unit->chakraBarLen, posOfLivesBarB.y + 54),
+                              chakraBarSize, olc::YELLOW);
+            }break;
+            //黄色
+            case 2: {
+                FillRectDecal(olc::vf2d(ScreenWidth() - 200, posOfLivesBarB.y + 54),
+                              {200, 7}, olc::YELLOW);
+                FillRectDecal(olc::vf2d(ScreenWidth() - unit->chakraBarLen, posOfLivesBarB.y + 54),
+                              chakraBarSize, olc::RED);
+            }break;
+            //红色
+            case 3: {
+                FillRectDecal(olc::vf2d(ScreenWidth() - 200, posOfLivesBarB.y + 54),
+                              {200, 7}, olc::RED);
+            }
+                break;//红
+        }
     }
 }
 
@@ -1210,14 +1315,23 @@ bool shuriken::isEffected(Unit* unit) {
     &&  unit->position.x >= position.x -  unit->size.x * 0.6);
 }
 
-void shuriken::effect(Unit* oppoent) {
+void shuriken::effect(Unit* unit, Unit* oppoent) {
     if (isEffected(oppoent)){
         switch(oppoent->S){
             case defend:{
                 oppoent->lives -= 1;
                 existence = false;
+                if(unit->chakra < 300) unit->chakra += 10;
+                else unit->chakra = 300;
+                if (oppoent->chakra < 300) oppoent->chakra += 5;
+                else oppoent->chakra = 300;
+
             }break;
-            case fall:{}break;
+
+            case fall:{
+
+            }break;
+
             default:{
                 //和击飞效果类似, 但不会飞那么高, 会扣血,也会攒能量,后期可以用于放技能.
                 play(hitSound);
@@ -1227,8 +1341,16 @@ void shuriken::effect(Unit* oppoent) {
                 oppoent->hitNum = 0;
                 oppoent->speed.y = -100;
                 oppoent->acceleration = 500;
+
+                //对手成功攻击,查克拉增加.
+                if (oppoent->chakra < 300) oppoent->chakra += 15;
+                else oppoent->chakra = 300;
+                //己方受到攻击,查克拉也增加.
+                if (unit->chakra < 300) unit->chakra += 10;
+                else unit->chakra = 300;
+
                 existence = false;
-            }
+            }break;
         }
     }
 }

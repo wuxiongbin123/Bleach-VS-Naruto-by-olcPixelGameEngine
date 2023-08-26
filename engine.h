@@ -37,7 +37,9 @@ public:
     int hitNum;
     float firstHitTime;
     float fallDownTime;
-
+    float chakra;//查克拉,用于释放技能.
+    int chakraBarLen;
+    int chakraColor;
 
     //抽象出按键,从而可以使得行为单独编入一个函数.
     olc::Key rightKey;
@@ -113,7 +115,7 @@ public:
                                 side(sd),
                                 existence(true),
                                 tp(none){}
-    virtual void effect(Unit* unit){
+    virtual void effect(Unit* unit, Unit* oppoent){
         std::cout << "none" << std::endl;
     };
     virtual void move(float fElapsedTime){
@@ -148,7 +150,7 @@ public:
     }
 
     bool isEffected(Unit* unit);
-    void effect(Unit* unit) override;
+    void effect(Unit* unit, Unit* oppoent) override;
     void move(float fElapsedTime) override;
 
 
@@ -182,8 +184,10 @@ public:
     olc::vf2d livesRedBarSizeA;
     olc::vf2d livesRedBarSizeB;
     olc::vf2d livesGreenBarSizeB;
+    olc::vf2d darkBarSize = {200, 9};
     std::vector<hitArea> hitAreas;
     std::vector<unitArea> unitAreas;
+    std::vector<Unit*> units;
     friend Unit;
     Unit unitA;
     Unit unitB;
@@ -295,6 +299,8 @@ public:
     void flashDraw(Unit& unit, float offset_true, float offset_false);
     void farAttackDraw(Unit& unit, float offset_true, float offset_false);
     void itemDraw();
+    void chakraDraw(Unit* unit);
+
 
     void drawSignal(Unit& unit);
     void drawLivesBar(float fEplasedTime);
