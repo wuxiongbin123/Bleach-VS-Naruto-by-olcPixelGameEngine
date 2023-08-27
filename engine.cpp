@@ -3,7 +3,7 @@ using namespace std;
 
 Unit::Unit(){}
 
-Unit::Unit(bool s, unitType u): S(stand), lives(100)
+Unit::Unit(bool s, unitType u): S(stand), lives(10000000)
                                 , side(s), type(u),
                                 stateNum(0), face(!s),
                                 acceleration(0), canDoubleJump(true),
@@ -11,7 +11,8 @@ Unit::Unit(bool s, unitType u): S(stand), lives(100)
                                 hitTime(clock() - 500), hitNum(0),
                                 farAttackFrames(0),
                                 flashFrames(0), chakra(0),
-                                skill_1_Frames(0), skill_2_Frames(0)
+                                skill_1_Frames(0), skill_2_Frames(0),
+                                skillHit(0)
                                 {
     speed = {250, 0};
     if (side){
@@ -564,7 +565,7 @@ void Example::hitDraw(Unit &unit, float offset_true, float offset_false) {
     if (unit.face){//面向右边时被攻击
         offset.x = offset_true;
         olc::vi2d picNum;
-        picNum.x = unit.hitNum % 2;
+        picNum.x = (unit.hitNum + unit.skillHit) % 2;
         picNum.y = 0;
         DrawPartialDecal(unit.position, hitRightDecal.get(),
                           picNum * blockSize + offset, blockSize);
@@ -572,7 +573,7 @@ void Example::hitDraw(Unit &unit, float offset_true, float offset_false) {
     else{
         offset.x = offset_false;
         olc::vi2d picNum;
-        picNum.x = unit.hitNum % 2;
+        picNum.x = (unit.hitNum + unit.skillHit) % 2;
         picNum.y = 0;
         DrawPartialDecal(unit.position, hitLeftDecal.get(),
                           picNum * blockSize + offset, blockSize);
@@ -754,7 +755,8 @@ void Example::hitAction(Unit &unit, float fElapsedTime) {
         //如果3秒之内连续收到四次攻击，则会被击飞。然后firstHitTime和hitNum重置
         unit.skill_1_Frames = 0;
         unit.skill_2_Frames = 0;
-        if (clock() - unit.firstHitTime < 5000 && unit.hitNum == 4){
+        bool fallFalg = unit.hitNum >= 4;
+        if (clock() - unit.firstHitTime < 5000 && fallFalg){
             play(NarutoHitSound);
             unit.S = fall;
             unit.hitNum = 0;
@@ -959,6 +961,8 @@ void Example::runAction(Unit &unit, float fElapsedTime) {
     //右跑
     if (GetKey(unit.rightKey).bHeld){
         switch (unit.S) {
+            case skill_1:{}
+            case skill_2:{}
             case farAttack:{}
             case flash:{}
             case defend:{}
@@ -1022,6 +1026,8 @@ void Example::runAction(Unit &unit, float fElapsedTime) {
     //角色左跑
     if (GetKey(unit.leftKey).bHeld){
         switch (unit.S) {
+            case skill_1:{}
+            case skill_2:{}
             case farAttack: {}
             case flash:{}
             case defend:{}
@@ -1108,6 +1114,7 @@ bool Example::isBlocked(Unit& unit, float futurePos) {
 }
 
 void Example::collision(float fElapsedTime) {
+
     //当两者相距非常近的时候
     //A在B的右侧时
     if ((unitA.position.x - unitB.position.x) <= blockSize.x
@@ -1448,12 +1455,14 @@ void Example::skill_1_Action(Unit &unit, float fElapsedTime) {
             case skill_2:{}break;
             default:
             {
-                if (unit.chakra >= 100)
-                {
-                    unit.chakra -= 100;
-                    unit.S = skill_1;
-                    unit.skill_1_Frames = 800;
-                }
+                unit.S = skill_1;
+                unit.skill_1_Frames = 800;
+//                if (unit.chakra >= 100)
+//                {
+//                    unit.chakra -= 100;
+//                    unit.S = skill_1;
+//                    unit.skill_1_Frames = 800;
+//                }
             }
         }
     }
@@ -1487,8 +1496,9 @@ void Example::skill_1_Action(Unit &unit, float fElapsedTime) {
         }
 
         //持续时间减一.
-        unit.skill_1_Frames--;
         if (unit.skill_1_Frames <= 0) unit.S = stand;
+        else unit.skill_1_Frames--;
+
     }
 }
 
@@ -1510,6 +1520,7 @@ void Example::skill_2_Action(Unit &unit, float fElapsedTime) {
                     {
 
                         oppoent->S = hit;
+                        oppoent->skillHit++;
                         oppoent->lives -= 8;
                         oppoent->hitTime = clock();
                         play(hitSound);
@@ -1529,16 +1540,16 @@ void Example::skill_2_Action(Unit &unit, float fElapsedTime) {
                     //被防御住了
                     if(oppoent->S != defend)
                     {
-                        oppoent->lives -= 3;
-                        play(hitSound);
-                    }
-                    else
-                    {
                         oppoent->S = fall;
-                        oppoent->speed.y = -4;
+                        oppoent->speed.y = -400;
                         oppoent->acceleration = 500;
                         play(hitSound);
                         play(NarutoHitSound);
+                    }
+                    else
+                    {
+                        oppoent->lives -= 3;
+                        play(hitSound);
                     }
                 }
             }
@@ -1552,8 +1563,8 @@ void Example::skill_2_Action(Unit &unit, float fElapsedTime) {
 }
 
 bool Example::skillHit(Unit* unit, Unit* oppoent) {
-    return (oppoent->position.x <= unit->position.x + blockSize.x * 0.9
-        &&  oppoent->position.x <= unit->position.x - blockSize.x * 0.9);
+    return (oppoent->position.x <= unit->position.x + blockSize.x * 1.05
+        &&  oppoent->position.x >= unit->position.x - blockSize.x * 1.05);
 }
 
 

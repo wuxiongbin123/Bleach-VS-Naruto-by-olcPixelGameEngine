@@ -57,6 +57,7 @@ public:
     int farAttackFrames;//远攻姿势维持的帧数.
     int skill_1_Frames;
     int skill_2_Frames;
+    int skillHit;//这个仅仅用来改变被攻击的动画,击飞只取决于最后一击.
     //规定：凡是右这个词都是对应true，左都是对应false
 };
 
