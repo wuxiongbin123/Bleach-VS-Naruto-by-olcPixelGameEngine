@@ -292,6 +292,8 @@ bool Example::OnUserUpdate(float fElapsedTime) {
         skill_1_Action(unitB, fElapsedTime);
         skill_2_Action(unitA, fElapsedTime);
         skill_2_Action(unitB, fElapsedTime);
+        skill_3_Action(unitA, fElapsedTime);
+        skill_3_Action(unitB, fElapsedTime);
 
         //回合结束，结算是否被攻击中。如果被击中则会移动。
         hitAction(unitA, fElapsedTime);
@@ -375,6 +377,7 @@ void Example::render(float fElapsedTime) {
             case farAttack:farAttackDraw(unitA, 0, 0);break;
             case skill_1:skill_1_Draw(unitA, 0, 0);break;
             case skill_2:defendDraw(unitA, 0, 0);break;
+            case skill_3:skill_3_Draw(unitA, 0, 0);break;
         }
         switch(unitB.S){
             case jump: jumpDraw(unitB, 0, 16);break;
@@ -388,6 +391,7 @@ void Example::render(float fElapsedTime) {
             case farAttack: farAttackDraw(unitB, 0, 0);break;
             case skill_1:skill_1_Draw(unitB, 0, 0);break;
             case skill_2:defendDraw(unitB, 0, 0);break;
+            case skill_3:skill_3_Draw(unitB, 0, 0);break;
         }
     }
     if (winner != unsettled){
@@ -1067,15 +1071,16 @@ void Example::runAction(Unit &unit, float fElapsedTime) {
     //角色左跑
     if (GetKey(unit.leftKey).bHeld){
         switch (unit.S) {
-            case skill_1:{}
-            case skill_2:{}
-            case farAttack: {}
-            case flash:{}
-            case defend:{}
-            case fall:{}
-            case hit:{}
-            case attack:{}break;
-            case jump:{}
+            case skill_1:
+            case skill_2:
+            case skill_3:
+            case farAttack:
+            case flash:
+            case defend:
+            case fall:
+            case hit:
+            case attack: break;
+            case jump:
             default:{
                 //两个键同时按,则状态出口为stand
                 if (!GetKey(unit.rightKey).bHeld){
@@ -1560,6 +1565,7 @@ void Example::skill_1_Action(Unit &unit, float fElapsedTime) {
         //持续时间减一.
         if (unit.skill_1_Frames <= 0)
         {
+            unit.S = skill_3;
             unit.skill_3_Frames = 400;
         }
         else unit.skill_1_Frames--;
@@ -1623,6 +1629,7 @@ void Example::skill_2_Action(Unit &unit, float fElapsedTime) {
         //自然状态下,帧时间归零时状态恢复stand.
         if (unit.skill_2_Frames <= 0)
         {
+            unit.S = skill_3;
             unit.skill_3_Frames = 400;
         }
         else unit.skill_2_Frames--;
@@ -1631,7 +1638,8 @@ void Example::skill_2_Action(Unit &unit, float fElapsedTime) {
 
 bool Example::skillHit(Unit* unit, Unit* oppoent) {
     return (oppoent->position.x <= unit->position.x + blockSize.x * 1.05
-        &&  oppoent->position.x >= unit->position.x - blockSize.x * 1.05);
+        &&  oppoent->position.x >= unit->position.x - blockSize.x * 1.05
+        &&  abs(oppoent->position.y - unit->position.y) < blockSize.y * 0.5);
 }
 
 void Example::skill_1_Draw(Unit &unit, float offset_true, float offset_false) {
@@ -1825,6 +1833,7 @@ void Example::skill_1_Draw(Unit &unit, float offset_true, float offset_false) {
         else
         {
             //此时开始移动.
+            //用奇数和偶数逻辑交替render两张图片实现螺旋丸的闪烁.
             if ((unit.skill_1_Frames / 50) % 2 == 1)
             {
                 offset.x = -blockSize.x * 1.2;
@@ -1854,12 +1863,91 @@ void Example::skill_3_Action(Unit &unit, float fElapsedTime) {
     }
 }
 
+void Example::skill_3_Draw(Unit &unit, float offset_true, float offset_false) {
+    olc::vf2d offset(0, 0);
+    if (unit.face)
+    {
+        //总的frames是400.
+        int picNum = unit.skill_3_Frames / 100;
+        switch(picNum)
+        {
+            case 4:
+            case 3:
+            {
+                offset.x = -blockSize.x * 0.4;
+                offset.y = 8;
+                DrawDecal(unit.position + offset,
+                          skill_3_right_0_D.get(),
+                          {0.8, 0.8});
+            }break;
+            case 2:
+            {
+                offset.x = -blockSize.x * 0.4;
+                offset.y = 8;
+                DrawDecal(unit.position + offset,
+                          skill_3_right_1_D.get(),
+                          {0.8, 0.8});
+            }break;
+            case 1:
+            {
+                offset.x = -blockSize.x * 0.3;
+                offset.y = -3;
+                DrawDecal(unit.position + offset,
+                          skill_3_right_2_D.get(),
+                          {0.9, 0.9});
+            }break;
+            case 0:
+            {
+                offset.x = -blockSize.x * 0.3;
+                offset.y = -3;
+                DrawDecal(unit.position + offset,
+                          skill_3_right_3_D.get(),
+                          {0.9, 0.9});
+            }break;
+        }
+    }
+    else
+    {
+        //总的frames是400.
+        int picNum = unit.skill_3_Frames / 100;
+        switch(picNum)
+        {
+            case 4:
+            case 3:
+            {
+                DrawDecal(unit.position + offset,
+                          skill_3_left_0_D.get(),
+                          {1, 1});
+            }
+            case 2:
+            {
+                DrawDecal(unit.position + offset,
+                          skill_3_left_1_D.get(),
+                          {1, 1});
+            }
+            case 1:
+            {
+                DrawDecal(unit.position + offset,
+                          skill_3_left_2_D.get(),
+                          {1, 1});
+            }
+            case 0:
+            {
+                DrawDecal(unit.position + offset,
+                          skill_3_left_3_D.get(),
+                          {1, 1});
+            }
+        }
+    }
+}
+
 
 //判断角色是否被该道具影响
 bool shuriken::isEffected(Unit* unit) {
     //向右运动时,人物若在图像上和shuriken重叠,那么就会判定为true
     return (unit->position.x <= size.x * 0.6 + position.x
-    &&  unit->position.x >= position.x -  unit->size.x * 0.6);
+    &&  unit->position.x >= position.x -  unit->size.x * 0.6
+    &&  abs(unit->position.y - position.y) < 97 * 0.5);
 }
 
 void shuriken::effect(Unit* unit, Unit* oppoent) {
