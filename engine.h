@@ -9,8 +9,9 @@
 #include "time.h"
 
 
-enum state {stand, run, jump, hit, attack, fall, defend,
-            flash, farAttack, skill_1, skill_2};
+enum state {stand, run, jump, defend,
+            attack,flash, farAttack, skill_1, skill_2, skill_3,
+            hit, fall};
 enum unitType {Naruto, ichigo};
 enum itemType {none, shurikenItem};
 enum player {playerA, playerB, draw, unsettled};
@@ -57,6 +58,7 @@ public:
     int farAttackFrames;//远攻姿势维持的帧数.
     int skill_1_Frames;
     int skill_2_Frames;
+    int skill_3_Frames;
     int skillHit;//这个仅仅用来改变被攻击的动画,击飞只取决于最后一击.
     //规定：凡是右这个词都是对应true，左都是对应false
 };
@@ -188,7 +190,7 @@ public:
     olc::vf2d livesRedBarSizeA;
     olc::vf2d livesRedBarSizeB;
     olc::vf2d livesGreenBarSizeB;
-    olc::vf2d darkBarSize = {200, 9};
+    olc::vf2d darkBarSize = {203, 11};
     std::vector<hitArea> hitAreas;
     std::vector<unitArea> unitAreas;
     std::vector<Unit*> units;
@@ -332,10 +334,6 @@ public:
     std::unique_ptr<olc::Sprite> skill_2_right_5_P;
     std::unique_ptr<olc::Sprite> skill_2_right_6_P;
     std::unique_ptr<olc::Sprite> skill_2_right_7_P;
-    std::unique_ptr<olc::Sprite> skill_2_right_8_P;
-    std::unique_ptr<olc::Sprite> skill_2_right_9_P;
-    std::unique_ptr<olc::Sprite> skill_2_right_10_P;
-    std::unique_ptr<olc::Sprite> skill_2_right_11_P;
 
     std::unique_ptr<olc::Sprite> skill_2_left_0_P;
     std::unique_ptr<olc::Sprite> skill_2_left_1_P;
@@ -345,10 +343,6 @@ public:
     std::unique_ptr<olc::Sprite> skill_2_left_5_P;
     std::unique_ptr<olc::Sprite> skill_2_left_6_P;
     std::unique_ptr<olc::Sprite> skill_2_left_7_P;
-    std::unique_ptr<olc::Sprite> skill_2_left_8_P;
-    std::unique_ptr<olc::Sprite> skill_2_left_9_P;
-    std::unique_ptr<olc::Sprite> skill_2_left_10_P;
-    std::unique_ptr<olc::Sprite> skill_2_left_11_P;
 
     std::unique_ptr<olc::Decal> skill_2_right_0_D;
     std::unique_ptr<olc::Decal> skill_2_right_1_D;
@@ -358,10 +352,6 @@ public:
     std::unique_ptr<olc::Decal> skill_2_right_5_D;
     std::unique_ptr<olc::Decal> skill_2_right_6_D;
     std::unique_ptr<olc::Decal> skill_2_right_7_D;
-    std::unique_ptr<olc::Decal> skill_2_right_8_D;
-    std::unique_ptr<olc::Decal> skill_2_right_9_D;
-    std::unique_ptr<olc::Decal> skill_2_right_10_D;
-    std::unique_ptr<olc::Decal> skill_2_right_11_D;
 
     std::unique_ptr<olc::Decal> skill_2_left_0_D;
     std::unique_ptr<olc::Decal> skill_2_left_1_D;
@@ -371,10 +361,26 @@ public:
     std::unique_ptr<olc::Decal> skill_2_left_5_D;
     std::unique_ptr<olc::Decal> skill_2_left_6_D;
     std::unique_ptr<olc::Decal> skill_2_left_7_D;
-    std::unique_ptr<olc::Decal> skill_2_left_8_D;
-    std::unique_ptr<olc::Decal> skill_2_left_9_D;
-    std::unique_ptr<olc::Decal> skill_2_left_10_D;
-    std::unique_ptr<olc::Decal> skill_2_left_11_D;
+
+    std::unique_ptr<olc::Sprite> skill_3_right_0_P;
+    std::unique_ptr<olc::Sprite> skill_3_right_1_P;
+    std::unique_ptr<olc::Sprite> skill_3_right_2_P;
+    std::unique_ptr<olc::Sprite> skill_3_right_3_P;
+
+    std::unique_ptr<olc::Sprite> skill_3_left_0_P;
+    std::unique_ptr<olc::Sprite> skill_3_left_1_P;
+    std::unique_ptr<olc::Sprite> skill_3_left_2_P;
+    std::unique_ptr<olc::Sprite> skill_3_left_3_P;
+
+    std::unique_ptr<olc::Decal> skill_3_right_0_D;
+    std::unique_ptr<olc::Decal> skill_3_right_1_D;
+    std::unique_ptr<olc::Decal> skill_3_right_2_D;
+    std::unique_ptr<olc::Decal> skill_3_right_3_D;
+
+    std::unique_ptr<olc::Decal> skill_3_left_0_D;
+    std::unique_ptr<olc::Decal> skill_3_left_1_D;
+    std::unique_ptr<olc::Decal> skill_3_left_2_D;
+    std::unique_ptr<olc::Decal> skill_3_left_3_D;
 
 
 
@@ -395,6 +401,7 @@ public:
     void farAttackAction(Unit& unit, float fElapsedTime);
     void skill_1_Action(Unit& unit, float fElapsedTime);
     void skill_2_Action(Unit& unit, float fElapsedTime);
+    void skill_3_Action(Unit& unit, float fElapsedTime);
     void gameOver();
     void moveUnit(Unit& unit, float fElapsedTime);
 
@@ -410,6 +417,7 @@ public:
     void farAttackDraw(Unit& unit, float offset_true, float offset_false);
     void skill_1_Draw(Unit& unit, float offset_true, float offset_false);
     void skill_2_Draw(Unit& unit, float offset_true, float offset_false);
+    void skill_3_Draw(Unit& unit, float offset_true, float offset_false);
     void itemDraw();
     void chakraDraw(Unit* unit);
 

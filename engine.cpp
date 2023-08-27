@@ -3,7 +3,7 @@ using namespace std;
 
 Unit::Unit(){}
 
-Unit::Unit(bool s, unitType u): S(stand), lives(10000000)
+Unit::Unit(bool s, unitType u): S(stand), lives(100)
                                 , side(s), type(u),
                                 stateNum(0), face(!s),
                                 acceleration(0), canDoubleJump(true),
@@ -11,7 +11,7 @@ Unit::Unit(bool s, unitType u): S(stand), lives(10000000)
                                 hitTime(clock() - 500), hitNum(0),
                                 farAttackFrames(0),
                                 flashFrames(0), chakra(0),
-                                skill_1_Frames(0), skill_2_Frames(0),
+                                skill_1_Frames(0), skill_2_Frames(0),skill_3_Frames(0),
                                 skillHit(0)
                                 {
     speed = {250, 0};
@@ -43,6 +43,7 @@ Unit::Unit(bool s, unitType u): S(stand), lives(10000000)
 
 
 bool Example::OnUserCreate() {
+
     //初始化人物位置
     unitA = Unit(true, Naruto);
     unitB = Unit(false, Naruto);
@@ -186,10 +187,7 @@ bool Example::OnUserCreate() {
     skill_2_right_5_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_2/right/5.png");
     skill_2_right_6_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_2/right/6.png");
     skill_2_right_7_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_2/right/7.png");
-    skill_2_right_8_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_2/right/8.png");
-    skill_2_right_9_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_2/right/9.png");
-    skill_2_right_10_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_2/right/10.png");
-    skill_2_right_10_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_2/right/11.png");
+
 
     skill_2_left_0_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_2/left/0.png");
     skill_2_left_1_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_2/left/1.png");
@@ -199,10 +197,6 @@ bool Example::OnUserCreate() {
     skill_2_left_5_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_2/left/5.png");
     skill_2_left_6_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_2/left/6.png");
     skill_2_left_7_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_2/left/7.png");
-    skill_2_left_8_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_2/left/8.png");
-    skill_2_left_9_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_2/left/9.png");
-    skill_2_left_10_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_2/left/10.png");
-    skill_2_left_10_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_2/left/11.png");
 
     skill_2_right_0_D = std::make_unique<olc::Decal>(skill_2_right_0_P.get());
     skill_2_right_1_D = std::make_unique<olc::Decal>(skill_2_right_1_P.get());
@@ -212,10 +206,6 @@ bool Example::OnUserCreate() {
     skill_2_right_5_D = std::make_unique<olc::Decal>(skill_2_right_5_P.get());
     skill_2_right_6_D = std::make_unique<olc::Decal>(skill_2_right_6_P.get());
     skill_2_right_7_D = std::make_unique<olc::Decal>(skill_2_right_7_P.get());
-    skill_2_right_8_D = std::make_unique<olc::Decal>(skill_2_right_8_P.get());
-    skill_2_right_9_D = std::make_unique<olc::Decal>(skill_2_right_9_P.get());
-    skill_2_right_10_D = std::make_unique<olc::Decal>(skill_2_right_10_P.get());
-    skill_2_right_10_D = std::make_unique<olc::Decal>(skill_2_right_11_P.get());
 
     skill_2_left_0_D = std::make_unique<olc::Decal>(skill_2_left_0_P.get());
     skill_2_left_1_D = std::make_unique<olc::Decal>(skill_2_left_1_P.get());
@@ -225,10 +215,28 @@ bool Example::OnUserCreate() {
     skill_2_left_5_D = std::make_unique<olc::Decal>(skill_2_left_5_P.get());
     skill_2_left_6_D = std::make_unique<olc::Decal>(skill_2_left_6_P.get());
     skill_2_left_7_D = std::make_unique<olc::Decal>(skill_2_left_7_P.get());
-    skill_2_left_8_D = std::make_unique<olc::Decal>(skill_2_left_8_P.get());
-    skill_2_left_9_D = std::make_unique<olc::Decal>(skill_2_left_9_P.get());
-    skill_2_left_10_D = std::make_unique<olc::Decal>(skill_2_left_10_P.get());
-    skill_2_left_10_D = std::make_unique<olc::Decal>(skill_2_left_11_P.get());
+
+
+    //第三阶段
+    skill_3_right_0_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_3/right/0.png");
+    skill_3_right_1_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_3/right/1.png");
+    skill_3_right_2_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_3/right/2.png");
+    skill_3_right_3_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_3/right/3.png");
+
+    skill_3_left_0_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_3/left/0.png");
+    skill_3_left_1_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_3/left/1.png");
+    skill_3_left_2_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_3/left/2.png");
+    skill_3_left_3_P= std::make_unique<olc::Sprite>("./pic/Naruto/skill_3/left/3.png");
+
+    skill_3_right_0_D = std::make_unique<olc::Decal>(skill_3_right_0_P.get());
+    skill_3_right_1_D = std::make_unique<olc::Decal>(skill_3_right_1_P.get());
+    skill_3_right_2_D = std::make_unique<olc::Decal>(skill_3_right_2_P.get());
+    skill_3_right_3_D = std::make_unique<olc::Decal>(skill_3_right_3_P.get());
+
+    skill_3_left_0_D = std::make_unique<olc::Decal>(skill_3_left_0_P.get());
+    skill_3_left_1_D = std::make_unique<olc::Decal>(skill_3_left_1_P.get());
+    skill_3_left_2_D = std::make_unique<olc::Decal>(skill_3_left_2_P.get());
+    skill_3_left_3_D = std::make_unique<olc::Decal>(skill_3_left_3_P.get());
 
     return true;
 }
@@ -310,6 +318,7 @@ bool Example::OnUserUpdate(float fElapsedTime) {
     //删除失效道具.
     removeDeadItem();
 
+
             //血条逐渐减少。
     if (barRedLenOfA > 330 * unitA.lives / 100){
             barRedLenOfA -= 35 * fElapsedTime ;
@@ -364,7 +373,7 @@ void Example::render(float fElapsedTime) {
             case defend:defendDraw(unitA, 0, 0);break;
             case flash: flashDraw(unitA, 0, 0);break;
             case farAttack:farAttackDraw(unitA, 0, 0);break;
-            case skill_1:flashDraw(unitA, 0, 0);break;
+            case skill_1:skill_1_Draw(unitA, 0, 0);break;
             case skill_2:defendDraw(unitA, 0, 0);break;
         }
         switch(unitB.S){
@@ -377,7 +386,7 @@ void Example::render(float fElapsedTime) {
             case defend:defendDraw(unitB, 0, 0);break;
             case flash:flashDraw(unitB, 0, 0);break;
             case farAttack: farAttackDraw(unitB, 0, 0);break;
-            case skill_1:flashDraw(unitB, 0, 0);break;
+            case skill_1:skill_1_Draw(unitB, 0, 0);break;
             case skill_2:defendDraw(unitB, 0, 0);break;
         }
     }
@@ -392,13 +401,25 @@ void Example::render(float fElapsedTime) {
         switch(winner)
         {
             case playerA:{
+                if (unitA.skill_2_Frames > 0){
+                    unitA.skill_2_Frames--;
+//                    skill_2_Draw(unitA, 0, 0);
+                }else{
+                    standDraw(unitA, 0, 3);
+                }
                 fallAction(unitB, fElapsedTime);
-                standDraw(unitA, 0, 3);
                 fallDraw(unitB, 0, 0);
             }break;
             case playerB:{
+                if (unitB.skill_2_Frames > 0) {
+                    unitB.skill_2_Frames--;
+//                    skill_2_Draw(unitB, 0, 0);
+                }else
+                {
+                    standDraw(unitB, 0, 3);
+                }
                 fallAction(unitA, fElapsedTime);
-                standDraw(unitB, 0, 3);
+
                 fallDraw(unitA, 0, 0);
             }
                 break;
@@ -679,42 +700,57 @@ void Example::recover(Unit& unit) {
 //角色发动攻击技能
 void Example::attackAction(Unit &unit, float fElapsedTime) {
     if (GetKey(unit.attackKey).bPressed){
-        //跳跃状态下不进行普攻。
-        if (unit.S != farAttack && unit.S != jump && (clock() - unit.attackTime) > 500) {
-            //第四次攻击后需要更长的cd
-            if (unit.attackNum == 3){
-                if(clock() - unit.attackTime >= 1000)
-                {
-                    unit.S = attack;
-                    unit.attackNum = (unit.attackNum + 1) % 4;
-                    //更新攻击时间
-                    unit.attackTime = clock();
+        switch(unit.S)
+        {
+            case jump:{}
+            case farAttack:{}
+            case skill_1:{}
+            case skill_2:{}
+            case skill_3:{}
+            case hit:{}
+            case fall:{}
+            case flash:{}break;
+            default:
+            {
+                //跳跃状态下不进行普攻。
+                if (unit.S != farAttack && unit.S != jump && (clock() - unit.attackTime) > 500) {
+                    //第四次攻击后需要更长的cd
+                    if (unit.attackNum == 3){
+                        if(clock() - unit.attackTime >= 1000)
+                        {
+                            unit.S = attack;
+                            unit.attackNum = (unit.attackNum + 1) % 4;
+                            //更新攻击时间
+                            unit.attackTime = clock();
+                        }
+                    }
+                    else{
+                        unit.S = attack;
+                        unit.attackNum = (unit.attackNum + 1) % 4;
+                        //更新攻击时间
+                        unit.attackTime = clock();
+                    }
+
+
+                    //攻击时创造伤害区域，维持一定时间。
+                    //朝右边攻击
+                    if (unit.face){
+                        olc::vf2d northwest;
+                        northwest.x= unit.position.x- 5;
+                        northwest.y = unit.position.y - blockSize.y;
+                        hitAreas.push_back(hitArea(northwest, blockSize * olc::vf2d(1.3, 1), 500, unit.side));
+                    }
+                    else{
+                        //朝左边攻击
+                        olc::vf2d northwest;
+                        northwest.x = unit.position.x - blockSize.x * 1.1;
+                        northwest.y = unit.position.y - blockSize.y;
+                        hitAreas.push_back(hitArea(northwest, blockSize * olc::vf2d(1.3, 1), 500, unit.side));
+                    }
                 }
             }
-            else{
-                unit.S = attack;
-                unit.attackNum = (unit.attackNum + 1) % 4;
-                //更新攻击时间
-                unit.attackTime = clock();
-            }
-
-
-            //攻击时创造伤害区域，维持一定时间。
-            //朝右边攻击
-            if (unit.face){
-                olc::vf2d northwest;
-                northwest.x= unit.position.x- 5;
-                northwest.y = unit.position.y - blockSize.y;
-                hitAreas.push_back(hitArea(northwest, blockSize * olc::vf2d(1.3, 1), 500, unit.side));
-            }
-            else{
-                //朝左边攻击
-                olc::vf2d northwest;
-                northwest.x = unit.position.x - blockSize.x * 1.1;
-                northwest.y = unit.position.y - blockSize.y;
-                hitAreas.push_back(hitArea(northwest, blockSize * olc::vf2d(1.3, 1), 500, unit.side));
-            }
         }
+
     }
 }
 
@@ -766,6 +802,7 @@ void Example::hitAction(Unit &unit, float fElapsedTime) {
     }
 }
 
+//被动状态,击飞.
 void Example::fallAction(Unit &unit, float fElapsedTime) {
     if (unit.S == fall){
 
@@ -927,6 +964,9 @@ void Example::defendAction(Unit &unit, float fElapsedTime) {
     if (GetKey(unit.downKey).bHeld){
         switch(unit.S){
             //攻击、跳跃、被攻击、击飞时不能通过按键改变状态。
+            case skill_1:
+            case skill_2:
+            case skill_3:
             case flash:{}
             case farAttack:{}
             case attack:{}
@@ -961,15 +1001,16 @@ void Example::runAction(Unit &unit, float fElapsedTime) {
     //右跑
     if (GetKey(unit.rightKey).bHeld){
         switch (unit.S) {
-            case skill_1:{}
-            case skill_2:{}
-            case farAttack:{}
-            case flash:{}
-            case defend:{}
-            case fall:{}
-            case hit:{}
-            case attack:{} break;
-            case jump:{}
+            case skill_1:
+            case skill_2:
+            case skill_3:
+            case farAttack:
+            case flash:
+            case defend:
+            case fall:
+            case hit:
+            case attack: break;
+            case jump:
             default: {
                 if (!GetKey(unit.leftKey).bHeld){
                     if (unit.S != jump) unit.S = run;
@@ -1154,10 +1195,13 @@ void Example::jumpAction(Unit &unit, float fElapsedTime) {
     //A角色起跳用K键控制，跳跃最多可以二段跳。
     if (GetKey(unit.upKey).bPressed){
         switch(unit.S){
-            case farAttack:{}
-            case flash:{}
-            case hit:{}
-            case fall:{}break;
+            case skill_1:
+            case skill_2:
+            case skill_3:
+            case farAttack:
+            case flash:
+            case hit:
+            case fall:break;
             case jump:{
                 if(unit.canDoubleJump)
                 {
@@ -1197,12 +1241,16 @@ void Example::flashAction(Unit &unit, float fElapsedTime) {
     if(GetKey(unit.flashKey).bReleased){
         switch(unit.S){
             //从这里到default都为空,代表着这些状态都不能直接到flash
+            case skill_1:
+            case skill_2:
+            case skill_3:
             case farAttack:{}
             case hit:{}
             case attack:{}
             case defend:{}
             case fall: {}
             case flash:{}break;
+            case jump:
             default:{
                 unit.S = flash;
                 unit.flashFrames += 300;
@@ -1259,11 +1307,21 @@ void Example::farAttackAction(Unit &unit, float fElapsedTime) {
     if (GetKey(unit.farAttackKey).bPressed){
         switch(unit.S)
         {
-            case jump:{}
-            case attack:{}
-            case fall:{}
-            case hit:{}
-            case farAttack:{}break;
+            //不可进行转移的状态.
+            case defend:
+            case jump:
+            case attack:
+            case flash:
+            case farAttack:
+            case skill_1:
+            case skill_2:
+            case skill_3:
+            case hit:
+            case fall:break;
+
+            //可以进行转移的状态.
+            case stand:
+            case run:
             default:{
                 //成功进行攻击
                 if (unit.farAttackFrames == 0){
@@ -1444,61 +1502,67 @@ void Example::skill_1_Action(Unit &unit, float fElapsedTime) {
     if (GetKey(unit.skillKey).bPressed){
         switch(unit.S)
         {
-            case jump:{}
-            case hit:{}
-            case attack:{}
-            case fall:{}
-            case defend:{}
-            case flash:{}
-            case farAttack:{}
-            case skill_1:{}
-            case skill_2:{}break;
+            case defend:
+            case jump:
+            case attack:
+            case flash:
+            case farAttack:
+            case skill_1:
+            case skill_2:
+            case skill_3:
+            case hit:
+            case fall:break;
+            case stand:
+            case run:
             default:
             {
                 unit.S = skill_1;
-                unit.skill_1_Frames = 800;
+                unit.skill_1_Frames = 1150;
 //                if (unit.chakra >= 100)
 //                {
 //                    unit.chakra -= 100;
 //                    unit.S = skill_1;
-//                    unit.skill_1_Frames = 800;
+//                    unit.skill_1_Frames = 1050;
 //                }
             }
         }
     }
 
-    //在技能状态一的情况下, 鸣人会运动.
-
+    //技能状态一前0.6s召唤分身搓螺旋丸,后0.6s开始攻击判定.
     if (unit.S == skill_1)
     {
-        //移动.
-        if (unit.face)
-        {
-            float futurePos = unit.position.x + unit.speed.x * 1.2 * fElapsedTime;
-            if (futurePos <= ScreenWidth() - blockSize.x) unit.position.x = futurePos;
-            else unit.position.x = ScreenWidth() - blockSize.x;
-        }
-        else
-        {
-            float futurePos = unit.position.x - unit.speed.x * 1.2 * fElapsedTime;
-            if (futurePos >= 0) unit.position.x = futurePos;
-            else unit.position.x = 0;
-        }
+        if (unit.skill_1_Frames <= 700){
+            //移动.
+            if (unit.face)
+            {
+                float futurePos = unit.position.x + unit.speed.x * 1.2 * fElapsedTime;
+                if (futurePos <= ScreenWidth() - blockSize.x) unit.position.x = futurePos;
+                else unit.position.x = ScreenWidth() - blockSize.x;
+            }
+            else
+            {
+                float futurePos = unit.position.x - unit.speed.x * 1.2 * fElapsedTime;
+                if (futurePos >= 0) unit.position.x = futurePos;
+                else unit.position.x = 0;
+            }
 
-        Unit* oppoent = units[unit.oppoentNum];
-        //如果击中对方,则自身进入状态二,敌方受到伤害.
-        if (skillHit(&unit, oppoent))
-        {
-            unit.skill_1_Frames = 0;
-            unit.S = skill_2;
-            unit.skill_2_Frames = 1000;
-            return;
+            Unit* oppoent = units[unit.oppoentNum];
+            //如果击中对方,则自身进入状态二,敌方受到伤害.
+            if (skillHit(&unit, oppoent))
+            {
+                unit.skill_1_Frames = 0;
+                unit.S = skill_2;
+                unit.skill_2_Frames = 1000;
+                return;
+            }
         }
 
         //持续时间减一.
-        if (unit.skill_1_Frames <= 0) unit.S = stand;
+        if (unit.skill_1_Frames <= 0)
+        {
+            unit.skill_3_Frames = 400;
+        }
         else unit.skill_1_Frames--;
-
     }
 }
 
@@ -1557,7 +1621,10 @@ void Example::skill_2_Action(Unit &unit, float fElapsedTime) {
         }
 
         //自然状态下,帧时间归零时状态恢复stand.
-        if (unit.skill_2_Frames <= 0) unit.S = stand;
+        if (unit.skill_2_Frames <= 0)
+        {
+            unit.skill_3_Frames = 400;
+        }
         else unit.skill_2_Frames--;
     }
 }
@@ -1565,6 +1632,226 @@ void Example::skill_2_Action(Unit &unit, float fElapsedTime) {
 bool Example::skillHit(Unit* unit, Unit* oppoent) {
     return (oppoent->position.x <= unit->position.x + blockSize.x * 1.05
         &&  oppoent->position.x >= unit->position.x - blockSize.x * 1.05);
+}
+
+void Example::skill_1_Draw(Unit &unit, float offset_true, float offset_false) {
+    olc::vf2d offset(0, 0);
+    if (unit.face)
+    {
+        offset.x = offset_true;
+
+        if (unit.skill_1_Frames >= 700)
+        {
+            int picNum = (unit.skill_1_Frames - 700) / 50;
+            switch(picNum) {
+                case 9: {
+                }
+                case 8: {
+                    offset.x = -blockSize.x;
+                    offset.y = 3;
+                    DrawDecal(unit.position + offset,
+                              skill_1_right_0_D.get(),
+                              {0.8, 0.8});
+                }
+                    break;
+                case 7: {
+                    offset.x = -blockSize.x - 1;
+                    offset.y = 3;
+                    DrawDecal(unit.position + offset,
+                              skill_1_right_1_D.get(),
+                              {0.8, 0.8});
+                }
+                    break;
+                case 6: {
+                    offset.x = -blockSize.x - 1;
+                    offset.y = -2;
+                    DrawDecal(unit.position + offset,
+                              skill_1_right_2_D.get(),
+                              {0.8, 0.8});
+                }
+                    break;
+                case 5: {
+                    offset.x = -blockSize.x;
+                    offset.y = -2;
+                    DrawDecal(unit.position + offset,
+                              skill_1_right_3_D.get(),
+                              {0.8, 0.8});
+                }
+                    break;
+                case 4: {
+                    offset.x = -blockSize.x;
+                    offset.y = -16;
+                    DrawDecal(unit.position + offset,
+                              skill_1_right_4_D.get(),
+                              {0.9, 0.9});
+                }
+                    break;
+                case 3: {
+                    offset.x = -blockSize.x + 1;
+                    offset.y = 5;
+                    DrawDecal(unit.position + offset,
+                              skill_1_right_5_D.get(),
+                              {0.8, 0.80});
+                }
+                    break;
+                case 2: {
+                    offset.x = -blockSize.x + 1;
+                    offset.y = 5;
+                    DrawDecal(unit.position + offset,
+                              skill_1_right_6_D.get(),
+                              {0.8, 0.8});
+                }
+                    break;
+                case 1: {
+                    offset.x = -blockSize.x + 2;
+                    offset.y = 7;
+                    DrawDecal(unit.position + offset,
+                              skill_1_right_7_D.get(), {0.8, 0.8});
+                }
+                    break;
+                case 0: {
+                    offset.x = -blockSize.x + 1;
+                    offset.y = 5;
+                    DrawDecal(unit.position + offset,
+                              skill_1_right_8_D.get(), {0.8, 0.8});
+                }
+                    break;
+            }
+        }
+
+        else
+        {
+            //此时开始移动.
+            if ((unit.skill_1_Frames / 50) % 2 == 1)
+            {
+                offset.x = -blockSize.x * 1.2;
+                offset.y = 7;
+                DrawDecal(unit.position + offset,
+                          skill_1_right_9_D.get(),
+                          {0.8, 0.8});
+            }
+            else
+            {
+                offset.x = -blockSize.x * 1.2;
+                offset.y = 7;
+                DrawDecal(unit.position + offset,
+                          skill_1_right_10_D.get(),
+                          {0.8, 0.8});
+            }
+        }
+    }
+    else
+    {
+        offset.x = offset_false;
+        if (unit.skill_1_Frames >= 700)
+        {
+            int picNum = (unit.skill_1_Frames - 700) / 50;
+            switch(picNum) {
+                case 9: {
+                }
+                case 8: {
+                    offset.x = -blockSize.x;
+                    offset.y = 3;
+                    DrawDecal(unit.position + offset,
+                              skill_1_left_0_D.get(),
+                              {0.8, 0.8});
+                }
+                    break;
+                case 7: {
+                    offset.x = -blockSize.x - 1;
+                    offset.y = 3;
+                    DrawDecal(unit.position + offset,
+                              skill_1_left_1_D.get(),
+                              {0.8, 0.8});
+                }
+                    break;
+                case 6: {
+                    offset.x = -blockSize.x - 1;
+                    offset.y = -2;
+                    DrawDecal(unit.position + offset,
+                              skill_1_left_2_D.get(),
+                              {0.8, 0.8});
+                }
+                    break;
+                case 5: {
+                    offset.x = -blockSize.x;
+                    offset.y = -2;
+                    DrawDecal(unit.position + offset,
+                              skill_1_left_3_D.get(),
+                              {0.8, 0.8});
+                }
+                    break;
+                case 4: {
+                    offset.x = -blockSize.x;
+                    offset.y = -16;
+                    DrawDecal(unit.position + offset,
+                              skill_1_left_4_D.get(),
+                              {0.9, 0.9});
+                }
+                    break;
+                case 3: {
+                    offset.x = -blockSize.x + 1;
+                    offset.y = 5;
+                    DrawDecal(unit.position + offset,
+                              skill_1_left_5_D.get(),
+                              {0.8, 0.80});
+                }
+                    break;
+                case 2: {
+                    offset.x = -blockSize.x + 1;
+                    offset.y = 5;
+                    DrawDecal(unit.position + offset,
+                              skill_1_left_6_D.get(),
+                              {0.8, 0.8});
+                }
+                    break;
+                case 1: {
+                    offset.x = -blockSize.x + 2;
+                    offset.y = 7;
+                    DrawDecal(unit.position + offset,
+                              skill_1_left_7_D.get(), {0.8, 0.8});
+                }
+                    break;
+                case 0: {
+                    offset.x = -blockSize.x + 1;
+                    offset.y = 5;
+                    DrawDecal(unit.position + offset,
+                              skill_1_left_8_D.get(), {0.8, 0.8});
+                }
+                    break;
+            }
+        }
+
+        else
+        {
+            //此时开始移动.
+            if ((unit.skill_1_Frames / 50) % 2 == 1)
+            {
+                offset.x = -blockSize.x * 1.2;
+                offset.y = 7;
+                DrawDecal(unit.position + offset,
+                          skill_1_left_9_D.get(),
+                          {0.8, 0.8});
+            }
+            else
+            {
+                offset.x = -blockSize.x * 1.2;
+                offset.y = 7;
+                DrawDecal(unit.position + offset,
+                          skill_1_left_10_D.get(),
+                          {0.8, 0.8});
+            }
+        }
+    }
+}
+
+void Example::skill_3_Action(Unit &unit, float fElapsedTime) {
+    if (unit.S == skill_3)
+    {
+        //stand即代表自由状态.
+        if (unit.skill_3_Frames <= 0) unit.S = stand;
+        else unit.skill_3_Frames--;
+    }
 }
 
 
