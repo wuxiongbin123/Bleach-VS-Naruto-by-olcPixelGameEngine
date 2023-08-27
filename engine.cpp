@@ -3,7 +3,7 @@ using namespace std;
 
 Unit::Unit(){}
 
-Unit::Unit(bool s, unitType u): S(stand), lives(100)
+Unit::Unit(bool s, unitType u): S(stand), lives(200)
                                 , side(s), type(u),
                                 stateNum(0), face(!s),
                                 acceleration(0), canDoubleJump(true),
@@ -323,10 +323,10 @@ bool Example::OnUserUpdate(float fElapsedTime) {
 
 
             //血条逐渐减少。
-    if (barRedLenOfA > 330 * unitA.lives / 100){
+    if (barRedLenOfA > 330 * unitA.lives / 200){
             barRedLenOfA -= 35 * fElapsedTime ;
         }
-    if (barRedLenOfB > 330 * unitB.lives / 100){
+    if (barRedLenOfB > 330 * unitB.lives / 200){
             barRedLenOfB -= 35 * fElapsedTime ;
         }
     render(fElapsedTime);
@@ -754,9 +754,9 @@ void Example::hitAction(Unit &unit, float fElapsedTime) {
 
             //被攻击成功后双方都会增加查克拉.
             Unit* oppoent = units[unit.oppoentNum];
-            if (unit.chakra < 300) unit.chakra += 15;
+            if (unit.chakra < 300) unit.chakra += 5;
             else unit.chakra = 300;
-            if (oppoent->chakra < 300) oppoent->chakra += 10;
+            if (oppoent->chakra < 300) oppoent->chakra += 3;
             else oppoent->chakra = 300;
 
         }if (unit.S == defend){
@@ -764,7 +764,7 @@ void Example::hitAction(Unit &unit, float fElapsedTime) {
             Unit* oppoent = units[unit.oppoentNum];
             if (unit.chakra < 300) unit.chakra += 5;
             else unit.chakra = 300;
-            if (oppoent->chakra < 300) oppoent->chakra += 10;
+            if (oppoent->chakra < 300) oppoent->chakra += 3;
             else oppoent->chakra = 300;
             hitAreas[i].existence = false;
             unit.lives -= 1;
@@ -919,8 +919,8 @@ void Example::drawLivesBar(float fElapsedTime) {
     livesRedBarSizeA.x = barRedLenOfA;
     livesRedBarSizeB.x = barRedLenOfB;
     //绿色血条瞬间变短
-    livesGreenBarSizeA.x = 330 * unitA.lives / 100;
-    livesGreenBarSizeB.x = 330 * unitB.lives / 100;
+    livesGreenBarSizeA.x = 330 * unitA.lives / 200;
+    livesGreenBarSizeB.x = 330 * unitB.lives / 200;
 
     livesRedBarSizeA.y = 20;
     livesRedBarSizeB.y = 20;
@@ -1338,7 +1338,7 @@ void Example::farAttackAction(Unit &unit, float fElapsedTime) {
                     if (unit.face) offset.x = blockSize.x;
                     else offset.x = - blockSize.x;
                     unit.S = farAttack;
-                    if(unit.chakra < 300) unit.chakra += 10;
+                    if(unit.chakra < 300) unit.chakra += 5;
 
                     items.push_back(
                             std::make_shared<shuriken>(unit.position + offset,
@@ -2116,7 +2116,7 @@ void shuriken::effect(Unit* unit, Unit* oppoent) {
             case defend:{
                 oppoent->lives -= 1;
                 existence = false;
-                if(unit->chakra < 300) unit->chakra += 10;
+                if(unit->chakra < 300) unit->chakra += 5;
                 else unit->chakra = 300;
                 if (oppoent->chakra < 300) oppoent->chakra += 5;
                 else oppoent->chakra = 300;
@@ -2137,10 +2137,10 @@ void shuriken::effect(Unit* unit, Unit* oppoent) {
                 oppoent->acceleration = 500;
 
                 //对手成功攻击,查克拉增加.
-                if (oppoent->chakra < 300) oppoent->chakra += 15;
+                if (oppoent->chakra < 300) oppoent->chakra += 10;
                 else oppoent->chakra = 300;
                 //己方受到攻击,查克拉也增加.
-                if (unit->chakra < 300) unit->chakra += 10;
+                if (unit->chakra < 300) unit->chakra += 5;
                 else unit->chakra = 300;
 
                 existence = false;
