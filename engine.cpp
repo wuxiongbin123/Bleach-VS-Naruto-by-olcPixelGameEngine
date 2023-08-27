@@ -364,7 +364,7 @@ void Example::render(float fElapsedTime) {
     //画道具
     itemDraw();
 
-    if (winner == unsettled){
+    if (true){
         //根据不同的状态画不同的图像。
         switch (unitA.S) {
             case jump:jumpDraw(unitA, 0, 16);break;
@@ -402,39 +402,6 @@ void Example::render(float fElapsedTime) {
         posOfGameOver.x = 152;
         posOfGameOver.y = 150;
         DrawDecal(posOfGameOver, gameOverDecal.get());
-
-        switch(winner)
-        {
-            case playerA:{
-                if (unitA.skill_2_Frames > 0){
-                    unitA.skill_2_Frames--;
-//                    skill_2_Draw(unitA, 0, 0);
-                }else{
-                    standDraw(unitA, 0, 3);
-                }
-                fallAction(unitB, fElapsedTime);
-                fallDraw(unitB, 0, 0);
-            }break;
-            case playerB:{
-                if (unitB.skill_2_Frames > 0) {
-                    unitB.skill_2_Frames--;
-//                    skill_2_Draw(unitB, 0, 0);
-                }else
-                {
-                    standDraw(unitB, 0, 3);
-                }
-                fallAction(unitA, fElapsedTime);
-
-                fallDraw(unitA, 0, 0);
-            }
-                break;
-            case draw: {
-                fallAction(unitB, fElapsedTime);
-                fallAction(unitA, fElapsedTime);
-                standDraw(unitA, 0, 3);
-                standDraw(unitB, 0, 3);
-            }break;
-        }
     }
 }
 
