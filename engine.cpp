@@ -377,7 +377,7 @@ void Example::render(float fElapsedTime) {
             case flash: flashDraw(unitA, 0, 0);break;
             case farAttack:farAttackDraw(unitA, 0, 0);break;
             case skill_1:skill_1_Draw(unitA, 0, 0);break;
-            case skill_2:defendDraw(unitA, 0, 0);break;
+            case skill_2:skill_2_Draw(unitA, 0, 0);break;
             case skill_3:skill_3_Draw(unitA, 0, 0);break;
         }
         switch(unitB.S){
@@ -391,7 +391,7 @@ void Example::render(float fElapsedTime) {
             case flash:flashDraw(unitB, 0, 0);break;
             case farAttack: farAttackDraw(unitB, 0, 0);break;
             case skill_1:skill_1_Draw(unitB, 0, 0);break;
-            case skill_2:defendDraw(unitB, 0, 0);break;
+            case skill_2:skill_2_Draw(unitB, 0, 0);break;
             case skill_3:skill_3_Draw(unitB, 0, 0);break;
         }
     }
@@ -808,7 +808,7 @@ void Example::fallAction(Unit &unit, float fElapsedTime) {
             }
             else{
                 //落地之后继续躺1.5s, 状态出口。
-                if (unit.fallDownFrames <= 0)
+                if (unit.fallDownFrames <= 0 && winner == unsettled)
                 {
                     unit.S = stand;
                 }
@@ -1525,14 +1525,13 @@ void Example::skill_1_Action(Unit &unit, float fElapsedTime) {
             case run:
             default:
             {
-                unit.S = skill_1;
-                unit.skill_1_Frames = 1150;
-//                if (unit.chakra >= 100)
-//                {
-//                    unit.chakra -= 100;
-//                    unit.S = skill_1;
-//                    unit.skill_1_Frames = 1050;
-//                }
+
+                if (unit.chakra >= 100)
+                {
+                    unit.chakra -= 100;
+                    unit.S = skill_1;
+                    unit.skill_1_Frames = 1150;
+                }
             }
         }
     }
@@ -1561,7 +1560,7 @@ void Example::skill_1_Action(Unit &unit, float fElapsedTime) {
             {
                 unit.skill_1_Frames = 0;
                 unit.S = skill_2;
-                unit.skill_2_Frames = 1000;
+                unit.skill_2_Frames = 1200;
                 return;
             }
         }
@@ -1583,10 +1582,10 @@ void Example::skill_2_Action(Unit &unit, float fElapsedTime) {
         Unit* oppoent = units[unit.oppoentNum];
         switch(unit.skill_2_Frames)
         {
-            case 1000:{}
-            case 750:{}
-            case 500:{}
-            case 250:{
+            case 1200:
+            case 900:
+            case 600:
+            case 300:{
                 //每次造成伤害前检查是否击中角色.
                 if (skillHit(&unit, oppoent))
                 {
@@ -1626,7 +1625,8 @@ void Example::skill_2_Action(Unit &unit, float fElapsedTime) {
                         play(hitSound);
                     }
                 }
-            }
+            }break;
+
             default:{}break;
         }
 
@@ -1948,6 +1948,154 @@ void Example::skill_3_Draw(Unit &unit, float offset_true, float offset_false) {
                 DrawDecal(unit.position + offset,
                           skill_3_left_3_D.get(),
                           {0.9, 0.9});
+            }break;
+        }
+    }
+}
+
+void Example::skill_2_Draw(Unit &unit, float offset_true, float offset_false) {
+    olc::vf2d offset(0, 0);
+    if (unit.face)
+    {
+        int picNum = (unit.skill_2_Frames - 1) / 150;
+        switch(picNum)
+        {
+            case 7:
+            {
+                offset.x = -blockSize.x * 1;
+                offset.y = 4;
+                DrawDecal(unit.position + offset,
+                          skill_2_right_0_D.get(),
+                          {0.8, 0.8});
+            }break;
+            case 6:
+            {
+                offset.x = -blockSize.x * 0.5;
+                offset.y = 8;
+                DrawDecal(unit.position + offset,
+                          skill_2_right_1_D.get(),
+                          {0.85, 0.85});
+            }break;
+            case 5:
+            {
+                offset.x = -blockSize.x * 0.5;
+                offset.y = -7;
+                DrawDecal(unit.position + offset,
+                          skill_2_right_2_D.get(),
+                          {0.8, 0.8});
+            }break;
+            case 4:
+            {
+                offset.x = -blockSize.x * 0.5;
+                offset.y = -8;
+                DrawDecal(unit.position + offset,
+                          skill_2_right_3_D.get(),
+                          {0.8, 0.8});
+            }break;
+            case 3:
+            {
+                offset.x = -blockSize.x * 0.5;
+                offset.y = -8;
+                DrawDecal(unit.position + offset,
+                          skill_2_right_4_D.get(),
+                          {0.8, 0.8});
+            }break;
+            case 2:
+            {
+                offset.x = -blockSize.x * 0.5;
+                offset.y = -8;
+                DrawDecal(unit.position + offset,
+                          skill_2_right_5_D.get(),
+                          {0.8, 0.8});
+            }break;
+            case 1:
+            {
+                offset.x = -blockSize.x * 0.5;
+                offset.y = -8;
+                DrawDecal(unit.position + offset,
+                          skill_2_right_6_D.get(),
+                          {0.8, 0.8});
+            }break;
+            case 0:
+            {
+                offset.x = -blockSize.x * 0.5;
+                offset.y = -8;
+                DrawDecal(unit.position + offset,
+                          skill_2_right_7_D.get(),
+                          {0.8, 0.8});
+            }break;
+
+        }
+
+    }
+    else
+    {
+        int picNum = (unit.skill_2_Frames - 1) / 150;
+        switch(picNum)
+        {
+            case 7:
+            {
+                offset.x = -blockSize.x * 1;
+                offset.y = 4;
+                DrawDecal(unit.position + offset,
+                          skill_2_left_0_D.get(),
+                          {0.8, 0.8});
+            }break;
+            case 6:
+            {
+                offset.x = -blockSize.x * 0.5;
+                offset.y = 8;
+                DrawDecal(unit.position + offset,
+                          skill_2_left_1_D.get(),
+                          {0.85, 0.85});
+            }break;
+            case 5:
+            {
+                offset.x = -blockSize.x * 0.5;
+                offset.y = -7;
+                DrawDecal(unit.position + offset,
+                          skill_2_left_2_D.get(),
+                          {0.8, 0.8});
+            }break;
+            case 4:
+            {
+                offset.x = -blockSize.x * 0.5;
+                offset.y = -8;
+                DrawDecal(unit.position + offset,
+                          skill_2_left_3_D.get(),
+                          {0.8, 0.8});
+            }break;
+            case 3:
+            {
+                offset.x = -blockSize.x * 0.5;
+                offset.y = -8;
+                DrawDecal(unit.position + offset,
+                          skill_2_left_4_D.get(),
+                          {0.8, 0.8});
+            }break;
+            case 2:
+            {
+                offset.x = -blockSize.x * 0.5;
+                offset.y = -8;
+                DrawDecal(unit.position + offset,
+                          skill_2_left_5_D.get(),
+                          {0.8, 0.8});
+            }break;
+            case 1:
+            {
+                offset.x = -blockSize.x * 0.5;
+                offset.y = -8;
+                DrawDecal(unit.position + offset,
+                          skill_2_left_6_D.get(),
+                          {0.8, 0.8});
+            }break;
+            case 0:
+            {
+                offset.x = -blockSize.x * 0.5;
+                offset.y = -8;
+                DrawDecal(unit.position + offset,
+                          skill_2_left_7_D.get(),
+                          {0.8, 0.8});
             }break;
         }
     }
