@@ -33,11 +33,10 @@ public:
     bool face;
     bool canDoubleJump;
     int attackNum;
-    float attackTime;
-    float hitTime;
+    int attackFrames;
+    int hitFrames;
+    int fallDownFrames;
     int hitNum;
-    float firstHitTime;
-    float fallDownTime;
     float chakra;//查克拉,用于释放技能.
     int chakraBarLen;
     int chakraColor;

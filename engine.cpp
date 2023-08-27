@@ -7,11 +7,12 @@ Unit::Unit(bool s, unitType u): S(stand), lives(100)
                                 , side(s), type(u),
                                 stateNum(0), face(!s),
                                 acceleration(0), canDoubleJump(true),
-                                attackNum(3), attackTime(clock() - 1000),
-                                hitTime(clock() - 500), hitNum(0),
+                                attackNum(-1), attackFrames(0),
+                                hitFrames(0), hitNum(0),
                                 farAttackFrames(0),
                                 flashFrames(0), chakra(0),
                                 skill_1_Frames(0), skill_2_Frames(0),skill_3_Frames(0),
+                                fallDownFrames(0),
                                 skillHit(0)
                                 {
     speed = {250, 0};
@@ -248,7 +249,7 @@ bool Example::OnUserUpdate(float fElapsedTime) {
     unitAreas.push_back(unitArea(unitA.position, blockSize, true, unitA.moveFlag, unitA.face));
     unitAreas.push_back(unitArea(unitB.position, blockSize, false, unitB.moveFlag, unitB.face));
 
-    if (winner == unsettled) {
+    if (true) {
         //两个角色自动互相面对
         if (unitA.S == stand) {
             if (unitA.position.x > unitB.position.x) unitA.face = false;
@@ -521,21 +522,21 @@ void Example::attackDraw(Unit &unit, float offset_true, float offset_false) {
         switch(unit.attackNum){
             case 0:
             {
-                int num = (clock() - unit.attackTime) / 200;
+                int num = (unit.attackFrames) / 196;
                 olc::vi2d picNum = {num, 0};
                 DrawPartialDecal(unit.position, attackRightDecal_0.get(),
                                   picNum * blockSize + offset, blockSize);
             }break;
             case 1:
             {
-                int num = (clock() - unit.attackTime) / 200;
+                int num = (unit.attackFrames) / 196;
                 olc::vi2d picNum = {num, 0};
                 DrawPartialDecal(unit.position, attackRightDecal_1.get(),
                                   picNum * blockSize + offset, blockSize);
             }break;
             case 2:
             {
-                int num = (clock() - unit.attackTime) / 200;
+                int num = (unit.attackFrames) / 196;
                 olc::vi2d picNum = {num, 0};
                 DrawPartialDecal(unit.position, attackRightDecal_2.get(),
                                   picNum * blockSize + offset, blockSize);
@@ -543,7 +544,7 @@ void Example::attackDraw(Unit &unit, float offset_true, float offset_false) {
             case 3:
                 offset.x += 5;
                 offset.y += 5;
-                int num = (clock() - unit.attackTime) / 200;
+                int num = (unit.attackFrames) / 293;
                 olc::vi2d picNum = {num, 0};
                 DrawPartialDecal(unit.position, attackRightDecal_3.get(),
                                   picNum * blockSize + offset, blockSize);
@@ -555,21 +556,21 @@ void Example::attackDraw(Unit &unit, float offset_true, float offset_false) {
         switch(unit.attackNum){
             case 0:
             {
-                int num = (clock() - unit.attackTime) / 200;
+                int num = (unit.attackFrames) / 196;
                 olc::vi2d picNum = {num, 0};
                 DrawPartialDecal(unit.position, attackLeftDecal_0.get(),
                                   picNum * blockSize + offset, blockSize);
             }break;
             case 1:
             {
-                int num = (clock() - unit.attackTime) / 200;
+                int num = (unit.attackFrames) / 196;
                 olc::vi2d picNum = {num, 0};
                 DrawPartialDecal(unit.position, attackLeftDecal_1.get(),
                                   picNum * blockSize + offset, blockSize);
             }break;
             case 2:
             {
-                int num = (clock() - unit.attackTime) / 200;
+                int num = (unit.attackFrames) / 196;
                 olc::vi2d picNum = {num, 0};
                 DrawPartialDecal(unit.position, attackLeftDecal_2.get(),
                                   picNum * blockSize + offset, blockSize);
@@ -577,7 +578,7 @@ void Example::attackDraw(Unit &unit, float offset_true, float offset_false) {
             case 3:
                 offset.x -= 5;
                 offset.y += 5;
-                int num = (clock() - unit.attackTime) / 200;
+                int num = (unit.attackFrames) / 293;
                 olc::vi2d picNum = {num, 0};
                 DrawPartialDecal(unit.position, attackLeftDecal_3.get(),
                                   picNum * blockSize + offset, blockSize);
@@ -615,23 +616,20 @@ void Example::fallDraw(Unit &unit, float offset_true, float offset_false) {
         {
             if (winner == unsettled){
                 picNum.x = 0;
-            }else{
-                if (clock() - unit.fallDownTime < 100) picNum.x = 1;
-                if (clock() - unit.fallDownTime >= 100) picNum.x = 2;
             }
             DrawPartialDecal(unit.position, fallRightDecal.get(),
                              picNum * blockSize + offset, blockSize);
         }
         else{
             if (winner == unsettled){
-                if (clock() - unit.fallDownTime < 100) picNum.x = 1;
-                if (clock() - unit.fallDownTime >= 100
-                    && clock() - unit.fallDownTime <= 1400) picNum.x = 2;
-                if (clock() - unit.fallDownTime >1400 ) picNum.x = 3;
+                if (1500 - unit.fallDownFrames < 100) picNum.x = 1;
+                if (1500 - unit.fallDownFrames >= 100
+                    && 1500 - unit.fallDownFrames <= 1400) picNum.x = 2;
+                if (1500 - unit.fallDownFrames >1400 ) picNum.x = 3;
             }
             else{
-                if (clock() - unit.fallDownTime < 100) picNum.x = 1;
-                if (clock() - unit.fallDownTime >= 100) picNum.x = 2;
+                if (1500 - unit.fallDownFrames < 100) picNum.x = 1;
+                if (1500 - unit.fallDownFrames >= 100) picNum.x = 2;
             }
             DrawPartialDecal(unit.position, fallRightDecal.get(),
                               picNum * blockSize + offset, blockSize);
@@ -645,23 +643,20 @@ void Example::fallDraw(Unit &unit, float offset_true, float offset_false) {
         {
             if (winner == unsettled){
                 picNum.x = 3;
-            }else{
-                if (clock() - unit.fallDownTime < 100) picNum.x = 2;
-                if (clock() - unit.fallDownTime >= 100) picNum.x = 1;
             }
             DrawPartialDecal(unit.position, fallLeftDecal.get(),
                               picNum * blockSize + offset, blockSize);
         }
         else{
             if (winner == unsettled){
-                if (clock() - unit.fallDownTime < 100) picNum.x = 2;
-                if (clock() - unit.fallDownTime >= 100
-                    && clock() - unit.fallDownTime <= 1400) picNum.x = 1;
-                if (clock() - unit.fallDownTime >1400 ) picNum.x = 0;
+                if (1500 - unit.fallDownFrames < 100) picNum.x = 2;
+                if (1500 - unit.fallDownFrames >= 100
+                    && 1500 - unit.fallDownFrames <= 1400) picNum.x = 1;
+                if (1500 - unit.fallDownFrames >1400 ) picNum.x = 0;
             }
             else{
-                if (clock() - unit.fallDownTime < 100) picNum.x = 2;
-                if (clock() - unit.fallDownTime >= 100) picNum.x = 1;
+                if (1500 - unit.fallDownFrames < 100) picNum.x = 2;
+                if (1500 - unit.fallDownFrames >= 100) picNum.x = 1;
             }
             DrawPartialDecal(unit.position, fallLeftDecal.get(),
                               picNum * blockSize + offset, blockSize);
@@ -680,22 +675,51 @@ void Example::recover(Unit& unit) {
                 unit.S = stand;
         }break;
         case attack:{
-            if( (clock() - unit.attackTime) > 800){
-                unit.S = stand;
-                unit.attackNum = 3;
+            if (unit.attackFrames <= 0)
+            {
+                //在天上
+                if (unit.acceleration != 0)
+                {
+                    unit.S = jump;
+                    unit.speed.y = 0;
+                    unit.attackNum = -1;
+                }
+                else//在地上.
+                {
+                    unit.S = stand;
+                    unit.attackNum = -1;
+                }
+            }
+            else
+            {
+                unit.attackFrames--;
             }
         }break;
         case hit:{
-            if( (clock() - unit.hitTime) > 1000) unit.S = stand;
+            if (unit.hitFrames <= 0)
+            {
+                //在天上
+                if (unit.acceleration != 0)
+                {
+                    unit.S = jump;
+                    unit.speed.y = 0;
+                }
+                else//在地上.
+                {
+                    unit.S = stand;
+                }
+            }
+            else
+            {
+                unit.hitFrames--;
+            }
         }break;
         case defend:
         {
             if ((GetKey(unit.downKey).bReleased)) unit.S = stand;
         }break;
         default:{
-            if ((clock() - unit.attackTime) > 500) {
-                unit.attackNum = 3;
-            }
+
         }
         break;
     }
@@ -703,7 +727,7 @@ void Example::recover(Unit& unit) {
 
 //角色发动攻击技能
 void Example::attackAction(Unit &unit, float fElapsedTime) {
-    if (GetKey(unit.attackKey).bPressed){
+    if (GetKey(unit.attackKey).bPressed && winner == unsettled){
         switch(unit.S)
         {
             case jump:{}
@@ -717,24 +741,12 @@ void Example::attackAction(Unit &unit, float fElapsedTime) {
             default:
             {
                 //跳跃状态下不进行普攻。
-                if (unit.S != farAttack && unit.S != jump && (clock() - unit.attackTime) > 500) {
+                if (unit.attackFrames <= 200) {
                     //第四次攻击后需要更长的cd
-                    if (unit.attackNum == 3){
-                        if(clock() - unit.attackTime >= 1000)
-                        {
-                            unit.S = attack;
-                            unit.attackNum = (unit.attackNum + 1) % 4;
-                            //更新攻击时间
-                            unit.attackTime = clock();
-                        }
-                    }
-                    else{
-                        unit.S = attack;
-                        unit.attackNum = (unit.attackNum + 1) % 4;
-                        //更新攻击时间
-                        unit.attackTime = clock();
-                    }
-
+                    unit.S = attack;
+                    unit.attackNum = (unit.attackNum + 1) % 4;
+                    if (unit.attackNum == 3) unit.attackFrames = 1050;
+                    else unit.attackFrames = 700;
 
                     //攻击时创造伤害区域，维持一定时间。
                     //朝右边攻击
@@ -766,8 +778,8 @@ void Example::hitAction(Unit &unit, float fElapsedTime) {
         if (hitAreas[i].inArea(unit) && unit.side != hitAreas[i].side && unit.S != fall
             && unit.S != defend){
             unit.S = hit;
-            unit.hitTime = clock();
-            if (unit.hitNum == 0) unit.firstHitTime = clock();
+
+            unit.hitFrames = 1500;
             unit.lives -= 5;
             unit.hitNum++;
             hitAreas[i].existence = false;
@@ -795,8 +807,11 @@ void Example::hitAction(Unit &unit, float fElapsedTime) {
         //如果3秒之内连续收到四次攻击，则会被击飞。然后firstHitTime和hitNum重置
         unit.skill_1_Frames = 0;
         unit.skill_2_Frames = 0;
-        bool fallFalg = unit.hitNum >= 4;
-        if (clock() - unit.firstHitTime < 5000 && fallFalg){
+        unit.skill_3_Frames = 0;
+
+        Unit* oppoent = units[unit.oppoentNum];
+        if (oppoent->attackNum == 3)
+        {
             play(NarutoHitSound);
             unit.S = fall;
             unit.hitNum = 0;
@@ -809,7 +824,9 @@ void Example::hitAction(Unit &unit, float fElapsedTime) {
 //被动状态,击飞.
 void Example::fallAction(Unit &unit, float fElapsedTime) {
     if (unit.S == fall){
-
+        unit.skill_1_Frames = 0;
+        unit.skill_2_Frames = 0;
+        unit.skill_3_Frames = 0;
         //竖直方向的飞行无关朝向，fall时间等于飞行时间加上躺在地上的时间。飞行的逻辑和jump一样
         if ((unit.position.y + unit.speed.y * fElapsedTime) < floorPos-blockSize.y + 15){
             unit.position.y += unit.speed.y * fElapsedTime;
@@ -820,11 +837,18 @@ void Example::fallAction(Unit &unit, float fElapsedTime) {
             if (unit.position.y < floorPos-blockSize.y + 15){//不等于地板高度代表着第一次到地面。
                 unit.position.y = floorPos - blockSize.y + 15;
                 unit.speed.y = 0;
-                unit.fallDownTime = clock();
+                unit.fallDownFrames = 1500;
             }
             else{
                 //落地之后继续躺1.5s, 状态出口。
-                if (clock() - unit.fallDownTime > 1500) unit.S = stand;
+                if (unit.fallDownFrames <= 0)
+                {
+                    unit.S = stand;
+                }
+                else
+                {
+                    unit.fallDownFrames--;
+                }
             }
         }
         //还在空中飞的过程中才会移动。
@@ -879,22 +903,35 @@ bool Example::inBound(bool moveDirection, float positionX) {
 }
 
 void Example::gameOver(){
-    if (unitA.lives <= 0 )
+    if (winner == unsettled)
     {
-        unitA.fallDownTime = clock();
-        winner = playerB;
-        play(ggSound);
-    }
-    if (unitB.lives <= 0)
-    {
-        unitB.fallDownTime = clock();
-        winner = playerA;
-        play(ggSound);
-    }
-    if (unitA.lives <= 0 && unitB.lives <= 0)
-    {
-        winner = draw;
-        play(ggSound);
+        if (unitA.lives <= 0)
+        {
+            unitA.speed.y = -100;
+            unitA.acceleration = 500;
+            unitA.S = fall;
+            winner = playerB;
+            play(ggSound);
+        }
+        if (unitB.lives <= 0)
+        {
+            unitB.speed.y = -100;
+            unitB.acceleration = 500;
+            unitB.S = fall;
+            winner = playerA;
+            play(ggSound);
+        }
+        if (unitA.lives <= 0 && unitB.lives <= 0)
+        {
+            unitA.speed.y = -100;
+            unitA.acceleration = 500;
+            unitA.S = fall;
+            unitB.speed.y = -100;
+            unitB.acceleration = 500;
+            unitB.S = fall;
+            winner = draw;
+            play(ggSound);
+        }
     }
 }
 
@@ -965,7 +1002,7 @@ void Example::moveUnit(Unit &unit, float fElapsedTime) {
 
 //防御
 void Example::defendAction(Unit &unit, float fElapsedTime) {
-    if (GetKey(unit.downKey).bHeld){
+    if (GetKey(unit.downKey).bHeld && winner == unsettled){
         switch(unit.S){
             //攻击、跳跃、被攻击、击飞时不能通过按键改变状态。
             case skill_1:
@@ -1003,7 +1040,7 @@ bool Example::isMoving(Unit &unit) {
 
 void Example::runAction(Unit &unit, float fElapsedTime) {
     //右跑
-    if (GetKey(unit.rightKey).bHeld){
+    if (GetKey(unit.rightKey).bHeld && winner == unsettled){
         switch (unit.S) {
             case skill_1:
             case skill_2:
@@ -1198,7 +1235,7 @@ void Example::collision(float fElapsedTime) {
 void Example::jumpAction(Unit &unit, float fElapsedTime) {
     //静止时的跳跃, 按下K键的瞬间获得一个极大的冲量。
     //A角色起跳用K键控制，跳跃最多可以二段跳。
-    if (GetKey(unit.upKey).bPressed){
+    if (GetKey(unit.upKey).bPressed && winner == unsettled){
         switch(unit.S){
             case skill_1:
             case skill_2:
@@ -1243,7 +1280,7 @@ void Example::jumpAction(Unit &unit, float fElapsedTime) {
 }
 
 void Example::flashAction(Unit &unit, float fElapsedTime) {
-    if(GetKey(unit.flashKey).bReleased){
+    if(GetKey(unit.flashKey).bReleased && winner == unsettled){
         switch(unit.S){
             //从这里到default都为空,代表着这些状态都不能直接到flash
             case skill_1:
@@ -1309,7 +1346,7 @@ void Example::flashDraw(Unit &unit, float offset_true, float offset_false) {
 //但有cd,在一定时间内不能再放远攻且保持该状态.
 void Example::farAttackAction(Unit &unit, float fElapsedTime) {
 
-    if (GetKey(unit.farAttackKey).bPressed){
+    if (GetKey(unit.farAttackKey).bPressed && winner == unsettled){
         switch(unit.S)
         {
             //不可进行转移的状态.
@@ -1504,7 +1541,7 @@ void Example::chakraDraw(Unit *unit) {
 }
 
 void Example::skill_1_Action(Unit &unit, float fElapsedTime) {
-    if (GetKey(unit.skillKey).bPressed){
+    if (GetKey(unit.skillKey).bPressed && winner == unsettled){
         switch(unit.S)
         {
             case defend:
@@ -1592,7 +1629,7 @@ void Example::skill_2_Action(Unit &unit, float fElapsedTime) {
                         oppoent->S = hit;
                         oppoent->skillHit++;
                         oppoent->lives -= 8;
-                        oppoent->hitTime = clock();
+                        oppoent->hitFrames = 500;
                         play(hitSound);
                     }
                     else
@@ -1915,28 +1952,36 @@ void Example::skill_3_Draw(Unit &unit, float offset_true, float offset_false) {
             case 4:
             case 3:
             {
+                offset.x = blockSize.x * 0.4;
+                offset.y = 8;
                 DrawDecal(unit.position + offset,
-                          skill_3_left_0_D.get(),
-                          {1, 1});
-            }
+                          skill_3_right_0_D.get(),
+                          {0.8, 0.8});
+            }break;
             case 2:
             {
+                offset.x = blockSize.x * 0.4;
+                offset.y = 8;
                 DrawDecal(unit.position + offset,
                           skill_3_left_1_D.get(),
-                          {1, 1});
-            }
+                          {0.8, 0.8});
+            }break;
             case 1:
             {
+                offset.x = blockSize.x * 0.3;
+                offset.y = -3;
                 DrawDecal(unit.position + offset,
                           skill_3_left_2_D.get(),
-                          {1, 1});
-            }
+                          {0.9, 0.9});
+            }break;
             case 0:
             {
+                offset.x = blockSize.x * 0.3;
+                offset.y = -3;
                 DrawDecal(unit.position + offset,
                           skill_3_left_3_D.get(),
-                          {1, 1});
-            }
+                          {0.9, 0.9});
+            }break;
         }
     }
 }
