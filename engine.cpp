@@ -248,6 +248,8 @@ bool Example::OnUserCreate() {
     Sasuke_attack_0_left_P = std::make_unique<olc::Sprite>("./pic/Sasuke/attack/0/left.png");
     Sasuke_attack_1_right_P = std::make_unique<olc::Sprite>("./pic/Sasuke/attack/1/right.png");
     Sasuke_attack_1_left_P = std::make_unique<olc::Sprite>("./pic/Sasuke/attack/1/left.png");
+    Sasuke_hit_right_P = std::make_unique<olc::Sprite>("./pic/Sasuke/hit/right.png");
+    Sasuke_hit_left_P = std::make_unique<olc::Sprite>("./pic/Sasuke/hit/left.png");
 
     Sasuke_stand_right_D = std::make_unique<olc::Decal>(Sasuke_stand_right_P.get());
     Sasuke_stand_left_D = std::make_unique<olc::Decal>(Sasuke_stand_left_P.get());
@@ -257,7 +259,8 @@ bool Example::OnUserCreate() {
     Sasuke_attack_0_left_D = std::make_unique<olc::Decal>(Sasuke_attack_0_left_P.get());
     Sasuke_attack_1_right_D = std::make_unique<olc::Decal>(Sasuke_attack_1_right_P.get());
     Sasuke_attack_1_left_D = std::make_unique<olc::Decal>(Sasuke_attack_1_left_P.get());
-
+    Sasuke_hit_right_D = std::make_unique<olc::Decal>(Sasuke_hit_right_P.get());
+    Sasuke_hit_left_D = std::make_unique<olc::Decal>(Sasuke_hit_left_P.get());
     return true;
 }
 
@@ -739,21 +742,49 @@ void Example::attackDraw(Unit &unit, float offset_true, float offset_false) {
 
 void Example::hitDraw(Unit &unit, float offset_true, float offset_false) {
     olc::vf2d offset;
-    if (unit.face){//面向右边时被攻击
-        offset.x = offset_true;
-        olc::vi2d picNum;
-        picNum.x = (unit.hitNum + unit.skillHit) % 2;
-        picNum.y = 0;
-        DrawPartialDecal(unit.position, hitRightDecal.get(),
-                          picNum * blockSize + offset, blockSize);
+    if (unit.type == Naruto)
+    {
+        if (unit.face){//面向右边时被攻击
+            offset.x = offset_true;
+            olc::vi2d picNum;
+            picNum.x = (unit.hitNum + unit.skillHit) % 2;
+            picNum.y = 0;
+            DrawPartialDecal(unit.position, hitRightDecal.get(),
+                             picNum * blockSize + offset, blockSize);
+        }
+        else{
+            offset.x = offset_false;
+            olc::vi2d picNum;
+            picNum.x = (unit.hitNum + unit.skillHit) % 2;
+            picNum.y = 0;
+            DrawPartialDecal(unit.position, hitLeftDecal.get(),
+                             picNum * blockSize + offset, blockSize);
+        }
     }
-    else{
-        offset.x = offset_false;
-        olc::vi2d picNum;
-        picNum.x = (unit.hitNum + unit.skillHit) % 2;
-        picNum.y = 0;
-        DrawPartialDecal(unit.position, hitLeftDecal.get(),
-                          picNum * blockSize + offset, blockSize);
+    if (unit.type == Sasuke)
+    {
+        if (unit.face)
+        {
+            olc::vi2d picNum;
+            picNum.x = (unit.hitNum + unit.skillHit) % 2;
+            picNum.y = 0;
+            offset.y = 10;
+            DrawPartialDecal(unit.position,
+                             Sasuke_hit_right_D.get(),
+                             picNum * blockSize + offset,
+                             blockSize);
+        }
+        else
+        {
+            olc::vi2d picNum;
+            picNum.x = (unit.hitNum + unit.skillHit) % 2;
+            picNum.y = 0;
+            offset.y = 10;
+            DrawPartialDecal(unit.position,
+                             Sasuke_hit_left_D.get(),
+                             picNum * blockSize + offset,
+                             blockSize);
+        }
     }
 }
 
