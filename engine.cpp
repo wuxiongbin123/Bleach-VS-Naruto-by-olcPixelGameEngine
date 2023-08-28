@@ -252,6 +252,8 @@ bool Example::OnUserCreate() {
     Sasuke_hit_left_P = std::make_unique<olc::Sprite>("./pic/Sasuke/hit/left.png");
     Sasuke_fall_right_P = std::make_unique<olc::Sprite>("./pic/Sasuke/fall/right.png");
     Sasuke_fall_left_P = std::make_unique<olc::Sprite>("./pic/Sasuke/fall/left.png");
+    Sasuke_jump_right_P = std::make_unique<olc::Sprite>("./pic/Sasuke/jump/right.png");
+    Sasuke_jump_left_P = std::make_unique<olc::Sprite>("./pic/Sasuke/jump/left.png");
 
     Sasuke_stand_right_D = std::make_unique<olc::Decal>(Sasuke_stand_right_P.get());
     Sasuke_stand_left_D = std::make_unique<olc::Decal>(Sasuke_stand_left_P.get());
@@ -265,6 +267,8 @@ bool Example::OnUserCreate() {
     Sasuke_hit_left_D = std::make_unique<olc::Decal>(Sasuke_hit_left_P.get());
     Sasuke_fall_right_D = std::make_unique<olc::Decal>(Sasuke_fall_right_P.get());
     Sasuke_fall_left_D = std::make_unique<olc::Decal>(Sasuke_fall_left_P.get());
+    Sasuke_jump_right_D = std::make_unique<olc::Decal>(Sasuke_jump_right_P.get());
+    Sasuke_jump_left_D = std::make_unique<olc::Decal>(Sasuke_jump_left_P.get());
     return true;
 }
 
@@ -434,35 +438,72 @@ void Example::render(float fElapsedTime) {
 //画跳跃状态的函数。true代表向右边动时的偏移量，false代表左边
 void Example::jumpDraw(Unit& unit, float offset_true, float offset_false) {
     olc::vf2d offset = {0, 0};
-    if (unit.face){//往右跳
-        offset.x += offset_true;
-        olc::vi2d picNum;
-        if (unit.speed.y < 0) {//speed.y < 0 代表朝上跳.
-            picNum.x = 1;
-            DrawPartialDecal(unit.position, jumpRightDecal.get(),
-                              picNum * blockSize + offset, blockSize - olc::vf2d(5, 0));
+    if (unit.type == Naruto)
+    {
+        if (unit.face){//往右跳
+            offset.x += offset_true;
+            olc::vi2d picNum;
+            if (unit.speed.y < 0) {//speed.y < 0 代表朝上跳.
+                picNum.x = 1;
+                DrawPartialDecal(unit.position, jumpRightDecal.get(),
+                                 picNum * blockSize + offset, blockSize - olc::vf2d(5, 0));
+            }
+            else{
+                picNum.x = 3;
+                DrawPartialDecal(unit.position, jumpRightDecal.get(),
+                                 picNum * blockSize + offset, blockSize);
+            }
         }
-        else{
-            picNum.x = 3;
-            DrawPartialDecal(unit.position, jumpRightDecal.get(),
-                              picNum * blockSize + offset, blockSize);
+        else
+        {
+            offset.x += offset_false;
+            olc::vi2d picNum;
+            if (unit.speed.y < 0) {//speed.y < 0 代表朝上跳.
+                picNum.x = 3;
+
+                DrawPartialDecal(unit.position, jumpLeftDecal.get(),
+                                 picNum * blockSize + offset , blockSize - olc::vf2d(10, 0));
+
+            }
+            else{
+                picNum.x = 1;
+                DrawPartialDecal(unit.position, jumpLeftDecal.get(),
+                                 picNum * blockSize + offset, blockSize - olc::vf2d(10, 0));
+            }
         }
     }
     else
     {
-        offset.x += offset_false;
-        olc::vi2d picNum;
-        if (unit.speed.y < 0) {//speed.y < 0 代表朝上跳.
-            picNum.x = 3;
+        if (unit.face)
+        {
 
-            DrawPartialDecal(unit.position, jumpLeftDecal.get(),
-                              picNum * blockSize + offset , blockSize - olc::vf2d(10, 0));
-
+            olc::vi2d picNum;
+            if (unit.speed.y < 0) {//speed.y < 0 代表朝上跳.
+                picNum.x = 0;
+                DrawPartialDecal(unit.position, Sasuke_jump_right_D.get(),
+                                 picNum * blockSize + offset, blockSize);
+            }
+            else{
+                picNum.x = 1;
+                DrawPartialDecal(unit.position, Sasuke_jump_right_D.get(),
+                                 picNum * blockSize + offset, blockSize);
+            }
         }
-        else{
-            picNum.x = 1;
-            DrawPartialDecal(unit.position, jumpLeftDecal.get(),
-                              picNum * blockSize + offset, blockSize - olc::vf2d(10, 0));
+        else
+        {
+            olc::vi2d picNum;
+            if (unit.speed.y < 0) {//speed.y < 0 代表朝上跳.
+                picNum.x = 1;
+
+                DrawPartialDecal(unit.position, Sasuke_jump_left_D.get(),
+                                 picNum * blockSize + offset , blockSize);
+
+            }
+            else{
+                picNum.x = 0;
+                DrawPartialDecal(unit.position, Sasuke_jump_left_D.get(),
+                                 picNum * blockSize + offset, blockSize);
+            }
         }
     }
 }
