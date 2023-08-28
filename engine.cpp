@@ -254,6 +254,8 @@ bool Example::OnUserCreate() {
     Sasuke_fall_left_P = std::make_unique<olc::Sprite>("./pic/Sasuke/fall/left.png");
     Sasuke_jump_right_P = std::make_unique<olc::Sprite>("./pic/Sasuke/jump/right.png");
     Sasuke_jump_left_P = std::make_unique<olc::Sprite>("./pic/Sasuke/jump/left.png");
+    Sasuke_defend_right_P = std::make_unique<olc::Sprite>("./pic/Sasuke/defend/right.png");
+    Sasuke_defend_left_P = std::make_unique<olc::Sprite>("./pic/Sasuke/defend/left.png");
 
     Sasuke_stand_right_D = std::make_unique<olc::Decal>(Sasuke_stand_right_P.get());
     Sasuke_stand_left_D = std::make_unique<olc::Decal>(Sasuke_stand_left_P.get());
@@ -269,6 +271,9 @@ bool Example::OnUserCreate() {
     Sasuke_fall_left_D = std::make_unique<olc::Decal>(Sasuke_fall_left_P.get());
     Sasuke_jump_right_D = std::make_unique<olc::Decal>(Sasuke_jump_right_P.get());
     Sasuke_jump_left_D = std::make_unique<olc::Decal>(Sasuke_jump_left_P.get());
+    Sasuke_defend_right_D = std::make_unique<olc::Decal>(Sasuke_defend_right_P.get());
+    Sasuke_defend_left_D = std::make_unique<olc::Decal>(Sasuke_defend_left_P.get());
+
     return true;
 }
 
@@ -535,22 +540,22 @@ void Example::standDraw(Unit& unit, float offset_true, float offset_false) {
         {
             offset.x = 5;
             olc::vi2d picNum = {int(unit.stateNum) % 6, 0};
-            DrawPartialDecal(unit.position + olc::vf2d(0, -3),
+            DrawPartialDecal(unit.position + olc::vf2d(0, 2),
                              Sasuke_stand_right_D.get(),
                              picNum * unit.size + offset,
                              unit.size,
-                             {0.9, 0.9});
+                             {1, 0.85});
             unit.stateNum += 0.01;
         }
         else
         {
             offset.x = -3;
             olc::vi2d picNum = {int(unit.stateNum) % 6, 0};
-            DrawPartialDecal(unit.position + olc::vf2d(0, -3),
+            DrawPartialDecal(unit.position + olc::vf2d(0, 2),
                              Sasuke_stand_left_D.get(),
                              picNum * unit.size + offset,
                              unit.size,
-                             {0.9, 0.9});
+                             {1, 0.85});
             unit.stateNum += 0.01;
         }
     }
@@ -583,22 +588,22 @@ void Example::runDraw(Unit& unit, float offset_true, float offset_false) {
         {
             offset.x = 5;
             olc::vi2d picNum = {int(unit.stateNum) % 6, 0};
-            DrawPartialDecal(unit.position + olc::vf2d(0, -3),
+            DrawPartialDecal(unit.position + olc::vf2d(0, 1),
                              Sasuke_run_right_D.get(),
                              picNum * unit.size + offset,
                              unit.size,
-                             {0.9, 0.9});
+                             {1, 0.85});
             unit.stateNum += 0.01;
         }
         else
         {
             offset.x = -3;
             olc::vi2d picNum = {int(unit.stateNum) % 6, 0};
-            DrawPartialDecal(unit.position + olc::vf2d(0, -3),
+            DrawPartialDecal(unit.position + olc::vf2d(0, 1),
                              Sasuke_run_left_D.get(),
                              picNum * unit.size + offset,
                              unit.size,
-                             {0.9, 0.9});
+                             {1, 0.85});
             unit.stateNum += 0.01;
         }
     }
@@ -1319,14 +1324,27 @@ void Example::defendAction(Unit &unit, float fElapsedTime) {
 
 void Example::defendDraw(Unit &unit, float offset_true, float offset_false) {
     olc::vf2d offset(0, 0);
-    if (unit.face){//面向右边防御
-        offset.x = offset_true;
-        DrawDecal(unit.position, defendRightDecal.get(), {1.1, 0.9});
-    }
-    else
+    if(unit.type == Naruto)
     {
-        offset.x = offset_false;
-        DrawDecal(unit.position, defendLeftDecal.get(), {1.1, 0.9});
+        if (unit.face){//面向右边防御
+            offset.x = offset_true;
+            DrawDecal(unit.position, defendRightDecal.get(), {1.1, 0.9});
+        }
+        else
+        {
+            offset.x = offset_false;
+            DrawDecal(unit.position, defendLeftDecal.get(), {1.1, 0.9});
+        }
+    }
+    if(unit.type == Sasuke)
+    {
+        if (unit.face){//面向右边防御
+            DrawDecal(unit.position, Sasuke_defend_right_D.get(), {0.9, 0.9});
+        }
+        else
+        {
+            DrawDecal(unit.position, Sasuke_defend_left_D.get(), {0.9, 0.9});
+        }
     }
 }
 //当在跑动或者跳跃,且有方向键按住时,或者在攻击时可以判断在运动.
