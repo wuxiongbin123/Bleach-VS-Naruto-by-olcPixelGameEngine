@@ -13,7 +13,7 @@ Unit::Unit(bool s, unitType u): S(stand), lives(200)
                                 flashFrames(0), chakra(0),
                                 skill_1_Frames(0), skill_2_Frames(0),skill_3_Frames(0),
                                 fallDownFrames(0),
-                                skillHit(0)
+                                skillHit(0), size(olc::vf2d(63, 97))
                                 {
     speed = {250, 0};
     if (side){
@@ -46,15 +46,15 @@ Unit::Unit(bool s, unitType u): S(stand), lives(200)
 bool Example::OnUserCreate() {
 
     //初始化人物位置
-    unitA = Unit(true, Naruto);
-    unitB = Unit(false, Naruto);
+    unitA = Unit(true, Sasuke);
+    unitB = Unit(false, Sasuke);
     units.push_back(&unitA);
     units.push_back(&unitB);
 
     unitA.position = { 1024 * 0.2 - 120, floorPos-blockSize.y + 15};
     unitB.position = {1024 * 0.8 , floorPos - blockSize.y + 15};//170是hard code上去的，是人物的高度。
 
-    //为了简便，规定两个都是Naruto。
+    //为了简便，规定Sasuke是角色A,Naruto是角色B.
 
     backgroundPic = std::make_unique<olc::Sprite>("./pic/background.jpg");
     standPicOfA = std::make_unique<olc::Sprite>("./pic/Naruto/stand_A.png");
@@ -238,6 +238,25 @@ bool Example::OnUserCreate() {
     skill_3_left_1_D = std::make_unique<olc::Decal>(skill_3_left_1_P.get());
     skill_3_left_2_D = std::make_unique<olc::Decal>(skill_3_left_2_P.get());
     skill_3_left_3_D = std::make_unique<olc::Decal>(skill_3_left_3_P.get());
+
+    //Sasuke的图片
+    Sasuke_stand_right_P = std::make_unique<olc::Sprite>("./pic/Sasuke/stand/right.png");
+    Sasuke_stand_left_P = std::make_unique<olc::Sprite>("./pic/Sasuke/stand/left.png");
+    Sasuke_run_right_P = std::make_unique<olc::Sprite>("./pic/Sasuke/run/right.png");
+    Sasuke_run_left_P = std::make_unique<olc::Sprite>("./pic/Sasuke/run/left.png");
+    Sasuke_attack_0_right_P = std::make_unique<olc::Sprite>("./pic/Sasuke/attack/0/right.png");
+    Sasuke_attack_0_left_P = std::make_unique<olc::Sprite>("./pic/Sasuke/attack/0/left.png");
+    Sasuke_attack_1_right_P = std::make_unique<olc::Sprite>("./pic/Sasuke/attack/1/right.png");
+    Sasuke_attack_1_left_P = std::make_unique<olc::Sprite>("./pic/Sasuke/attack/1/left.png");
+
+    Sasuke_stand_right_D = std::make_unique<olc::Decal>(Sasuke_stand_right_P.get());
+    Sasuke_stand_left_D = std::make_unique<olc::Decal>(Sasuke_stand_left_P.get());
+    Sasuke_run_right_D = std::make_unique<olc::Decal>(Sasuke_run_right_P.get());
+    Sasuke_run_left_D = std::make_unique<olc::Decal>(Sasuke_run_left_P.get());
+    Sasuke_attack_0_right_D = std::make_unique<olc::Decal>(Sasuke_attack_0_right_P.get());
+    Sasuke_attack_0_left_D = std::make_unique<olc::Decal>(Sasuke_attack_0_left_P.get());
+    Sasuke_attack_1_right_D = std::make_unique<olc::Decal>(Sasuke_attack_1_right_P.get());
+    Sasuke_attack_1_left_D = std::make_unique<olc::Decal>(Sasuke_attack_1_left_P.get());
 
     return true;
 }
@@ -444,113 +463,278 @@ void Example::jumpDraw(Unit& unit, float offset_true, float offset_false) {
 //站立的动画.
 void Example::standDraw(Unit& unit, float offset_true, float offset_false) {
     olc::vf2d offset = {0, 0};
-    if (unit.face){
-        offset.x += offset_true;
-        olc::vi2d picNum = { int(unit.stateNum) % 6, 0};
-        DrawPartialDecal(unit.position, standDecalOfA.get(),
-                          picNum * blockSize + offset, blockSize);
-        unit.stateNum += 0.02;
+    if(unit.type == Naruto)
+    {
+        if (unit.face){
+            offset.x += offset_true;
+            olc::vi2d picNum = { int(unit.stateNum) % 6, 0};
+            DrawPartialDecal(unit.position, standDecalOfA.get(),
+                             picNum * unit.size + offset, blockSize);
+            unit.stateNum += 0.02;
+        }
+        else{
+            offset.x += offset_false;
+            olc::vi2d picNum = { int(unit.stateNum) % 6, 0};
+            DrawPartialDecal(unit.position, standDecalOfB.get(),
+                             picNum * unit.size + offset, blockSize);
+            unit.stateNum += 0.02;
+        }
     }
-    else{
-        offset.x += offset_false;
-        olc::vi2d picNum = { int(unit.stateNum) % 6, 0};
-        DrawPartialDecal(unit.position, standDecalOfB.get(),
-                          picNum * blockSize + offset, blockSize);
-        unit.stateNum += 0.02;
+    if (unit.type == Sasuke)
+    {
+
+        if(unit.face)
+        {
+            offset.x = 5;
+            olc::vi2d picNum = {int(unit.stateNum) % 6, 0};
+            DrawPartialDecal(unit.position + olc::vf2d(0, -3),
+                             Sasuke_stand_right_D.get(),
+                             picNum * unit.size + offset,
+                             unit.size,
+                             {0.9, 0.9});
+            unit.stateNum += 0.01;
+        }
+        else
+        {
+            offset.x = -3;
+            olc::vi2d picNum = {int(unit.stateNum) % 6, 0};
+            DrawPartialDecal(unit.position + olc::vf2d(0, -3),
+                             Sasuke_stand_left_D.get(),
+                             picNum * unit.size + offset,
+                             unit.size,
+                             {0.9, 0.9});
+            unit.stateNum += 0.01;
+        }
     }
 }
 
 //奔跑的动画
 void Example::runDraw(Unit& unit, float offset_true, float offset_false) {
     olc::vf2d offset = {0, 0};
-    if (unit.face)//朝右跑，则脸向右，为真。
-    {
-        offset.x += offset_true;
-        olc::vi2d picNum = {int(unit.stateNum)% 6, 0};
-        DrawPartialDecal(unit.position, runRightDecal.get(),
-                          picNum * blockSize + offset, blockSize);
-        unit.stateNum += 0.02;
+    if (unit.type == Naruto) {
+        if (unit.face)//朝右跑，则脸向右，为真。
+        {
+            offset.x += offset_true ;
+            olc::vi2d picNum = {int(unit.stateNum) % 6, 0};
+            DrawPartialDecal(unit.position, runRightDecal.get(),
+                             picNum * blockSize + offset,
+                             blockSize - olc::vf2d(2, 0));
+            unit.stateNum += 0.02;
+        } else {
+            offset.x += offset_false + 2;
+            olc::vi2d picNum = {int(unit.stateNum) % 6, 0};
+            DrawPartialDecal(unit.position, runLeftDecal.get(),
+                             picNum * blockSize + offset,
+                             blockSize - olc::vf2d(1, 0));
+            unit.stateNum += 0.02;
+        }
     }
-    else
+    if (unit.type == Sasuke)
     {
-        offset.x += offset_false;
-        olc::vi2d picNum = {int(unit.stateNum)  % 6, 0};
-        DrawPartialDecal(unit.position,runLeftDecal.get(),
-                          picNum * blockSize + offset, blockSize);
-        unit.stateNum += 0.02;
+        if (unit.face)
+        {
+            offset.x = 5;
+            olc::vi2d picNum = {int(unit.stateNum) % 6, 0};
+            DrawPartialDecal(unit.position + olc::vf2d(0, -3),
+                             Sasuke_run_right_D.get(),
+                             picNum * unit.size + offset,
+                             unit.size,
+                             {0.9, 0.9});
+            unit.stateNum += 0.01;
+        }
+        else
+        {
+            offset.x = -3;
+            olc::vi2d picNum = {int(unit.stateNum) % 6, 0};
+            DrawPartialDecal(unit.position + olc::vf2d(0, -3),
+                             Sasuke_run_left_D.get(),
+                             picNum * unit.size + offset,
+                             unit.size,
+                             {0.9, 0.9});
+            unit.stateNum += 0.01;
+        }
     }
 }
 
 void Example::attackDraw(Unit &unit, float offset_true, float offset_false) {
     olc::vf2d offset = {0, 0};
-    if (unit.face)//向右攻击
+    if (unit.type == Naruto)
     {
-        offset.x += offset_true;
-        switch(unit.attackNum){
-            case 0:
-            {
-                int num = (unit.attackFrames) / 196;
-                olc::vi2d picNum = {num, 0};
-                DrawPartialDecal(unit.position, attackRightDecal_0.get(),
-                                  picNum * blockSize + offset, blockSize);
-            }break;
-            case 1:
-            {
-                int num = (unit.attackFrames) / 196;
-                olc::vi2d picNum = {num, 0};
-                DrawPartialDecal(unit.position, attackRightDecal_1.get(),
-                                  picNum * blockSize + offset, blockSize);
-            }break;
-            case 2:
-            {
-                int num = (unit.attackFrames) / 196;
-                olc::vi2d picNum = {num, 0};
-                DrawPartialDecal(unit.position, attackRightDecal_2.get(),
-                                  picNum * blockSize + offset, blockSize);
-            }break;
-            case 3:
-                offset.x += 5;
-                offset.y += 5;
-                int num = (unit.attackFrames) / 293;
-                olc::vi2d picNum = {num, 0};
-                DrawPartialDecal(unit.position, attackRightDecal_3.get(),
-                                  picNum * blockSize + offset, blockSize);
+        if (unit.face)//向右攻击
+        {
+            offset.x += offset_true;
+            switch(unit.attackNum){
+                case 0:
+                {
+                    offset.x -= 5;
+                    int num = 3 - (unit.attackFrames) / 196;
+                    olc::vi2d picNum = {num, 0};
+                    DrawPartialDecal(unit.position, attackRightDecal_0.get(),
+                                     picNum * blockSize + offset,
+                                     blockSize);
+                }break;
+                case 1:
+                {
+                    int num = 3 - (unit.attackFrames) / 196;
+                    olc::vi2d picNum = {num, 0};
+                    DrawPartialDecal(unit.position, attackRightDecal_1.get(),
+                                     picNum * blockSize + offset, blockSize);
+                }break;
+                case 2:
+                {
+                    offset.x += 3;
+                    int num = 3 - (unit.attackFrames) / 196;
+                    olc::vi2d picNum = {num, 0};
+                    DrawPartialDecal(unit.position, attackRightDecal_2.get(),
+                                     picNum * blockSize + offset, blockSize);
+                }break;
+                case 3:
+                    offset.x += 5;
+                    offset.y += 5;
+                    int num = 4 - (unit.attackFrames) / 293;
+                    olc::vi2d picNum = {num, 0};
+                    DrawPartialDecal(unit.position, attackRightDecal_3.get(),
+                                     picNum * blockSize + offset, blockSize);
+            }
+        }
+        else
+        {
+            offset.x += offset_false;
+            switch(unit.attackNum){
+                case 0:
+                {
+                    offset.x += 7;
+                    int num = (unit.attackFrames) / 196;
+                    olc::vi2d picNum = {num, 0};
+                    DrawPartialDecal(unit.position, attackLeftDecal_0.get(),
+                                     picNum * blockSize + offset,
+                                     blockSize - olc::vf2d(2, 0));
+                }break;
+                case 1:
+                {
+                    int num = (unit.attackFrames) / 196;
+                    olc::vi2d picNum = {num, 0};
+                    DrawPartialDecal(unit.position, attackLeftDecal_1.get(),
+                                     picNum * blockSize + offset, blockSize);
+                }break;
+                case 2:
+                {
+                    offset.x -= 3;
+                    int num = (unit.attackFrames) / 196;
+                    olc::vi2d picNum = {num, 0};
+                    DrawPartialDecal(unit.position, attackLeftDecal_2.get(),
+                                     picNum * blockSize + offset, blockSize);
+                }break;
+                case 3:
+                    offset.x -= 5;
+                    offset.y += 5;
+                    int num = (unit.attackFrames) / 293;
+                    olc::vi2d picNum = {num, 0};
+                    DrawPartialDecal(unit.position, attackLeftDecal_3.get(),
+                                     picNum * blockSize + offset, blockSize);
+            }
         }
     }
-    else
+    if (unit.type == Sasuke)
     {
-        offset.x += offset_false;
-        switch(unit.attackNum){
-            case 0:
-            {
-                int num = (unit.attackFrames) / 196;
-                olc::vi2d picNum = {num, 0};
-                DrawPartialDecal(unit.position, attackLeftDecal_0.get(),
-                                  picNum * blockSize + offset, blockSize);
-            }break;
-            case 1:
-            {
-                int num = (unit.attackFrames) / 196;
-                olc::vi2d picNum = {num, 0};
-                DrawPartialDecal(unit.position, attackLeftDecal_1.get(),
-                                  picNum * blockSize + offset, blockSize);
-            }break;
-            case 2:
-            {
-                int num = (unit.attackFrames) / 196;
-                olc::vi2d picNum = {num, 0};
-                DrawPartialDecal(unit.position, attackLeftDecal_2.get(),
-                                  picNum * blockSize + offset, blockSize);
-            }break;
-            case 3:
-                offset.x -= 5;
-                offset.y += 5;
-                int num = (unit.attackFrames) / 293;
-                olc::vi2d picNum = {num, 0};
-                DrawPartialDecal(unit.position, attackLeftDecal_3.get(),
-                                  picNum * blockSize + offset, blockSize);
+        if (unit.face)
+        {
+            offset.x += offset_true;
+            switch(unit.attackNum){
+                case 0:
+                {
+                    //单次攻击的frames是700, 一共有4张图
+                    int num = 3 - (unit.attackFrames) / 176;
+                    offset.x = 5;
+                    olc::vi2d picNum = {num, 0};
+                    DrawPartialDecal(unit.position,
+                                     Sasuke_attack_0_right_D.get(),
+                                     picNum * blockSize + offset,
+                                     blockSize,
+                                     {0.9, 0.9}
+                                     );
+                }break;
+                case 1:
+                {
+                    int num = 7 - (unit.attackFrames) / 176;
+                    olc::vi2d picNum = {num, 0};
+                    DrawPartialDecal(unit.position, Sasuke_attack_0_right_D.get(),
+                                     picNum * blockSize + offset, blockSize,
+                                     {0.9, 0.9});
+                }break;
+                case 2:
+                {
+                    offset.x = 5;
+                    offset.y = -8;
+                    int num = 12 - (unit.attackFrames) / 141;
+                    olc::vi2d picNum = {num, 0};
+                    DrawPartialDecal(unit.position, Sasuke_attack_0_right_D.get(),
+                                     picNum * blockSize + offset,
+                                     blockSize + olc::vf2d(-4, 0),
+                                     {0.9, 0.9});
+                }break;
+                case 3:
+                    offset.x += 16;
+                    offset.y += 5;
+                    int num = 4 - (unit.attackFrames) / 211;
+                    olc::vi2d picNum = {num, 0};
+                    DrawPartialDecal(unit.position,
+                                     Sasuke_attack_1_right_D.get(),
+                                     picNum * blockSize + offset,
+                                     blockSize + olc::vf2d(-2, 0),
+                                     {0.9, 0.9});
+            }
+        }
+        else
+        {
+            offset.x += offset_true;
+            switch(unit.attackNum){
+                case 0:
+                {
+                    //单次攻击的frames是700, 一共有4张图
+                    int num = (unit.attackFrames) / 176 + 9;
+                    offset.x = 5;
+                    olc::vi2d picNum = {num, 0};
+                    DrawPartialDecal(unit.position,
+                                     Sasuke_attack_0_left_D.get(),
+                                     picNum * blockSize + offset,
+                                     blockSize,
+                                     {0.9, 0.9}
+                    );
+                }break;
+                case 1:
+                {
+                    offset.x = 12;
+                    int num = (unit.attackFrames) / 176 + 4;
+                    olc::vi2d picNum = {num, 0};
+                    DrawPartialDecal(unit.position, Sasuke_attack_0_left_D.get(),
+                                     picNum * blockSize + offset, blockSize,
+                                     {0.9, 0.9});
+                }break;
+                case 2:
+                {
+                    offset.x = 12;
+                    int num = (unit.attackFrames) / 141;
+                    olc::vi2d picNum = {num, 0};
+                    DrawPartialDecal(unit.position, Sasuke_attack_0_left_D.get(),
+                                     picNum * blockSize + offset,
+                                     blockSize + olc::vf2d(-4, 0),
+                                     {0.9, 0.9});
+                }break;
+                case 3:
+                    offset.x += 1;
+                    offset.y += 5;
+                    int num = (unit.attackFrames) / 211;
+                    olc::vi2d picNum = {num, 0};
+                    DrawPartialDecal(unit.position,
+                                     Sasuke_attack_1_left_D.get(),
+                                     picNum * blockSize + offset,
+                                     blockSize + olc::vf2d(-2, 0),
+                                     {0.9, 0.9});
+            }
         }
     }
+
 }
 
 void Example::hitDraw(Unit &unit, float offset_true, float offset_false) {
@@ -1073,7 +1257,7 @@ void Example::runAction(Unit &unit, float fElapsedTime) {
     }
 
     //角色左跑
-    if (GetKey(unit.leftKey).bHeld){
+    if (GetKey(unit.leftKey).bHeld && winner == unsettled){
         switch (unit.S) {
             case skill_1:
             case skill_2:

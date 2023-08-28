@@ -12,7 +12,7 @@
 enum state {stand, run, jump, defend,
             attack,flash, farAttack, skill_1, skill_2, skill_3,
             hit, fall};
-enum unitType {Naruto, ichigo};
+enum unitType {Naruto, Sasuke};
 enum itemType {none, shurikenItem};
 enum player {playerA, playerB, draw, unsettled};
 
@@ -381,6 +381,29 @@ public:
     std::unique_ptr<olc::Decal> skill_3_left_2_D;
     std::unique_ptr<olc::Decal> skill_3_left_3_D;
 
+    //佐助的图片.
+    std::unique_ptr<olc::Sprite> Sasuke_stand_right_P;
+    std::unique_ptr<olc::Sprite> Sasuke_stand_left_P;
+    std::unique_ptr<olc::Sprite> Sasuke_run_right_P;
+    std::unique_ptr<olc::Sprite> Sasuke_run_left_P;
+    std::unique_ptr<olc::Sprite> Sasuke_attack_0_right_P;
+    std::unique_ptr<olc::Sprite> Sasuke_attack_0_left_P;
+    std::unique_ptr<olc::Sprite> Sasuke_attack_1_right_P;
+    std::unique_ptr<olc::Sprite> Sasuke_attack_1_left_P;
+
+
+
+    std::unique_ptr<olc::Decal> Sasuke_stand_right_D;
+    std::unique_ptr<olc::Decal> Sasuke_stand_left_D;
+    std::unique_ptr<olc::Decal> Sasuke_run_right_D;
+    std::unique_ptr<olc::Decal> Sasuke_run_left_D;
+    std::unique_ptr<olc::Decal> Sasuke_attack_right_D;
+    std::unique_ptr<olc::Decal> Sasuke_attack_left_D;
+    std::unique_ptr<olc::Decal> Sasuke_attack_0_right_D;
+    std::unique_ptr<olc::Decal> Sasuke_attack_0_left_D;
+    std::unique_ptr<olc::Decal> Sasuke_attack_1_right_D;
+    std::unique_ptr<olc::Decal> Sasuke_attack_1_left_D;
+
 
 
 
@@ -436,6 +459,7 @@ public:
     void removeDeadArea();
     void removeDeadItem();
 };
+
 
 
 #endif //BVN_ENGINE_H
