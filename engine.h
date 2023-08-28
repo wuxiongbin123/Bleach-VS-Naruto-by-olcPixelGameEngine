@@ -465,6 +465,14 @@ public:
     std::unique_ptr<olc::Sprite> Sasuke_fireBall_right_P;
     std::unique_ptr<olc::Sprite> Sasuke_fireBall_left_P;
 
+    //skill_1有两张长图
+    std::unique_ptr<olc::Sprite> Sasuke_skill_1_prepare_0_right_P;
+    std::unique_ptr<olc::Sprite> Sasuke_skill_1_prepare_0_left_P;
+    std::unique_ptr<olc::Sprite> Sasuke_skill_1_prepare_1_right_P;
+    std::unique_ptr<olc::Sprite> Sasuke_skill_1_prepare_1_left_P;
+    std::unique_ptr<olc::Sprite> Sasuke_skill_1_move_right_P;
+    std::unique_ptr<olc::Sprite> Sasuke_skill_1_move_left_P;
+
 
 
     std::unique_ptr<olc::Decal> Sasuke_stand_right_D;
@@ -493,6 +501,15 @@ public:
     std::unique_ptr<olc::Decal> Sasuke_farAttack_left_1_D;
     std::unique_ptr<olc::Decal> Sasuke_fireBall_right_D;
     std::unique_ptr<olc::Decal> Sasuke_fireBall_left_D;
+
+
+    //skill_1有3张长图, prepare有两张,move有一张.
+    std::unique_ptr<olc::Decal> Sasuke_skill_1_prepare_0_right_D;
+    std::unique_ptr<olc::Decal> Sasuke_skill_1_prepare_0_left_D;
+    std::unique_ptr<olc::Decal> Sasuke_skill_1_prepare_1_right_D;
+    std::unique_ptr<olc::Decal> Sasuke_skill_1_prepare_1_left_D;
+    std::unique_ptr<olc::Decal> Sasuke_skill_1_move_right_D;
+    std::unique_ptr<olc::Decal> Sasuke_skill_1_move_left_D;
 
 
 
