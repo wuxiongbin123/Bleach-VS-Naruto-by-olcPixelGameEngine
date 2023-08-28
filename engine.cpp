@@ -47,7 +47,7 @@ bool Example::OnUserCreate() {
 
     //初始化人物位置
     unitA = Unit(true, Sasuke);
-    unitB = Unit(false, Naruto);
+    unitB = Unit(false, Sasuke);
     units.push_back(&unitA);
     units.push_back(&unitB);
 
@@ -258,8 +258,10 @@ bool Example::OnUserCreate() {
     Sasuke_defend_left_P = std::make_unique<olc::Sprite>("./pic/Sasuke/defend/left.png");
     Sasuke_flash_right_P = std::make_unique<olc::Sprite>("./pic/Sasuke/flash/right.png");
     Sasuke_flash_left_P = std::make_unique<olc::Sprite>("./pic/Sasuke/flash/left.png");
-    Sasuke_farAttack_right_P = std::make_unique<olc::Sprite>("./pic/Sasuke/farAttack/right.png");
-    Sasuke_farAttack_left_P = std::make_unique<olc::Sprite>("./pic/Sasuke/farAttack/left.png");
+    Sasuke_farAttack_right_0_P = std::make_unique<olc::Sprite>("./pic/Sasuke/farAttack/0/right.png");
+    Sasuke_farAttack_left_0_P = std::make_unique<olc::Sprite>("./pic/Sasuke/farAttack/0/left.png");
+    Sasuke_farAttack_right_1_P = std::make_unique<olc::Sprite>("./pic/Sasuke/farAttack/1/right.png");
+    Sasuke_farAttack_left_1_P = std::make_unique<olc::Sprite>("./pic/Sasuke/farAttack/1/left.png");
     Sasuke_fireBall_right_P = std::make_unique<olc::Sprite>("./pic/Sasuke/fireBall/right.png");
     Sasuke_fireBall_left_P = std::make_unique<olc::Sprite>("./pic/Sasuke/fireBall/left.png");
 
@@ -281,8 +283,10 @@ bool Example::OnUserCreate() {
     Sasuke_defend_left_D = std::make_unique<olc::Decal>(Sasuke_defend_left_P.get());
     Sasuke_flash_right_D = std::make_unique<olc::Decal>(Sasuke_flash_right_P.get());
     Sasuke_flash_left_D = std::make_unique<olc::Decal>(Sasuke_flash_left_P.get());
-    Sasuke_farAttack_right_D = std::make_unique<olc::Decal>(Sasuke_farAttack_right_P.get());
-    Sasuke_farAttack_left_D = std::make_unique<olc::Decal>(Sasuke_farAttack_left_P.get());
+    Sasuke_farAttack_right_0_D = std::make_unique<olc::Decal>(Sasuke_farAttack_right_0_P.get());
+    Sasuke_farAttack_left_0_D = std::make_unique<olc::Decal>(Sasuke_farAttack_left_0_P.get());
+    Sasuke_farAttack_right_1_D = std::make_unique<olc::Decal>(Sasuke_farAttack_right_1_P.get());
+    Sasuke_farAttack_left_1_D = std::make_unique<olc::Decal>(Sasuke_farAttack_left_1_P.get());
     Sasuke_fireBall_right_D = std::make_unique<olc::Decal>(Sasuke_fireBall_right_P.get());
     Sasuke_fireBall_left_D = std::make_unique<olc::Decal>(Sasuke_fireBall_left_P.get());
 
@@ -1720,34 +1724,10 @@ void Example::farAttackAction(Unit &unit, float fElapsedTime) {
             default:{
                 //成功进行攻击
                 if (unit.farAttackFrames == 0){
-                    olc::vf2d offset(0, 0);
-                    if (unit.face) offset.x = blockSize.x;
-                    else offset.x = - blockSize.x;
+
                     unit.S = farAttack;
                     if(unit.chakra < 300) unit.chakra += 5;
 
-                    //鸣人远攻是手里剑, 佐助远攻是火球术.
-                    switch (unit.type)
-                    {
-                        case Naruto :
-                        {
-                            items.push_back(
-                                    std::make_shared<shuriken>(unit.position + offset,
-                                                               unit.side,
-                                                               unit.face,
-                                                               olc::vf2d(51, 97),
-                                                               true));
-                        }break;
-                        case Sasuke:
-                        {
-                            items.push_back(
-                                    std::make_shared<fireBall>(unit.position + offset,
-                                                               unit.side,
-                                                               unit.face,
-                                                               olc::vf2d(120, 71),
-                                                               true));
-                        }break;
-                    }
                     unit.farAttackFrames = 600;//cd为600帧
                 }
             }
@@ -1755,6 +1735,43 @@ void Example::farAttackAction(Unit &unit, float fElapsedTime) {
     }
     //自动恢复的过程.只能从这里改变farAttack的状态,其余的不能改变farAttack的状态
     if (unit.S == farAttack){
+
+        olc::vf2d offset(0, 0);
+        if (unit.face) offset.x = blockSize.x;
+        else offset.x = - blockSize.x;
+
+        //鸣人远攻是手里剑, 佐助远攻是火球术.
+        switch (unit.type)
+        {
+            //营造前摇
+            case Naruto :
+            {
+                if (unit.farAttackFrames == 500)
+                {
+                    items.push_back(
+                            std::make_shared<shuriken>(unit.position + offset,
+                                                       unit.side,
+                                                       unit.face,
+                                                       olc::vf2d(51, 97),
+                                                       true));
+                }
+
+            }break;
+            //同样营造前摇
+            case Sasuke:
+            {
+                if (unit.farAttackFrames == 150)
+                {
+                    items.push_back(
+                            std::make_shared<fireBall>(unit.position + offset,
+                                                       unit.side,
+                                                       unit.face,
+                                                       olc::vf2d(120, 71),
+                                                       true));
+                }
+
+            }break;
+        }
         unit.farAttackFrames--;
         if (unit.farAttackFrames <= 0){
             unit.farAttackFrames = 0;
@@ -1766,44 +1783,95 @@ void Example::farAttackAction(Unit &unit, float fElapsedTime) {
 //远攻的图像函数
 void Example::farAttackDraw(Unit &unit, float offset_true, float offset_false) {
     //根据留存的farAttackFrames决定该画哪张图像.
-    int picNum;
-    if (unit.farAttackFrames >= 400){
-        picNum = 0;
-    }
-    else{
-        if (unit.farAttackFrames >= 200)
-            picNum = 1;
-        else picNum = 2;
-    }
+    if (unit.type == Naruto)
+    {
+        int picNum;
+        if (unit.farAttackFrames >= 400){
+            picNum = 0;
+        }
+        else{
+            if (unit.farAttackFrames >= 200)
+                picNum = 1;
+            else picNum = 2;
+        }
 
-    if (unit.face){
-        switch(picNum){
-            case 0:
-                DrawDecal(unit.position, farAttackRightDecal_0.get(),
-                    {1.1, 0.9});break;
-            case 1:
-                DrawDecal(unit.position, farAttackRightDecal_1.get(),
-                          {0.99, 0.9});break;
-            case 2:
-                DrawDecal(unit.position, farAttackRightDecal_2.get(),
-                          {1.1, 0.9});break;
+        if (unit.face){
+            switch(picNum){
+                case 0:
+                    DrawDecal(unit.position, farAttackRightDecal_0.get(),
+                              {1.1, 0.9});break;
+                case 1:
+                    DrawDecal(unit.position, farAttackRightDecal_1.get(),
+                              {0.99, 0.9});break;
+                case 2:
+                    DrawDecal(unit.position, farAttackRightDecal_2.get(),
+                              {1.1, 0.9});break;
+            }
+        }
+        else{
+            switch(picNum) {
+                case 0:
+                    DrawDecal(unit.position, farAttackLeftDecal_0.get(),
+                              {1.1, 0.9});
+                    break;
+                case 1:
+                    DrawDecal(unit.position, farAttackLeftDecal_1.get(),
+                              {0.99, 0.9});
+                    break;
+                case 2:
+                    DrawDecal(unit.position, farAttackLeftDecal_2.get(),
+                              {1.1, 0.9});
+                    break;
+            }
         }
     }
-    else{
-        switch(picNum) {
-            case 0:
-                DrawDecal(unit.position, farAttackLeftDecal_0.get(),
-                          {1.1, 0.9});
-                break;
-            case 1:
-                DrawDecal(unit.position, farAttackLeftDecal_1.get(),
-                          {0.99, 0.9});
-                break;
-            case 2:
-                DrawDecal(unit.position, farAttackLeftDecal_2.get(),
-                          {1.1, 0.9});
-                break;
+    if (unit.type == Sasuke)
+    {
+        if (unit.face)
+        {
+            //总frames为600,前450放第一张图(11张),后150放第二张图(3张)
+            if(unit.farAttackFrames >= 150)
+            {
+                int picNum = 10 - (unit.farAttackFrames - 150) / 41;
+                DrawPartialDecal(unit.position,
+                                 Sasuke_farAttack_right_0_D.get(),
+                                 olc::vf2d(picNum, 0) * unit.size + olc::vf2d(0, 0),
+                                 unit.size - olc::vf2d(2, 0),
+                                 {0.85, 0.85});
+            }
+            else
+            {
+                int picNum = 2 - (unit.farAttackFrames - 1) / 134;
+                DrawPartialDecal(unit.position,
+                                 Sasuke_farAttack_right_1_D.get(),
+                                 olc::vf2d(picNum, 0) * unit.size + olc::vf2d(2, 0),
+                                 unit.size - olc::vf2d(1, 0),
+                                 {1, 0.85});
+            }
         }
+        else
+        {
+            //总frames为600,前450放第一张图(11张),后150放第二张图(3张)
+            if(unit.farAttackFrames >= 150)
+            {
+                int picNum = 10 - (unit.farAttackFrames - 150) / 46;
+                DrawPartialDecal(unit.position,
+                                 Sasuke_farAttack_left_0_D.get(),
+                                 olc::vf2d(picNum, 0) * unit.size + olc::vf2d(13, 0),
+                                 unit.size - olc::vf2d(5, 0),
+                                 {0.85, 0.85});
+            }
+            else
+            {
+                int picNum = 2 - (unit.farAttackFrames - 1) / 50;
+                DrawPartialDecal(unit.position,
+                                 Sasuke_farAttack_left_1_D.get(),
+                                 olc::vf2d(picNum, 0) * unit.size + olc::vf2d(-1, 0),
+                                 unit.size - olc::vf2d(1, 0),
+                                 {1, 0.85});
+            }
+        }
+
     }
 }
 
