@@ -256,6 +256,8 @@ bool Example::OnUserCreate() {
     Sasuke_jump_left_P = std::make_unique<olc::Sprite>("./pic/Sasuke/jump/left.png");
     Sasuke_defend_right_P = std::make_unique<olc::Sprite>("./pic/Sasuke/defend/right.png");
     Sasuke_defend_left_P = std::make_unique<olc::Sprite>("./pic/Sasuke/defend/left.png");
+    Sasuke_flash_right_P = std::make_unique<olc::Sprite>("./pic/Sasuke/flash/right.png");
+    Sasuke_flash_left_P = std::make_unique<olc::Sprite>("./pic/Sasuke/flash/left.png");
 
     Sasuke_stand_right_D = std::make_unique<olc::Decal>(Sasuke_stand_right_P.get());
     Sasuke_stand_left_D = std::make_unique<olc::Decal>(Sasuke_stand_left_P.get());
@@ -273,6 +275,8 @@ bool Example::OnUserCreate() {
     Sasuke_jump_left_D = std::make_unique<olc::Decal>(Sasuke_jump_left_P.get());
     Sasuke_defend_right_D = std::make_unique<olc::Decal>(Sasuke_defend_right_P.get());
     Sasuke_defend_left_D = std::make_unique<olc::Decal>(Sasuke_defend_left_P.get());
+    Sasuke_flash_right_D = std::make_unique<olc::Decal>(Sasuke_flash_right_P.get());
+    Sasuke_flash_left_D = std::make_unique<olc::Decal>(Sasuke_flash_left_P.get());
 
     return true;
 }
@@ -704,7 +708,7 @@ void Example::attackDraw(Unit &unit, float offset_true, float offset_false) {
                                      Sasuke_attack_0_right_D.get(),
                                      picNum * blockSize + offset,
                                      blockSize,
-                                     {1, 0.9}
+                                     {1.1, 0.9}
                                      );
                 }break;
                 case 1:
@@ -713,7 +717,7 @@ void Example::attackDraw(Unit &unit, float offset_true, float offset_false) {
                     olc::vi2d picNum = {num, 0};
                     DrawPartialDecal(unit.position, Sasuke_attack_0_right_D.get(),
                                      picNum * blockSize + offset, blockSize,
-                                     {1, 0.9});
+                                     {1.1, 0.9});
                 }break;
                 case 2:
                 {
@@ -724,7 +728,7 @@ void Example::attackDraw(Unit &unit, float offset_true, float offset_false) {
                     DrawPartialDecal(unit.position, Sasuke_attack_0_right_D.get(),
                                      picNum * blockSize + offset,
                                      blockSize + olc::vf2d(-4, 0),
-                                     {1, 0.9});
+                                     {1.1, 0.9});
                 }break;
                 case 3:
                     offset.x += 16;
@@ -735,7 +739,7 @@ void Example::attackDraw(Unit &unit, float offset_true, float offset_false) {
                                      Sasuke_attack_1_right_D.get(),
                                      picNum * blockSize + offset,
                                      blockSize + olc::vf2d(-2, 0),
-                                     {0.9, 0.9});
+                                     {1, 0.9});
             }
         }
         else
@@ -1611,7 +1615,7 @@ void Example::flashAction(Unit &unit, float fElapsedTime) {
             case jump:
             default:{
                 unit.S = flash;
-                unit.flashFrames += 300;
+                unit.flashFrames = 200;
                 unit.speed.y = 0;
                 if (unit.face){
                     float futurePos = unit.position.x + 150;
@@ -1650,64 +1654,97 @@ void Example::flashAction(Unit &unit, float fElapsedTime) {
 }
 
 void Example::flashDraw(Unit &unit, float offset_true, float offset_false) {
-    if (unit.face){
-        DrawDecal(unit.position, flashRightDecal.get(), {1.1, 0.9});
+    if (unit.type == Naruto)
+    {
+        if (unit.face){
+            DrawDecal(unit.position, flashRightDecal.get(), {1.1, 0.9});
+        }
+        else{
+            DrawDecal(unit.position, flashLeftDecal.get(), {1.1, 0.9});
+        }
     }
-    else{
-        DrawDecal(unit.position, flashLeftDecal.get(), {1.1, 0.9});
+    if (unit.type == Sasuke)
+    {
+        olc::vi2d picNum(0, 0);
+        picNum.y = 0;
+        if (unit.face){
+            if (unit.flashFrames >= 100) picNum.x = 1;
+            else picNum.x = 0;
+            DrawPartialDecal(unit.position,
+                             Sasuke_flash_right_D.get(),
+                             picNum * blockSize,
+                             blockSize,
+                             {0.9, 0.9});
+        }
+        else{
+            if (unit.flashFrames >= 100) picNum.x = 0;
+            else picNum.x = 1;
+            DrawPartialDecal(unit.position,
+                             Sasuke_flash_left_D.get(),
+                             picNum * blockSize,
+                             blockSize,
+                             {0.9, 0.9});
+        }
     }
 }
 
 //远攻,除非击飞和僵直,其余主动状态都可以转位远攻状态且释放手里剑.
 //但有cd,在一定时间内不能再放远攻且保持该状态.
 void Example::farAttackAction(Unit &unit, float fElapsedTime) {
+    if (unit.type == Naruto)
+    {
+        if (GetKey(unit.farAttackKey).bPressed && winner == unsettled){
+            switch(unit.S)
+            {
+                //不可进行转移的状态.
+                case defend:
+                case jump:
+                case attack:
+                case flash:
+                case farAttack:
+                case skill_1:
+                case skill_2:
+                case skill_3:
+                case hit:
+                case fall:break;
 
-    if (GetKey(unit.farAttackKey).bPressed && winner == unsettled){
-        switch(unit.S)
-        {
-            //不可进行转移的状态.
-            case defend:
-            case jump:
-            case attack:
-            case flash:
-            case farAttack:
-            case skill_1:
-            case skill_2:
-            case skill_3:
-            case hit:
-            case fall:break;
+                    //可以进行转移的状态.
+                case stand:
+                case run:
+                default:{
+                    //成功进行攻击
+                    if (unit.farAttackFrames == 0){
+                        olc::vf2d offset(0, 0);
+                        if (unit.face) offset.x = blockSize.x;
+                        else offset.x = - blockSize.x;
+                        unit.S = farAttack;
+                        if(unit.chakra < 300) unit.chakra += 5;
 
-            //可以进行转移的状态.
-            case stand:
-            case run:
-            default:{
-                //成功进行攻击
-                if (unit.farAttackFrames == 0){
-                    olc::vf2d offset(0, 0);
-                    if (unit.face) offset.x = blockSize.x;
-                    else offset.x = - blockSize.x;
-                    unit.S = farAttack;
-                    if(unit.chakra < 300) unit.chakra += 5;
+                        items.push_back(
+                                std::make_shared<shuriken>(unit.position + offset,
+                                                           unit.side, unit.face,
+                                                           olc::vf2d(51, 97), true)
+                        );
+                        unit.farAttackFrames = 600;//cd为600帧
 
-                    items.push_back(
-                            std::make_shared<shuriken>(unit.position + offset,
-                                     unit.side, unit.face,
-                                     olc::vf2d(51, 97), true)
-                    );
-                    unit.farAttackFrames = 600;//cd为600帧
-
+                    }
                 }
             }
         }
-    }
-    //自动恢复的过程.只能从这里改变farAttack的状态,其余的不能改变farAttack的状态
-    if (unit.S == farAttack){
-        unit.farAttackFrames--;
-        if (unit.farAttackFrames <= 0){
-            unit.farAttackFrames = 0;
-            unit.S = stand;
+        //自动恢复的过程.只能从这里改变farAttack的状态,其余的不能改变farAttack的状态
+        if (unit.S == farAttack){
+            unit.farAttackFrames--;
+            if (unit.farAttackFrames <= 0){
+                unit.farAttackFrames = 0;
+                unit.S = stand;
+            }
         }
     }
+    if (unit.type == Sasuke)
+    {
+
+    }
+
 }
 
 //远攻的图像函数
