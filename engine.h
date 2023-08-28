@@ -13,7 +13,7 @@ enum state {stand, run, jump, defend,
             attack,flash, farAttack, skill_1, skill_2, skill_3,
             hit, fall};
 enum unitType {Naruto, Sasuke};
-enum itemType {none, shurikenItem};
+enum itemType {none, shurikenItem, fireBallItem};
 enum player {playerA, playerB, draw, unsettled};
 
 class Unit
@@ -126,12 +126,28 @@ public:
     virtual void move(float fElapsedTime){
         std::cout << "none" << std::endl;
     };
+    virtual int getExistFrames(){
+        std::cout << "item" << std::endl;
+        return existFrames;
+    };
+    virtual olc::vf2d getSize(){
+        std::cout << "item: getSize" << std::endl;
+        return size;
+    };
+    virtual bool getDirection()
+    {
+        std::cout << "item: getDirection" << std::endl;
+        return direction;
+    }
 
 public:
     olc::vf2d position = {0, 0};
     itemType tp;
     bool existence;
     bool side;
+    bool direction;
+    int existFrames;
+    olc::vf2d size;
 };
 
 class shuriken: public Item
@@ -141,16 +157,16 @@ public:
              bool Direction, olc::vf2d sz,
              bool isHorizontal):Item(pos, sd){
         //设定水平速度为350, 可以斜向上投射,也可以水平投射.
-        speed.x = 350;
+        speed.x = 0.5;
         if (isHorizontal){
             speed.y = 0;
         }else{
-            speed.y = 400;
+            speed.y = 0.5;
         }
 
         size = sz;
         direction = Direction;
-        existFrams = 800;
+        existFrames = 800;
         tp = shurikenItem;
     }
 
@@ -160,7 +176,49 @@ public:
 
 
 public:
-    int existFrams;
+    int existFrames;
+    olc::vf2d speed;
+    bool direction;
+    olc::vf2d size;
+};
+
+class fireBall: public Item
+{
+public:
+    fireBall(olc::vf2d pos, bool sd,
+             bool Direction, olc::vf2d sz,
+             bool isHorizontal):Item(pos, sd)
+    {
+        speed.x = 0.5;
+        if (isHorizontal){
+            speed.y = 0;
+        }else{
+            speed.y = 0.5;
+        }
+        size = sz;
+        direction = Direction;
+        existFrames = 800;
+        tp = fireBallItem;
+    }
+
+    bool isEffected(Unit* unit);
+    void effect(Unit* unit, Unit* oppoent) override;
+    void move(float fElapsedTime) override;
+    int getExistFrames() override
+    {
+        return existFrames;
+    }
+    olc::vf2d getSize() override
+    {
+        return size;
+    }
+    bool getDirection() override
+    {
+        return direction;
+    }
+
+public:
+    int existFrames;
     olc::vf2d speed;
     bool direction;
     olc::vf2d size;
@@ -400,6 +458,10 @@ public:
     std::unique_ptr<olc::Sprite> Sasuke_defend_left_P;
     std::unique_ptr<olc::Sprite> Sasuke_flash_right_P;
     std::unique_ptr<olc::Sprite> Sasuke_flash_left_P;
+    std::unique_ptr<olc::Sprite> Sasuke_farAttack_right_P;
+    std::unique_ptr<olc::Sprite> Sasuke_farAttack_left_P;
+    std::unique_ptr<olc::Sprite> Sasuke_fireBall_right_P;
+    std::unique_ptr<olc::Sprite> Sasuke_fireBall_left_P;
 
 
 
@@ -423,6 +485,10 @@ public:
     std::unique_ptr<olc::Decal> Sasuke_defend_left_D;
     std::unique_ptr<olc::Decal> Sasuke_flash_right_D;
     std::unique_ptr<olc::Decal> Sasuke_flash_left_D;
+    std::unique_ptr<olc::Decal> Sasuke_farAttack_right_D;
+    std::unique_ptr<olc::Decal> Sasuke_farAttack_left_D;
+    std::unique_ptr<olc::Decal> Sasuke_fireBall_right_D;
+    std::unique_ptr<olc::Decal> Sasuke_fireBall_left_D;
 
 
 

@@ -47,7 +47,7 @@ bool Example::OnUserCreate() {
 
     //初始化人物位置
     unitA = Unit(true, Sasuke);
-    unitB = Unit(false, Sasuke);
+    unitB = Unit(false, Naruto);
     units.push_back(&unitA);
     units.push_back(&unitB);
 
@@ -258,6 +258,10 @@ bool Example::OnUserCreate() {
     Sasuke_defend_left_P = std::make_unique<olc::Sprite>("./pic/Sasuke/defend/left.png");
     Sasuke_flash_right_P = std::make_unique<olc::Sprite>("./pic/Sasuke/flash/right.png");
     Sasuke_flash_left_P = std::make_unique<olc::Sprite>("./pic/Sasuke/flash/left.png");
+    Sasuke_farAttack_right_P = std::make_unique<olc::Sprite>("./pic/Sasuke/farAttack/right.png");
+    Sasuke_farAttack_left_P = std::make_unique<olc::Sprite>("./pic/Sasuke/farAttack/left.png");
+    Sasuke_fireBall_right_P = std::make_unique<olc::Sprite>("./pic/Sasuke/fireBall/right.png");
+    Sasuke_fireBall_left_P = std::make_unique<olc::Sprite>("./pic/Sasuke/fireBall/left.png");
 
     Sasuke_stand_right_D = std::make_unique<olc::Decal>(Sasuke_stand_right_P.get());
     Sasuke_stand_left_D = std::make_unique<olc::Decal>(Sasuke_stand_left_P.get());
@@ -277,6 +281,10 @@ bool Example::OnUserCreate() {
     Sasuke_defend_left_D = std::make_unique<olc::Decal>(Sasuke_defend_left_P.get());
     Sasuke_flash_right_D = std::make_unique<olc::Decal>(Sasuke_flash_right_P.get());
     Sasuke_flash_left_D = std::make_unique<olc::Decal>(Sasuke_flash_left_P.get());
+    Sasuke_farAttack_right_D = std::make_unique<olc::Decal>(Sasuke_farAttack_right_P.get());
+    Sasuke_farAttack_left_D = std::make_unique<olc::Decal>(Sasuke_farAttack_left_P.get());
+    Sasuke_fireBall_right_D = std::make_unique<olc::Decal>(Sasuke_fireBall_right_P.get());
+    Sasuke_fireBall_left_D = std::make_unique<olc::Decal>(Sasuke_fireBall_left_P.get());
 
     return true;
 }
@@ -1691,60 +1699,68 @@ void Example::flashDraw(Unit &unit, float offset_true, float offset_false) {
 //远攻,除非击飞和僵直,其余主动状态都可以转位远攻状态且释放手里剑.
 //但有cd,在一定时间内不能再放远攻且保持该状态.
 void Example::farAttackAction(Unit &unit, float fElapsedTime) {
-    if (unit.type == Naruto)
-    {
-        if (GetKey(unit.farAttackKey).bPressed && winner == unsettled){
-            switch(unit.S)
-            {
-                //不可进行转移的状态.
-                case defend:
-                case jump:
-                case attack:
-                case flash:
-                case farAttack:
-                case skill_1:
-                case skill_2:
-                case skill_3:
-                case hit:
-                case fall:break;
+    if (GetKey(unit.farAttackKey).bPressed && winner == unsettled){
+        switch(unit.S)
+        {
+            //不可进行转移的状态.
+            case defend:
+            case jump:
+            case attack:
+            case flash:
+            case farAttack:
+            case skill_1:
+            case skill_2:
+            case skill_3:
+            case hit:
+            case fall:break;
 
-                    //可以进行转移的状态.
-                case stand:
-                case run:
-                default:{
-                    //成功进行攻击
-                    if (unit.farAttackFrames == 0){
-                        olc::vf2d offset(0, 0);
-                        if (unit.face) offset.x = blockSize.x;
-                        else offset.x = - blockSize.x;
-                        unit.S = farAttack;
-                        if(unit.chakra < 300) unit.chakra += 5;
+                //可以进行转移的状态.
+            case stand:
+            case run:
+            default:{
+                //成功进行攻击
+                if (unit.farAttackFrames == 0){
+                    olc::vf2d offset(0, 0);
+                    if (unit.face) offset.x = blockSize.x;
+                    else offset.x = - blockSize.x;
+                    unit.S = farAttack;
+                    if(unit.chakra < 300) unit.chakra += 5;
 
-                        items.push_back(
-                                std::make_shared<shuriken>(unit.position + offset,
-                                                           unit.side, unit.face,
-                                                           olc::vf2d(51, 97), true)
-                        );
-                        unit.farAttackFrames = 600;//cd为600帧
-
+                    //鸣人远攻是手里剑, 佐助远攻是火球术.
+                    switch (unit.type)
+                    {
+                        case Naruto :
+                        {
+                            items.push_back(
+                                    std::make_shared<shuriken>(unit.position + offset,
+                                                               unit.side,
+                                                               unit.face,
+                                                               olc::vf2d(51, 97),
+                                                               true));
+                        }break;
+                        case Sasuke:
+                        {
+                            items.push_back(
+                                    std::make_shared<fireBall>(unit.position + offset,
+                                                               unit.side,
+                                                               unit.face,
+                                                               olc::vf2d(120, 71),
+                                                               true));
+                        }break;
                     }
+                    unit.farAttackFrames = 600;//cd为600帧
                 }
             }
         }
-        //自动恢复的过程.只能从这里改变farAttack的状态,其余的不能改变farAttack的状态
-        if (unit.S == farAttack){
-            unit.farAttackFrames--;
-            if (unit.farAttackFrames <= 0){
-                unit.farAttackFrames = 0;
-                unit.S = stand;
-            }
+    }
+    //自动恢复的过程.只能从这里改变farAttack的状态,其余的不能改变farAttack的状态
+    if (unit.S == farAttack){
+        unit.farAttackFrames--;
+        if (unit.farAttackFrames <= 0){
+            unit.farAttackFrames = 0;
+            unit.S = stand;
         }
     }
-    if (unit.type == Sasuke)
-    {
-
-    }
-
 }
 
 //远攻的图像函数
@@ -1795,6 +1811,26 @@ void Example::itemDraw() {
     for (int i = 0; i < items.size(); i++) {
         if (items[i]->tp == shurikenItem) {
             DrawDecal(items[i]->position, shurikenDecal.get());
+        }
+        if (items[i]->tp == fireBallItem)
+        {
+            olc::vi2d picNum;
+            picNum.y = 0;
+            picNum.x = (items[i]->getExistFrames() - 1) / 50 % 6;
+            if (items[i]->getDirection())
+            {
+                DrawPartialDecal(items[i]->position,
+                                 Sasuke_fireBall_right_D.get(),
+                                 picNum * items[i]->getSize(),
+                                 items[i]->getSize());
+            }
+            else
+            {
+                DrawPartialDecal(items[i]->position,
+                                 Sasuke_fireBall_left_D.get(),
+                                 picNum * items[i]->getSize(),
+                                 items[i]->getSize());
+            }
         }
     }
 }
@@ -1929,13 +1965,13 @@ void Example::skill_1_Action(Unit &unit, float fElapsedTime) {
             //移动.
             if (unit.face)
             {
-                float futurePos = unit.position.x + unit.speed.x * 1.2 * fElapsedTime;
+                float futurePos = unit.position.x + 0.6;
                 if (futurePos <= ScreenWidth() - blockSize.x) unit.position.x = futurePos;
                 else unit.position.x = ScreenWidth() - blockSize.x;
             }
             else
             {
-                float futurePos = unit.position.x - unit.speed.x * 1.2 * fElapsedTime;
+                float futurePos = unit.position.x - 0.6;
                 if (futurePos >= 0) unit.position.x = futurePos;
                 else unit.position.x = 0;
             }
@@ -2537,10 +2573,66 @@ void shuriken::effect(Unit* unit, Unit* oppoent) {
 
 //手里剑移动.每过一帧,存在帧数减少,位置移动.
 void shuriken::move(float fElapsedTime) {
-    if (existFrams >= 0){
-        existFrams--;
-        if (direction) position.x += speed.x * fElapsedTime;
-        else position.x -= speed.x * fElapsedTime;
+    if (existFrames >= 0){
+        existFrames--;
+        if (direction) position.x += speed.x;
+        else position.x -= speed.x;
+    }
+    else existence = false;
+}
+
+//fireBall的判定范围和手里剑不一样.
+bool fireBall::isEffected(Unit *unit) {
+    //向右运动时,人物若在图像上和shuriken重叠,那么就会判定为true
+    return (unit->position.x <= size.x + position.x
+            &&  unit->position.x >= position.x -  unit->size.x * 0.6
+            &&  abs(unit->position.y - position.y) < size.y * 0.5);
+}
+
+void fireBall::effect(Unit *unit, Unit *oppoent) {
+    if (isEffected(oppoent)){
+        switch(oppoent->S){
+            case defend:{
+                oppoent->lives -= 1;
+                existence = false;
+                if(unit->chakra < 300) unit->chakra += 5;
+                else unit->chakra = 300;
+                if (oppoent->chakra < 300) oppoent->chakra += 5;
+                else oppoent->chakra = 300;
+            }break;
+
+            case fall:{
+
+            }break;
+
+            default:{
+                //和击飞效果类似, 但不会飞那么高, 会扣血,也会攒能量,后期可以用于放技能.
+                play(hitSound);
+                play(NarutoHitSound);
+                oppoent->S = fall;
+                oppoent->lives -= 5;
+                oppoent->hitNum = 0;
+                oppoent->speed.y = -100;
+                oppoent->acceleration = 500;
+
+                //对手成功攻击,查克拉增加.
+                if (oppoent->chakra < 300) oppoent->chakra += 10;
+                else oppoent->chakra = 300;
+                //己方受到攻击,查克拉也增加.
+                if (unit->chakra < 300) unit->chakra += 5;
+                else unit->chakra = 300;
+
+                existence = false;
+            }break;
+        }
+    }
+}
+
+void fireBall::move(float fElapsedTime) {
+    if (existFrames >= 0){
+        existFrames--;
+        if (direction) position.x += speed.x;
+        else position.x -= speed.x;
     }
     else existence = false;
 }
