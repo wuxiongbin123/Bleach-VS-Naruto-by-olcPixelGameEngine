@@ -392,6 +392,8 @@ public:
     std::unique_ptr<olc::Sprite> Sasuke_attack_1_left_P;
     std::unique_ptr<olc::Sprite> Sasuke_hit_right_P;
     std::unique_ptr<olc::Sprite> Sasuke_hit_left_P;
+    std::unique_ptr<olc::Sprite> Sasuke_fall_right_P;
+    std::unique_ptr<olc::Sprite> Sasuke_fall_left_P;
 
 
 
@@ -407,6 +409,8 @@ public:
     std::unique_ptr<olc::Decal> Sasuke_attack_1_left_D;
     std::unique_ptr<olc::Decal> Sasuke_hit_right_D;
     std::unique_ptr<olc::Decal> Sasuke_hit_left_D;
+    std::unique_ptr<olc::Decal> Sasuke_fall_right_D;
+    std::unique_ptr<olc::Decal> Sasuke_fall_left_D;
 
 
 

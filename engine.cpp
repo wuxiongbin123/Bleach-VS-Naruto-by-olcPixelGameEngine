@@ -250,6 +250,8 @@ bool Example::OnUserCreate() {
     Sasuke_attack_1_left_P = std::make_unique<olc::Sprite>("./pic/Sasuke/attack/1/left.png");
     Sasuke_hit_right_P = std::make_unique<olc::Sprite>("./pic/Sasuke/hit/right.png");
     Sasuke_hit_left_P = std::make_unique<olc::Sprite>("./pic/Sasuke/hit/left.png");
+    Sasuke_fall_right_P = std::make_unique<olc::Sprite>("./pic/Sasuke/fall/right.png");
+    Sasuke_fall_left_P = std::make_unique<olc::Sprite>("./pic/Sasuke/fall/left.png");
 
     Sasuke_stand_right_D = std::make_unique<olc::Decal>(Sasuke_stand_right_P.get());
     Sasuke_stand_left_D = std::make_unique<olc::Decal>(Sasuke_stand_left_P.get());
@@ -261,6 +263,8 @@ bool Example::OnUserCreate() {
     Sasuke_attack_1_left_D = std::make_unique<olc::Decal>(Sasuke_attack_1_left_P.get());
     Sasuke_hit_right_D = std::make_unique<olc::Decal>(Sasuke_hit_right_P.get());
     Sasuke_hit_left_D = std::make_unique<olc::Decal>(Sasuke_hit_left_P.get());
+    Sasuke_fall_right_D = std::make_unique<olc::Decal>(Sasuke_fall_right_P.get());
+    Sasuke_fall_left_D = std::make_unique<olc::Decal>(Sasuke_fall_left_P.get());
     return true;
 }
 
@@ -654,7 +658,7 @@ void Example::attackDraw(Unit &unit, float offset_true, float offset_false) {
                                      Sasuke_attack_0_right_D.get(),
                                      picNum * blockSize + offset,
                                      blockSize,
-                                     {0.9, 0.9}
+                                     {1, 0.9}
                                      );
                 }break;
                 case 1:
@@ -663,7 +667,7 @@ void Example::attackDraw(Unit &unit, float offset_true, float offset_false) {
                     olc::vi2d picNum = {num, 0};
                     DrawPartialDecal(unit.position, Sasuke_attack_0_right_D.get(),
                                      picNum * blockSize + offset, blockSize,
-                                     {0.9, 0.9});
+                                     {1, 0.9});
                 }break;
                 case 2:
                 {
@@ -674,7 +678,7 @@ void Example::attackDraw(Unit &unit, float offset_true, float offset_false) {
                     DrawPartialDecal(unit.position, Sasuke_attack_0_right_D.get(),
                                      picNum * blockSize + offset,
                                      blockSize + olc::vf2d(-4, 0),
-                                     {0.9, 0.9});
+                                     {1, 0.9});
                 }break;
                 case 3:
                     offset.x += 16;
@@ -792,56 +796,127 @@ void Example::hitDraw(Unit &unit, float offset_true, float offset_false) {
 void Example::fallDraw(Unit &unit, float offset_true, float offset_false) {
     olc::vf2d offset;
     olc::vi2d picNum = {0, 0};
-    if (unit.face){
-        offset.x = offset_true;
-        if (unit.speed.y != 0)// 还在飞行中
-        {
-            if (winner == unsettled){
-                picNum.x = 0;
-            }
-            DrawPartialDecal(unit.position, fallRightDecal.get(),
-                             picNum * blockSize + offset, blockSize);
-        }
-        else{
-            if (winner == unsettled){
-                if (1500 - unit.fallDownFrames < 100) picNum.x = 1;
-                if (1500 - unit.fallDownFrames >= 100
-                    && 1500 - unit.fallDownFrames <= 1400) picNum.x = 2;
-                if (1500 - unit.fallDownFrames >1400 ) picNum.x = 3;
+    if (unit.type == Naruto)
+    {
+        if (unit.face){
+            offset.x = offset_true;
+            if (unit.speed.y != 0)// 还在飞行中
+            {
+                if (winner == unsettled){
+                    picNum.x = 0;
+                }
+                DrawPartialDecal(unit.position,
+                                 fallRightDecal.get(),
+                                 picNum * blockSize + offset,
+                                 blockSize);
             }
             else{
-                if (1500 - unit.fallDownFrames < 100) picNum.x = 1;
-                if (1500 - unit.fallDownFrames >= 100) picNum.x = 2;
+                if (winner == unsettled){
+                    if (1500 - unit.fallDownFrames < 100) picNum.x = 1;
+                    if (1500 - unit.fallDownFrames >= 100
+                        && 1500 - unit.fallDownFrames <= 1400) picNum.x = 2;
+                    if (1500 - unit.fallDownFrames >1400 ) picNum.x = 3;
+                }
+                else{
+                    if (1500 - unit.fallDownFrames < 100) picNum.x = 1;
+                    if (1500 - unit.fallDownFrames >= 100) picNum.x = 2;
+                }
+                DrawPartialDecal(unit.position, fallRightDecal.get(),
+                                 picNum * blockSize + offset, blockSize);
             }
-            DrawPartialDecal(unit.position, fallRightDecal.get(),
-                              picNum * blockSize + offset, blockSize);
+        }
+        else
+        {
+            offset.x = offset_false;
+            offset.x = offset_true;
+            if (unit.speed.y != 0)// 还在飞行中
+            {
+                if (winner == unsettled){
+                    picNum.x = 3;
+                }
+                DrawPartialDecal(unit.position, fallLeftDecal.get(),
+                                 picNum * blockSize + offset, blockSize);
+            }
+            else{
+                if (winner == unsettled){
+                    if (1500 - unit.fallDownFrames < 100) picNum.x = 2;
+                    if (1500 - unit.fallDownFrames >= 100
+                        && 1500 - unit.fallDownFrames <= 1400) picNum.x = 1;
+                    if (1500 - unit.fallDownFrames >1400 ) picNum.x = 0;
+                }
+                else{
+                    if (1500 - unit.fallDownFrames < 100) picNum.x = 2;
+                    if (1500 - unit.fallDownFrames >= 100) picNum.x = 1;
+                }
+                DrawPartialDecal(unit.position, fallLeftDecal.get(),
+                                 picNum * blockSize + offset, blockSize);
+            }
         }
     }
-    else
+    if (unit.type == Sasuke)
     {
-        offset.x = offset_false;
-        offset.x = offset_true;
-        if (unit.speed.y != 0)// 还在飞行中
+        if(unit.face)
         {
-            if (winner == unsettled){
-                picNum.x = 3;
-            }
-            DrawPartialDecal(unit.position, fallLeftDecal.get(),
-                              picNum * blockSize + offset, blockSize);
-        }
-        else{
-            if (winner == unsettled){
-                if (1500 - unit.fallDownFrames < 100) picNum.x = 2;
-                if (1500 - unit.fallDownFrames >= 100
-                    && 1500 - unit.fallDownFrames <= 1400) picNum.x = 1;
-                if (1500 - unit.fallDownFrames >1400 ) picNum.x = 0;
+            offset.x = offset_true;
+            if (unit.speed.y != 0)// 还在飞行中
+            {
+                if (winner == unsettled){
+                    picNum.x = 0;
+                }
+                DrawPartialDecal(unit.position + olc::vf2d(0, 15),
+                                 Sasuke_fall_right_D.get(),
+                                 picNum * blockSize + offset,
+                                 blockSize,
+                                 {1.2, 0.8});
             }
             else{
-                if (1500 - unit.fallDownFrames < 100) picNum.x = 2;
-                if (1500 - unit.fallDownFrames >= 100) picNum.x = 1;
+                if (winner == unsettled){
+                    if (1500 - unit.fallDownFrames < 100) picNum.x = 1;
+                    if (1500 - unit.fallDownFrames >= 100
+                        && 1500 - unit.fallDownFrames <= 1400) picNum.x = 2;
+                    if (1500 - unit.fallDownFrames >1400 ) picNum.x = 3;
+                }
+                else{
+                    if (1500 - unit.fallDownFrames < 100) picNum.x = 1;
+                    if (1500 - unit.fallDownFrames >= 100) picNum.x = 2;
+                }
+                offset.x = 10;
+                DrawPartialDecal(unit.position + olc::vf2d(0, 15),
+                                 Sasuke_fall_right_D.get(),
+                                 picNum * blockSize + offset, blockSize,
+                                 {1.2, 0.8});
             }
-            DrawPartialDecal(unit.position, fallLeftDecal.get(),
-                              picNum * blockSize + offset, blockSize);
+        }
+        else
+        {
+            if (unit.speed.y != 0)// 还在飞行中
+            {
+                if (winner == unsettled){
+                    picNum.x = 3;
+                }
+                DrawPartialDecal(unit.position + olc::vf2d(0, 15),
+                                 Sasuke_fall_left_D.get(),
+                                 picNum * blockSize + offset,
+                                 blockSize,
+                                 {1.2, 0.8});
+            }
+            else{
+                if (winner == unsettled){
+                    if (1500 - unit.fallDownFrames < 100) picNum.x = 2;
+                    if (1500 - unit.fallDownFrames >= 100
+                        && 1500 - unit.fallDownFrames <= 1400) picNum.x = 1;
+                    if (1500 - unit.fallDownFrames >1400 ) picNum.x = 0;
+                }
+                else{
+                    if (1500 - unit.fallDownFrames < 100) picNum.x = 2;
+                    if (1500 - unit.fallDownFrames >= 100) picNum.x = 1;
+                }
+                DrawPartialDecal(unit.position + olc::vf2d(0, 15),
+                                 Sasuke_fall_left_D.get(),
+                                 picNum * blockSize + offset,
+                                 blockSize,
+                                 {1.2, 0.8});
+            }
         }
     }
 }
