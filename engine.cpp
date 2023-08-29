@@ -2369,48 +2369,76 @@ void Example::skill_1_Draw(Unit &unit, float offset_true, float offset_false) {
     {
         if (unit.face)
         {
-            //900帧用于准备.共17张图片.
-            olc::vi2d picNum(0, 0);
-            picNum.x = 16 - (unit.skill_1_Frames - 700) / 53;
-            if (picNum.x <= 10)//到序号10(从0开始计)都是第一张图.
+            if (unit.skill_1_Frames >= 700)
             {
-                DrawPartialDecal(unit.position,
-                                 Sasuke_skill_1_prepare_0_right_D.get(),
-                                 picNum * unit.size + olc::vf2d(-3, 0),
-                                 unit.size,
-                                 {0.9, 0.9});
+                //900帧用于准备.共17张图片.
+                olc::vi2d picNum(0, 0);
+                picNum.x = 16 - (unit.skill_1_Frames - 700) / 53;
+                if (picNum.x <= 10)//到序号10(从0开始计)都是第一张图.
+                {
+                    DrawPartialDecal(unit.position + olc::vf2d(0, 5),
+                                     Sasuke_skill_1_prepare_0_right_D.get(),
+                                     picNum * unit.size + olc::vf2d(-3, 0),
+                                     unit.size,
+                                     {0.9, 0.9});
+                }
+                else
+                {
+                    picNum.x -= 11;//图11是第二张图的图0
+                    DrawPartialDecal(unit.position + olc::vf2d(0, 0),
+                                     Sasuke_skill_1_prepare_1_right_D.get(),
+                                     picNum * unit.size + offset,
+                                     unit.size,
+                                     {1.2, 1});
+                }
             }
             else
             {
-                picNum.x -= 11;//图11是第二张图的图0
-                DrawPartialDecal(unit.position + olc::vf2d(0, -5),
-                                 Sasuke_skill_1_prepare_1_right_D.get(),
-                                 picNum * unit.size + offset,
-                                 unit.size,
-                                 {1.2, 1});
+                //700帧用于move阶段,共四张图片,每张留存时间为175帧
+                olc::vi2d picNum(0, 0);
+                picNum.x = 3 - ((unit.skill_1_Frames) / 51) % 4;
+                DrawPartialDecal(unit.position + olc::vf2d(-30, 5),
+                                 Sasuke_skill_1_move_right_D.get(),
+                                 picNum * blockSize + olc::vf2d(0, 0),
+                                 blockSize - olc::vf2d(0, 0),
+                                 {1.6, 0.9});
             }
+
         }
         else//左
         {
             olc::vi2d picNum(0, 0);
-            picNum.x = (unit.skill_1_Frames - 700) / 53;
-            if (picNum.x >= 6)//到序号10(从0开始计)都是第一张图.
+            if (unit.skill_1_Frames >= 700)
             {
-                picNum.x -= 6;//要先扣去第二张图的量.
-                DrawPartialDecal(unit.position,
-                                 Sasuke_skill_1_prepare_0_left_D.get(),
-                                 picNum * unit.size + olc::vf2d(14, 0),
-                                 unit.size,
-                                 {0.9, 0.9});
+                picNum.x = (unit.skill_1_Frames - 700) / 53;
+                if (picNum.x >= 6)//到序号10(从0开始计)都是第一张图.
+                {
+                    picNum.x -= 6;//要先扣去第二张图的量.
+                    DrawPartialDecal(unit.position + olc::vf2d(0, 5),
+                                     Sasuke_skill_1_prepare_0_left_D.get(),
+                                     picNum * unit.size + olc::vf2d(14, 0),
+                                     unit.size,
+                                     {0.9, 0.9});
+                }
+                else
+                {
+                    DrawPartialDecal(unit.position + olc::vf2d(0, 0),
+                                     Sasuke_skill_1_prepare_1_left_D.get(),
+                                     picNum * unit.size + olc::vf2d(10, 0),
+                                     unit.size,
+                                     {1.2, 1});
+                }
             }
             else
             {
-                DrawPartialDecal(unit.position + olc::vf2d(0, -5),
-                                 Sasuke_skill_1_prepare_1_left_D.get(),
-                                 picNum * unit.size + olc::vf2d(10, 0),
-                                 unit.size,
-                                 {1.2, 1});
+                picNum.x = ((unit.skill_1_Frames) / 51) % 4;
+                DrawPartialDecal(unit.position + olc::vf2d(0, 5),
+                                 Sasuke_skill_1_move_left_D.get(),
+                                 picNum * blockSize + olc::vf2d(0, 0),
+                                 blockSize - olc::vf2d(0, 0),
+                                 {1.6, 0.9});
             }
+
         }
     }
 
