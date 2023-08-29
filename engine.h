@@ -478,6 +478,8 @@ public:
     std::unique_ptr<olc::Sprite> Sasuke_skill_2_1_left_P;
     std::unique_ptr<olc::Sprite> Sasuke_shidoi_0_P;
     std::unique_ptr<olc::Sprite> Sasuke_shidoi_1_P;
+    std::unique_ptr<olc::Sprite> Sasuke_skill_3_right_P;
+    std::unique_ptr<olc::Sprite> Sasuke_skill_3_left_P;
 
 
 
@@ -522,6 +524,8 @@ public:
     std::unique_ptr<olc::Decal> Sasuke_skill_2_1_left_D;
     std::unique_ptr<olc::Decal> Sasuke_shidoi_0_D;
     std::unique_ptr<olc::Decal> Sasuke_shidoi_1_D;
+    std::unique_ptr<olc::Decal> Sasuke_skill_3_right_D;
+    std::unique_ptr<olc::Decal> Sasuke_skill_3_left_D;
 
 
 

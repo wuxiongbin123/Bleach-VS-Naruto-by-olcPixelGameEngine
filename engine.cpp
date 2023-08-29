@@ -10,7 +10,7 @@ Unit::Unit(bool s, unitType u): S(stand), lives(200)
                                 attackNum(-1), attackFrames(0),
                                 hitFrames(0), hitNum(0),
                                 farAttackFrames(0),
-                                flashFrames(0), chakra(0),
+                                flashFrames(0), chakra(300),
                                 skill_1_Frames(0), skill_2_Frames(0),skill_3_Frames(0),
                                 fallDownFrames(0),
                                 skillHit(0), size(olc::vf2d(63, 97))
@@ -276,6 +276,8 @@ bool Example::OnUserCreate() {
     Sasuke_skill_2_1_left_P = std::make_unique<olc::Sprite>("./pic/Sasuke/skill_2/1/left.png");
     Sasuke_shidoi_0_P = std::make_unique<olc::Sprite>("./pic/Sasuke/shidoi/0.png");
     Sasuke_shidoi_1_P = std::make_unique<olc::Sprite>("./pic/Sasuke/shidoi/1.png");
+    Sasuke_skill_3_right_P = std::make_unique<olc::Sprite>("./pic/Sasuke/skill_3/right.png");
+    Sasuke_skill_3_left_P = std::make_unique<olc::Sprite>("./pic/Sasuke/skill_3/left.png");
 
     Sasuke_stand_right_D = std::make_unique<olc::Decal>(Sasuke_stand_right_P.get());
     Sasuke_stand_left_D = std::make_unique<olc::Decal>(Sasuke_stand_left_P.get());
@@ -314,6 +316,8 @@ bool Example::OnUserCreate() {
     Sasuke_skill_2_1_left_D = std::make_unique<olc::Decal>(Sasuke_skill_2_1_left_P.get());
     Sasuke_shidoi_0_D = std::make_unique<olc::Decal>(Sasuke_shidoi_0_P.get());
     Sasuke_shidoi_1_D = std::make_unique<olc::Decal>(Sasuke_shidoi_1_P.get());
+    Sasuke_skill_3_right_D = std::make_unique<olc::Decal>(Sasuke_skill_3_right_P.get());
+    Sasuke_skill_3_left_D = std::make_unique<olc::Decal>(Sasuke_skill_3_left_P.get());
 
     return true;
 }
@@ -1135,17 +1139,24 @@ void Example::hitAction(Unit &unit, float fElapsedTime) {
 
             //被攻击成功后双方都会增加查克拉.
             Unit* oppoent = units[unit.oppoentNum];
-            if (unit.chakra < 300) unit.chakra += 5;
+            if (unit.chakra < 300) unit.chakra += 3;
             else unit.chakra = 300;
-            if (oppoent->chakra < 300) oppoent->chakra += 3;
+            if (oppoent->chakra < 300) oppoent->chakra += 7;
             else oppoent->chakra = 300;
+
+            //此处oppoent为攻击主体,unit为受伤主体.
+            switch(unit.type)
+            {
+                case Naruto: play(NarutoHitSound);break;
+                case Sasuke: play(SasukeHitSound);break;
+            }
 
         }if (unit.S == defend){
             //防御状态下击中同样会增加查克拉,但是更少.而对方仍增加10.
             Unit* oppoent = units[unit.oppoentNum];
-            if (unit.chakra < 300) unit.chakra += 5;
+            if (unit.chakra < 300) unit.chakra += 2;
             else unit.chakra = 300;
-            if (oppoent->chakra < 300) oppoent->chakra += 3;
+            if (oppoent->chakra < 300) oppoent->chakra += 5;
             else oppoent->chakra = 300;
             hitAreas[i].existence = false;
             unit.lives -= 1;
@@ -1160,7 +1171,8 @@ void Example::hitAction(Unit &unit, float fElapsedTime) {
         Unit* oppoent = units[unit.oppoentNum];
         if (oppoent->attackNum == 3)
         {
-            play(NarutoHitSound);
+
+
             unit.S = fall;
             unit.hitNum = 0;
             unit.speed.y = -400;
@@ -2048,8 +2060,16 @@ void Example::skill_1_Action(Unit &unit, float fElapsedTime) {
                 {
                     unit.chakra -= 100;
                     unit.S = skill_1;
-                    if (unit.type == Naruto) unit.skill_1_Frames = 1150;
-                    if (unit.type == Sasuke) unit.skill_1_Frames = 1600;
+                    if (unit.type == Naruto)
+                    {
+                        unit.skill_1_Frames = 1150;
+                        play(rasenganSound);
+                    }
+                    if(unit.type == Sasuke)
+                    {
+                        unit.skill_1_Frames = 1600;
+                        play(shidoiSound);
+                    }
                 }
             }
         }
@@ -2115,10 +2135,12 @@ void Example::skill_2_Action(Unit &unit, float fElapsedTime) {
                         oppoent->skillHit++;
                         oppoent->lives -= 8;
                         oppoent->hitFrames = 500;
+                        oppoent->chakra += 5;
                         play(hitSound);
                     }
                     else
                     {
+                        oppoent->chakra += 3;
                         oppoent->lives -= 3;
                         play(hitSound);
                     }
@@ -2468,86 +2490,113 @@ void Example::skill_3_Action(Unit &unit, float fElapsedTime) {
 
 void Example::skill_3_Draw(Unit &unit, float offset_true, float offset_false) {
     olc::vf2d offset(0, 0);
-    if (unit.face)
-    {
-        //总的frames是400.
-        int picNum = unit.skill_3_Frames / 100;
-        switch(picNum)
+    if (unit.type == Naruto){
+        if (unit.face)
         {
-            case 4:
-            case 3:
+            //总的frames是400.
+            int picNum = unit.skill_3_Frames / 100;
+            switch(picNum)
             {
-                offset.x = -blockSize.x * 0.4;
-                offset.y = 8;
-                DrawDecal(unit.position + offset,
-                          skill_3_right_0_D.get(),
-                          {0.8, 0.8});
-            }break;
-            case 2:
+                case 4:
+                case 3:
+                {
+                    offset.x = -blockSize.x * 0.4;
+                    offset.y = 8;
+                    DrawDecal(unit.position + offset,
+                              skill_3_right_0_D.get(),
+                              {0.8, 0.8});
+                }break;
+                case 2:
+                {
+                    offset.x = -blockSize.x * 0.4;
+                    offset.y = 8;
+                    DrawDecal(unit.position + offset,
+                              skill_3_right_1_D.get(),
+                              {0.8, 0.8});
+                }break;
+                case 1:
+                {
+                    offset.x = -blockSize.x * 0.3;
+                    offset.y = -3;
+                    DrawDecal(unit.position + offset,
+                              skill_3_right_2_D.get(),
+                              {0.9, 0.9});
+                }break;
+                case 0:
+                {
+                    offset.x = -blockSize.x * 0.3;
+                    offset.y = -3;
+                    DrawDecal(unit.position + offset,
+                              skill_3_right_3_D.get(),
+                              {0.9, 0.9});
+                }break;
+            }
+        }
+        else
+        {
+            //总的frames是400.
+            int picNum = unit.skill_3_Frames / 100;
+            switch(picNum)
             {
-                offset.x = -blockSize.x * 0.4;
-                offset.y = 8;
-                DrawDecal(unit.position + offset,
-                          skill_3_right_1_D.get(),
-                          {0.8, 0.8});
-            }break;
-            case 1:
-            {
-                offset.x = -blockSize.x * 0.3;
-                offset.y = -3;
-                DrawDecal(unit.position + offset,
-                          skill_3_right_2_D.get(),
-                          {0.9, 0.9});
-            }break;
-            case 0:
-            {
-                offset.x = -blockSize.x * 0.3;
-                offset.y = -3;
-                DrawDecal(unit.position + offset,
-                          skill_3_right_3_D.get(),
-                          {0.9, 0.9});
-            }break;
+                case 4:
+                case 3:
+                {
+                    offset.x = blockSize.x * 0.4;
+                    offset.y = 8;
+                    DrawDecal(unit.position + offset,
+                              skill_3_right_0_D.get(),
+                              {0.8, 0.8});
+                }break;
+                case 2:
+                {
+                    offset.x = blockSize.x * 0.4;
+                    offset.y = 8;
+                    DrawDecal(unit.position + offset,
+                              skill_3_left_1_D.get(),
+                              {0.8, 0.8});
+                }break;
+                case 1:
+                {
+                    offset.x = blockSize.x * 0.3;
+                    offset.y = -3;
+                    DrawDecal(unit.position + offset,
+                              skill_3_left_2_D.get(),
+                              {0.9, 0.9});
+                }break;
+                case 0:
+                {
+                    offset.x = blockSize.x * 0.3;
+                    offset.y = -3;
+                    DrawDecal(unit.position + offset,
+                              skill_3_left_3_D.get(),
+                              {0.9, 0.9});
+                }break;
+            }
         }
     }
-    else
+    if (unit.type == Sasuke)
     {
-        //总的frames是400.
-        int picNum = unit.skill_3_Frames / 100;
-        switch(picNum)
+        if (unit.face)
         {
-            case 4:
-            case 3:
-            {
-                offset.x = blockSize.x * 0.4;
-                offset.y = 8;
-                DrawDecal(unit.position + offset,
-                          skill_3_right_0_D.get(),
-                          {0.8, 0.8});
-            }break;
-            case 2:
-            {
-                offset.x = blockSize.x * 0.4;
-                offset.y = 8;
-                DrawDecal(unit.position + offset,
-                          skill_3_left_1_D.get(),
-                          {0.8, 0.8});
-            }break;
-            case 1:
-            {
-                offset.x = blockSize.x * 0.3;
-                offset.y = -3;
-                DrawDecal(unit.position + offset,
-                          skill_3_left_2_D.get(),
-                          {0.9, 0.9});
-            }break;
-            case 0:
-            {
-                offset.x = blockSize.x * 0.3;
-                offset.y = -3;
-                DrawDecal(unit.position + offset,
-                          skill_3_left_3_D.get(),
-                          {0.9, 0.9});
-            }break;
+            olc::vi2d picNum(0, 0);
+            if (unit.skill_3_Frames >= 300) picNum.x = 0;
+            else picNum.x = 1;
+            DrawPartialDecal(unit.position + olc::vf2d(0, -5),
+                             Sasuke_skill_3_right_D.get(),
+                             picNum * blockSize + olc::vf2d(5, 0),
+                             blockSize - olc::vf2d(0, 0),
+                             {1.3, 1});
+        }
+        else
+        {
+            olc::vi2d picNum(0, 0);
+            if (unit.skill_3_Frames >= 300) picNum.x = 1;
+            else picNum.x = 0;
+            DrawPartialDecal(unit.position + olc::vf2d(0, -5),
+                             Sasuke_skill_3_left_D.get(),
+                             picNum * blockSize + olc::vf2d(-5, 0),
+                             blockSize - olc::vf2d(0, 0),
+                             {1.3, 1});
         }
     }
 }
@@ -2841,7 +2890,7 @@ void shuriken::effect(Unit* unit, Unit* oppoent) {
                 existence = false;
                 if(unit->chakra < 300) unit->chakra += 5;
                 else unit->chakra = 300;
-                if (oppoent->chakra < 300) oppoent->chakra += 5;
+                if (oppoent->chakra < 300) oppoent->chakra += 2;
                 else oppoent->chakra = 300;
             }break;
 
@@ -2851,19 +2900,29 @@ void shuriken::effect(Unit* unit, Unit* oppoent) {
 
             default:{
                 //和击飞效果类似, 但不会飞那么高, 会扣血,也会攒能量,后期可以用于放技能.
-                play(hitSound);
-                play(NarutoHitSound);
+
+
                 oppoent->S = fall;
                 oppoent->lives -= 5;
                 oppoent->hitNum = 0;
                 oppoent->speed.y = -100;
                 oppoent->acceleration = 500;
 
+                play(hitSound);
+                if(oppoent->type == Naruto)
+                {
+                    play(NarutoHitSound);
+                }
+                if (oppoent->type == Sasuke)
+                {
+                    play(SasukeHitSound);
+                }
+
                 //对手成功攻击,查克拉增加.
-                if (oppoent->chakra < 300) oppoent->chakra += 10;
+                if (oppoent->chakra < 300) oppoent->chakra += 4;
                 else oppoent->chakra = 300;
                 //己方受到攻击,查克拉也增加.
-                if (unit->chakra < 300) unit->chakra += 5;
+                if (unit->chakra < 300) unit->chakra += 10;
                 else unit->chakra = 300;
 
                 existence = false;
@@ -2896,9 +2955,9 @@ void fireBall::effect(Unit *unit, Unit *oppoent) {
             case defend:{
                 oppoent->lives -= 1;
                 existence = false;
-                if(unit->chakra < 300) unit->chakra += 5;
+                if(unit->chakra < 300) unit->chakra += 4;
                 else unit->chakra = 300;
-                if (oppoent->chakra < 300) oppoent->chakra += 5;
+                if (oppoent->chakra < 300) oppoent->chakra += 2;
                 else oppoent->chakra = 300;
             }break;
 
@@ -2909,18 +2968,26 @@ void fireBall::effect(Unit *unit, Unit *oppoent) {
             default:{
                 //和击飞效果类似, 但不会飞那么高, 会扣血,也会攒能量,后期可以用于放技能.
                 play(hitSound);
-                play(NarutoHitSound);
+                if(oppoent->type == Naruto)
+                {
+                    play(NarutoHitSound);
+                }
+                if (oppoent->type == Sasuke)
+                {
+                    play(SasukeHitSound);
+                }
+
                 oppoent->S = fall;
                 oppoent->lives -= 5;
                 oppoent->hitNum = 0;
                 oppoent->speed.y = -100;
                 oppoent->acceleration = 500;
 
-                //对手成功攻击,查克拉增加.
-                if (oppoent->chakra < 300) oppoent->chakra += 10;
+                //对手被攻击.
+                if (oppoent->chakra < 300) oppoent->chakra += 4;
                 else oppoent->chakra = 300;
-                //己方受到攻击,查克拉也增加.
-                if (unit->chakra < 300) unit->chakra += 5;
+                //己方攻击,查克拉都增加.
+                if (unit->chakra < 300) unit->chakra += 10;
                 else unit->chakra = 300;
 
                 existence = false;
