@@ -270,6 +270,12 @@ bool Example::OnUserCreate() {
     Sasuke_skill_1_prepare_1_left_P = std::make_unique<olc::Sprite>("./pic/Sasuke/skill_1/prepare/1/left.png");
     Sasuke_skill_1_move_right_P = std::make_unique<olc::Sprite>("./pic/Sasuke/skill_1/move/right.png");
     Sasuke_skill_1_move_left_P = std::make_unique<olc::Sprite>("./pic/Sasuke/skill_1/move/left.png");
+    Sasuke_skill_2_0_right_P = std::make_unique<olc::Sprite>("./pic/Sasuke/skill_2/0/right.png");
+    Sasuke_skill_2_0_left_P = std::make_unique<olc::Sprite>("./pic/Sasuke/skill_2/0/left.png");
+    Sasuke_skill_2_1_right_P = std::make_unique<olc::Sprite>("./pic/Sasuke/skill_2/1/right.png");
+    Sasuke_skill_2_1_left_P = std::make_unique<olc::Sprite>("./pic/Sasuke/skill_2/1/left.png");
+    Sasuke_shidoi_0_P = std::make_unique<olc::Sprite>("./pic/Sasuke/shidoi/0.png");
+    Sasuke_shidoi_1_P = std::make_unique<olc::Sprite>("./pic/Sasuke/shidoi/1.png");
 
     Sasuke_stand_right_D = std::make_unique<olc::Decal>(Sasuke_stand_right_P.get());
     Sasuke_stand_left_D = std::make_unique<olc::Decal>(Sasuke_stand_left_P.get());
@@ -302,6 +308,12 @@ bool Example::OnUserCreate() {
     Sasuke_skill_1_prepare_1_left_D = std::make_unique<olc::Decal>(Sasuke_skill_1_prepare_1_left_P.get());
     Sasuke_skill_1_move_right_D = std::make_unique<olc::Decal>(Sasuke_skill_1_move_right_P.get());
     Sasuke_skill_1_move_left_D = std::make_unique<olc::Decal>(Sasuke_skill_1_move_left_P.get());
+    Sasuke_skill_2_0_right_D = std::make_unique<olc::Decal>(Sasuke_skill_2_0_right_P.get());
+    Sasuke_skill_2_0_left_D = std::make_unique<olc::Decal>(Sasuke_skill_2_0_left_P.get());
+    Sasuke_skill_2_1_right_D = std::make_unique<olc::Decal>(Sasuke_skill_2_1_right_P.get());
+    Sasuke_skill_2_1_left_D = std::make_unique<olc::Decal>(Sasuke_skill_2_1_left_P.get());
+    Sasuke_shidoi_0_D = std::make_unique<olc::Decal>(Sasuke_shidoi_0_P.get());
+    Sasuke_shidoi_1_D = std::make_unique<olc::Decal>(Sasuke_shidoi_1_P.get());
 
     return true;
 }
@@ -427,6 +439,10 @@ void Example::render(float fElapsedTime) {
 
     //画道具
     itemDraw();
+
+    //如果佐助放大招,则画千鸟.
+    if (unitA.type == Sasuke) shidoiDraw(&unitA);
+    if (unitB.type == Sasuke) shidoiDraw(&unitB);
 
     if (true){
         //根据不同的状态画不同的图像。
@@ -2028,16 +2044,13 @@ void Example::skill_1_Action(Unit &unit, float fElapsedTime) {
             case run:
             default:
             {
-                unit.S = skill_1;
-                if (unit.type == Naruto) unit.skill_1_Frames = 1150;
-                if (unit.type == Sasuke) unit.skill_1_Frames = 1600;
-//                if (unit.chakra >= 100)
-//                {
-//                    unit.chakra -= 100;
-//                    unit.S = skill_1;
-//                    if (unit.type == Naruto) unit.skill_1_Frames = 1150;
-//                    if (unit.type == Sasuke) unit.skill_1_Frames = 1600;
-//                }
+                if (unit.chakra >= 100)
+                {
+                    unit.chakra -= 100;
+                    unit.S = skill_1;
+                    if (unit.type == Naruto) unit.skill_1_Frames = 1150;
+                    if (unit.type == Sasuke) unit.skill_1_Frames = 1600;
+                }
             }
         }
     }
@@ -2541,149 +2554,273 @@ void Example::skill_3_Draw(Unit &unit, float offset_true, float offset_false) {
 
 void Example::skill_2_Draw(Unit &unit, float offset_true, float offset_false) {
     olc::vf2d offset(0, 0);
-    if (unit.face)
+    if (unit.type == Naruto)
     {
-        int picNum = (unit.skill_2_Frames - 1) / 150;
-        switch(picNum)
+        if (unit.face)
         {
-            case 7:
+            int picNum = (unit.skill_2_Frames - 1) / 150;
+            switch(picNum)
             {
-                offset.x = -blockSize.x * 1;
-                offset.y = 4;
-                DrawDecal(unit.position + offset,
-                          skill_2_right_0_D.get(),
-                          {0.8, 0.8});
-            }break;
-            case 6:
-            {
-                offset.x = -blockSize.x * 0.5;
-                offset.y = 8;
-                DrawDecal(unit.position + offset,
-                          skill_2_right_1_D.get(),
-                          {0.85, 0.85});
-            }break;
-            case 5:
-            {
-                offset.x = -blockSize.x * 0.5;
-                offset.y = -7;
-                DrawDecal(unit.position + offset,
-                          skill_2_right_2_D.get(),
-                          {0.8, 0.8});
-            }break;
-            case 4:
-            {
-                offset.x = -blockSize.x * 0.5;
-                offset.y = -8;
-                DrawDecal(unit.position + offset,
-                          skill_2_right_3_D.get(),
-                          {0.8, 0.8});
-            }break;
-            case 3:
-            {
-                offset.x = -blockSize.x * 0.5;
-                offset.y = -8;
-                DrawDecal(unit.position + offset,
-                          skill_2_right_4_D.get(),
-                          {0.8, 0.8});
-            }break;
-            case 2:
-            {
-                offset.x = -blockSize.x * 0.5;
-                offset.y = -8;
-                DrawDecal(unit.position + offset,
-                          skill_2_right_5_D.get(),
-                          {0.8, 0.8});
-            }break;
-            case 1:
-            {
-                offset.x = -blockSize.x * 0.5;
-                offset.y = -8;
-                DrawDecal(unit.position + offset,
-                          skill_2_right_6_D.get(),
-                          {0.8, 0.8});
-            }break;
-            case 0:
-            {
-                offset.x = -blockSize.x * 0.5;
-                offset.y = -8;
-                DrawDecal(unit.position + offset,
-                          skill_2_right_7_D.get(),
-                          {0.8, 0.8});
-            }break;
+                case 7:
+                {
+                    offset.x = -blockSize.x * 1;
+                    offset.y = 4;
+                    DrawDecal(unit.position + offset,
+                              skill_2_right_0_D.get(),
+                              {0.8, 0.8});
+                }break;
+                case 6:
+                {
+                    offset.x = -blockSize.x * 0.5;
+                    offset.y = 8;
+                    DrawDecal(unit.position + offset,
+                              skill_2_right_1_D.get(),
+                              {0.85, 0.85});
+                }break;
+                case 5:
+                {
+                    offset.x = -blockSize.x * 0.5;
+                    offset.y = -7;
+                    DrawDecal(unit.position + offset,
+                              skill_2_right_2_D.get(),
+                              {0.8, 0.8});
+                }break;
+                case 4:
+                {
+                    offset.x = -blockSize.x * 0.5;
+                    offset.y = -8;
+                    DrawDecal(unit.position + offset,
+                              skill_2_right_3_D.get(),
+                              {0.8, 0.8});
+                }break;
+                case 3:
+                {
+                    offset.x = -blockSize.x * 0.5;
+                    offset.y = -8;
+                    DrawDecal(unit.position + offset,
+                              skill_2_right_4_D.get(),
+                              {0.8, 0.8});
+                }break;
+                case 2:
+                {
+                    offset.x = -blockSize.x * 0.5;
+                    offset.y = -8;
+                    DrawDecal(unit.position + offset,
+                              skill_2_right_5_D.get(),
+                              {0.8, 0.8});
+                }break;
+                case 1:
+                {
+                    offset.x = -blockSize.x * 0.5;
+                    offset.y = -8;
+                    DrawDecal(unit.position + offset,
+                              skill_2_right_6_D.get(),
+                              {0.8, 0.8});
+                }break;
+                case 0:
+                {
+                    offset.x = -blockSize.x * 0.5;
+                    offset.y = -8;
+                    DrawDecal(unit.position + offset,
+                              skill_2_right_7_D.get(),
+                              {0.8, 0.8});
+                }break;
+
+            }
 
         }
-
+        else
+        {
+            int picNum = (unit.skill_2_Frames - 1) / 150;
+            switch(picNum)
+            {
+                case 7:
+                {
+                    offset.x = -blockSize.x * 1;
+                    offset.y = 4;
+                    DrawDecal(unit.position + offset,
+                              skill_2_left_0_D.get(),
+                              {0.8, 0.8});
+                }break;
+                case 6:
+                {
+                    offset.x = -blockSize.x * 0.5;
+                    offset.y = 8;
+                    DrawDecal(unit.position + offset,
+                              skill_2_left_1_D.get(),
+                              {0.85, 0.85});
+                }break;
+                case 5:
+                {
+                    offset.x = -blockSize.x * 0.5;
+                    offset.y = -7;
+                    DrawDecal(unit.position + offset,
+                              skill_2_left_2_D.get(),
+                              {0.8, 0.8});
+                }break;
+                case 4:
+                {
+                    offset.x = -blockSize.x * 0.5;
+                    offset.y = -8;
+                    DrawDecal(unit.position + offset,
+                              skill_2_left_3_D.get(),
+                              {0.8, 0.8});
+                }break;
+                case 3:
+                {
+                    offset.x = -blockSize.x * 0.5;
+                    offset.y = -8;
+                    DrawDecal(unit.position + offset,
+                              skill_2_left_4_D.get(),
+                              {0.8, 0.8});
+                }break;
+                case 2:
+                {
+                    offset.x = -blockSize.x * 0.5;
+                    offset.y = -8;
+                    DrawDecal(unit.position + offset,
+                              skill_2_left_5_D.get(),
+                              {0.8, 0.8});
+                }break;
+                case 1:
+                {
+                    offset.x = -blockSize.x * 0.5;
+                    offset.y = -8;
+                    DrawDecal(unit.position + offset,
+                              skill_2_left_6_D.get(),
+                              {0.8, 0.8});
+                }break;
+                case 0:
+                {
+                    offset.x = -blockSize.x * 0.5;
+                    offset.y = -8;
+                    DrawDecal(unit.position + offset,
+                              skill_2_left_7_D.get(),
+                              {0.8, 0.8});
+                }break;
+            }
+        }
     }
-    else
+    if (unit.type == Sasuke)
     {
-        int picNum = (unit.skill_2_Frames - 1) / 150;
-        switch(picNum)
+        if (unit.face)
         {
-            case 7:
+            if (unit.skill_2_Frames >= 1050)
             {
-                offset.x = -blockSize.x * 1;
-                offset.y = 4;
-                DrawDecal(unit.position + offset,
-                          skill_2_left_0_D.get(),
-                          {0.8, 0.8});
-            }break;
-            case 6:
+                //掏出千鸟
+                olc::vi2d picNum(0, 0);
+                if (unit.skill_2_Frames >= 1200 - 75) picNum.x = 0;
+                else picNum.x = 1;
+                if (picNum.x == 0) offset.x = -20;
+                if (picNum.x == 1) offset.x = -10;
+                offset.y = 5;
+                DrawPartialDecal(unit.position + offset,
+                                 Sasuke_skill_2_0_right_D.get(),
+                                 picNum * blockSize + olc::vf2d(0, 0),
+                                 blockSize - olc::vf2d(0, 0),
+                                 {1.6, 0.9});
+            }
+            else
             {
-                offset.x = -blockSize.x * 0.5;
-                offset.y = 8;
-                DrawDecal(unit.position + offset,
-                          skill_2_left_1_D.get(),
-                          {0.85, 0.85});
-            }break;
-            case 5:
-            {
-                offset.x = -blockSize.x * 0.5;
-                offset.y = -7;
-                DrawDecal(unit.position + offset,
-                          skill_2_left_2_D.get(),
-                          {0.8, 0.8});
-            }break;
-            case 4:
-            {
-                offset.x = -blockSize.x * 0.5;
-                offset.y = -8;
-                DrawDecal(unit.position + offset,
-                          skill_2_left_3_D.get(),
-                          {0.8, 0.8});
-            }break;
-            case 3:
-            {
-                offset.x = -blockSize.x * 0.5;
-                offset.y = -8;
-                DrawDecal(unit.position + offset,
-                          skill_2_left_4_D.get(),
-                          {0.8, 0.8});
-            }break;
-            case 2:
-            {
-                offset.x = -blockSize.x * 0.5;
-                offset.y = -8;
-                DrawDecal(unit.position + offset,
-                          skill_2_left_5_D.get(),
-                          {0.8, 0.8});
-            }break;
-            case 1:
-            {
-                offset.x = -blockSize.x * 0.5;
-                offset.y = -8;
-                DrawDecal(unit.position + offset,
-                          skill_2_left_6_D.get(),
-                          {0.8, 0.8});
-            }break;
-            case 0:
-            {
-                offset.x = -blockSize.x * 0.5;
-                offset.y = -8;
-                DrawDecal(unit.position + offset,
-                          skill_2_left_7_D.get(),
-                          {0.8, 0.8});
-            }break;
+                //千鸟炸开.
+                olc::vi2d picNum(0, 0);
+                picNum.x = (unit.skill_2_Frames / 50) % 8;
+                //画Sasuke
+                DrawPartialDecal(unit.position + olc::vf2d(0, 0),
+                                 Sasuke_skill_2_1_right_D.get(),
+                                 picNum * blockSize + olc::vf2d(0, 0),
+                                 blockSize - olc::vf2d(0, 0),
+                                 {1.2, 0.9});
+
+            }
         }
+        else//左
+        {
+            if (unit.skill_2_Frames >= 1050)
+            {
+                //掏出千鸟
+                olc::vi2d picNum(0, 0);
+                if (unit.skill_2_Frames >= 1200 - 75) picNum.x = 1;
+                else picNum.x = 0;
+                //起手到突击应该有一个移动.
+                if (picNum.x == 1) offset.x = -10;
+                if (picNum.x == 0) offset.x = -20;
+                offset.y = 5;
+                DrawPartialDecal(unit.position + offset,
+                                 Sasuke_skill_2_0_left_D.get(),
+                                 picNum * blockSize + olc::vf2d(0, 0),
+                                 blockSize - olc::vf2d(0, 0),
+                                 {1.6, 0.9});
+            }
+            else
+            {
+                //千鸟炸开.
+                olc::vi2d picNum(0, 0);
+                picNum.x = (unit.skill_2_Frames / 50) % 8;
+                //画Sasuke
+                DrawPartialDecal(unit.position + olc::vf2d(0, 0),
+                                 Sasuke_skill_2_1_left_D.get(),
+                                 picNum * blockSize + olc::vf2d(0, 0),
+                                 blockSize - olc::vf2d(0, 0),
+                                 {1.2, 0.9});
+
+            }
+        }
+    }
+
+}
+
+//画shidoi
+void Example::shidoiDraw(Unit *unit) {
+    if (unit->S == skill_2)
+    {
+        if (unit->face)
+        {
+            olc::vi2d shidoiPicNum(0, 0);
+            if (unit->skill_2_Frames >= 200) //前850为千鸟爆炸
+            {
+                shidoiPicNum.x = (unit->skill_2_Frames / 50) % 3;
+                DrawPartialDecal(unit->position + olc::vf2d(40, -50),
+                                 Sasuke_shidoi_0_D.get(),
+                                 shidoiPicNum * blockSize + olc::vf2d(0, 0),
+                                 blockSize - olc::vf2d(0, 0),
+                                 {2.75, 2});
+            }
+            else
+            {
+                //后两百秒为千鸟收尾
+                shidoiPicNum.x = 3 - (unit->skill_2_Frames / 51);
+                DrawPartialDecal(unit->position + olc::vf2d(32, -10),
+                                 Sasuke_shidoi_1_D.get(),
+                                 shidoiPicNum * blockSize + olc::vf2d(12, 0),
+                                 blockSize - olc::vf2d(0, 0),
+                                 {1, 1});
+            }
+        }
+        else
+        {
+            olc::vi2d shidoiPicNum(0, 0);
+            if (unit->skill_2_Frames >= 200) //前850为千鸟爆炸
+            {
+                shidoiPicNum.x = (unit->skill_2_Frames / 50) % 3;
+                DrawPartialDecal(unit->position + olc::vf2d(-150, -50),
+                                 Sasuke_shidoi_0_D.get(),
+                                 shidoiPicNum * blockSize + olc::vf2d(0, 0),
+                                 blockSize - olc::vf2d(0, 0),
+                                 {2.75, 2});
+            }
+            else
+            {
+                //后两百秒为千鸟收尾
+                shidoiPicNum.x = 3 - (unit->skill_2_Frames / 51);
+                DrawPartialDecal(unit->position + olc::vf2d(-32, -10),
+                                 Sasuke_shidoi_1_D.get(),
+                                 shidoiPicNum * blockSize + olc::vf2d(12, 0),
+                                 blockSize - olc::vf2d(0, 0),
+                                 {1, 1});
+            }
+        }
+
     }
 }
 
