@@ -15,12 +15,13 @@ enum state {stand, run, jump, defend,
 enum unitType {Naruto, Sasuke};
 enum itemType {none, shurikenItem, fireBallItem};
 enum player {playerA, playerB, draw, unsettled};
+enum gState {selection, ready, fight, gg};
 
 class Unit
 {
 public:
     Unit();
-    Unit(bool s, unitType u);
+    Unit(bool playerSide, unitType u);
     state S;
     float stateNum;
     int lives;
@@ -234,6 +235,14 @@ public:
     }
 
 public:
+    //两个choice用于判断玩家选择什么角色.
+    int choiceA = 0;
+    int choiceB = 0;
+    //decided是一个flag,用于判断玩家是否做好决定.
+    bool decidedA = false;
+    bool decidedB = false;
+    int readyFrames = 2000;
+    gState gameState = selection;
     player winner = unsettled;
     int mouse;
     float gravity = 100;
@@ -261,6 +270,9 @@ public:
     bool OnUserUpdate(float fElapsedTime) override;
 
     // Sprites
+    std::unique_ptr<olc::Sprite> ready_P;
+    std::unique_ptr<olc::Sprite> vs_P;
+    std::unique_ptr<olc::Sprite> selectSignal_P;
     std::unique_ptr<olc::Sprite> backgroundPic;
     std::unique_ptr<olc::Sprite> standPicOfA;
     std::unique_ptr<olc::Sprite> standPicOfB;
@@ -429,6 +441,13 @@ public:
     std::unique_ptr<olc::Sprite> skill_3_left_2_P;
     std::unique_ptr<olc::Sprite> skill_3_left_3_P;
 
+    //选择界面的动画.
+    std::unique_ptr<olc::Sprite> selectNaruto_0_P;
+    std::unique_ptr<olc::Sprite> selectNaruto_1_P;
+    std::unique_ptr<olc::Sprite> selectSasuke_0_P;
+    std::unique_ptr<olc::Sprite> selectSasuke_1_P;
+
+    //Decal
     std::unique_ptr<olc::Decal> skill_3_right_0_D;
     std::unique_ptr<olc::Decal> skill_3_right_1_D;
     std::unique_ptr<olc::Decal> skill_3_right_2_D;
@@ -526,6 +545,14 @@ public:
     std::unique_ptr<olc::Decal> Sasuke_shidoi_1_D;
     std::unique_ptr<olc::Decal> Sasuke_skill_3_right_D;
     std::unique_ptr<olc::Decal> Sasuke_skill_3_left_D;
+    std::unique_ptr<olc::Decal> selectNaruto_0_D;
+    std::unique_ptr<olc::Decal> selectNaruto_1_D;
+    std::unique_ptr<olc::Decal> selectSasuke_0_D;
+    std::unique_ptr<olc::Decal> selectSasuke_1_D;
+    std::unique_ptr<olc::Decal> selectSignal_D;
+    std::unique_ptr<olc::Decal> vs_D;
+    std::unique_ptr<olc::Decal> ready_D;
+
 
 
 
@@ -582,6 +609,8 @@ public:
     void recover(Unit& unit);
     void removeDeadArea();
     void removeDeadItem();
+    void selectUnit();
+
 };
 
 

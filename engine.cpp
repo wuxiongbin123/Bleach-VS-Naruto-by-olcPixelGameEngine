@@ -3,9 +3,9 @@ using namespace std;
 
 Unit::Unit(){}
 
-Unit::Unit(bool s, unitType u): S(stand), lives(200)
-                                , side(s), type(u),
-                                stateNum(0), face(!s),
+Unit::Unit(bool playerSide, unitType u): S(stand), lives(200)
+                                , side(playerSide), type(u),
+                                stateNum(0), face(playerSide),
                                 acceleration(0), canDoubleJump(true),
                                 attackNum(-1), attackFrames(0),
                                 hitFrames(0), hitNum(0),
@@ -45,17 +45,8 @@ Unit::Unit(bool s, unitType u): S(stand), lives(200)
 
 bool Example::OnUserCreate() {
 
-    //初始化人物位置
-    unitA = Unit(true, Sasuke);
-    unitB = Unit(false, Sasuke);
-    units.push_back(&unitA);
-    units.push_back(&unitB);
 
-    unitA.position = { 1024 * 0.2 - 120, floorPos-blockSize.y + 15};
-    unitB.position = {1024 * 0.8 , floorPos - blockSize.y + 15};//170是hard code上去的，是人物的高度。
-
-    //为了简便，规定Sasuke是角色A,Naruto是角色B.
-
+    selectSignal_P = std::make_unique<olc::Sprite>("./pic/selection/signal.png");
     backgroundPic = std::make_unique<olc::Sprite>("./pic/background.jpg");
     standPicOfA = std::make_unique<olc::Sprite>("./pic/Naruto/stand_A.png");
     standPicOfB = std::make_unique<olc::Sprite>("./pic/Naruto/stand_B.png");
@@ -93,6 +84,7 @@ bool Example::OnUserCreate() {
     farAttackLeftPic_2 = std::make_unique<olc::Sprite>("./pic/Naruto/farAttack/2_left.png");
     shurikenPic = std::make_unique<olc::Sprite>("./pic/Naruto/farAttack/shuriken.png");
 
+    selectSignal_D = std::make_unique<olc::Decal>(selectSignal_P.get());
     backgroundDecal = std::make_unique<olc::Decal>(backgroundPic.get());
     standDecalOfA = std::make_unique<olc::Decal>(standPicOfA.get());
     standDecalOfB = std::make_unique<olc::Decal>(standPicOfB.get());
@@ -278,6 +270,13 @@ bool Example::OnUserCreate() {
     Sasuke_shidoi_1_P = std::make_unique<olc::Sprite>("./pic/Sasuke/shidoi/1.png");
     Sasuke_skill_3_right_P = std::make_unique<olc::Sprite>("./pic/Sasuke/skill_3/right.png");
     Sasuke_skill_3_left_P = std::make_unique<olc::Sprite>("./pic/Sasuke/skill_3/left.png");
+    selectNaruto_0_P = std::make_unique<olc::Sprite>("./pic/selection/Naruto_0.jpg");
+    selectNaruto_1_P = std::make_unique<olc::Sprite>("./pic/selection/Naruto_1.jpg");
+    selectSasuke_0_P = std::make_unique<olc::Sprite>("./pic/selection/Sasuke_0.jpg");
+    selectSasuke_1_P = std::make_unique<olc::Sprite>("./pic/selection/Sasuke_1.png");
+    vs_P = std::make_unique<olc::Sprite>("./pic/selection/vs.png");
+    ready_P = std::make_unique<olc::Sprite>("./pic/ready.png");
+
 
     Sasuke_stand_right_D = std::make_unique<olc::Decal>(Sasuke_stand_right_P.get());
     Sasuke_stand_left_D = std::make_unique<olc::Decal>(Sasuke_stand_left_P.get());
@@ -318,175 +317,257 @@ bool Example::OnUserCreate() {
     Sasuke_shidoi_1_D = std::make_unique<olc::Decal>(Sasuke_shidoi_1_P.get());
     Sasuke_skill_3_right_D = std::make_unique<olc::Decal>(Sasuke_skill_3_right_P.get());
     Sasuke_skill_3_left_D = std::make_unique<olc::Decal>(Sasuke_skill_3_left_P.get());
+    selectNaruto_0_D = std::make_unique<olc::Decal>(selectNaruto_0_P.get());
+    selectNaruto_1_D = std::make_unique<olc::Decal>(selectNaruto_1_P.get());
+    selectSasuke_0_D = std::make_unique<olc::Decal>(selectSasuke_0_P.get());
+    selectSasuke_1_D = std::make_unique<olc::Decal>(selectSasuke_1_P.get());
+    vs_D = std::make_unique<olc::Decal>(vs_P.get());
+    ready_D = std::make_unique<olc::Decal>(ready_P.get());
 
     return true;
 }
 
 bool Example::OnUserUpdate(float fElapsedTime) {
-    //每回合开始前,记录两个角色的位置,和运动状态,用于物理碰撞.
-    unitA.moveFlag = isMoving(unitA);
-    unitB.moveFlag = isMoving(unitB);
-    unitAreas.push_back(unitArea(unitA.position, blockSize, true, unitA.moveFlag, unitA.face));
-    unitAreas.push_back(unitArea(unitB.position, blockSize, false, unitB.moveFlag, unitB.face));
-
-    if (true) {
-        //两个角色自动互相面对
-        if (unitA.S == stand) {
-            if (unitA.position.x > unitB.position.x) unitA.face = false;
-            else unitA.face = true;
-        }
-        if (unitB.S == stand){
-            if (unitB.position.x < unitA.position.x ) unitB.face = true;
-            else unitB.face = false;
-        }
-
-        jumpAction(unitA, fElapsedTime);
-        jumpAction(unitB, fElapsedTime);
-
-        //当按住方向键时将状态设定为奔跑。
-        runAction(unitA, fElapsedTime);
-        runAction(unitB, fElapsedTime);
-
-
-        //两个角色的攻击
-        attackAction(unitA, fElapsedTime);
-        attackAction(unitB, fElapsedTime);
-
-        //攻击时进行移动。
-        moveUnit(unitA, fElapsedTime);
-        moveUnit(unitB, fElapsedTime);
-
-        //防御
-        defendAction(unitA, fElapsedTime);
-        defendAction(unitB, fElapsedTime);
-
-        //闪现
-        flashAction(unitA, fElapsedTime);
-        flashAction(unitB, fElapsedTime);
-
-        //远攻
-        farAttackAction(unitA, fElapsedTime);
-        farAttackAction(unitB, fElapsedTime);
-
-        //释放技能
-        skill_1_Action(unitA, fElapsedTime);
-        skill_1_Action(unitB, fElapsedTime);
-        skill_2_Action(unitA, fElapsedTime);
-        skill_2_Action(unitB, fElapsedTime);
-        skill_3_Action(unitA, fElapsedTime);
-        skill_3_Action(unitB, fElapsedTime);
-
-        //回合结束，结算是否被攻击中。如果被击中则会移动。
-        hitAction(unitA, fElapsedTime);
-        hitAction(unitB, fElapsedTime);
-
-        fallAction(unitA, fElapsedTime);
-        fallAction(unitB, fElapsedTime);
-
-        //道具移动与生效.
-        item_moveAndEffect(fElapsedTime);
-
-        collision(fElapsedTime);
-
-        recover(unitA);
-        recover(unitB);
-        //回合结束后需要删除unitArea
-        unitAreas[0].existence = false;
-        unitAreas[1].existence = false;
-        //删除所有已死的区域
-        removeDeadArea();
-        gameOver();
+    if (gameState == selection) selectUnit();
+    //ready是等待阶段,光耗费时间就行.
+    if (gameState == ready)
+    {
+        if (readyFrames >= 0) readyFrames--;
+        else gameState = fight;
     }
+    if (gameState == fight || gameState == gg)
+    {
+        //每回合开始前,记录两个角色的位置,和运动状态,用于物理碰撞.
+        unitA.moveFlag = isMoving(unitA);
+        unitB.moveFlag = isMoving(unitB);
+        unitAreas.push_back(unitArea(unitA.position, blockSize, true, unitA.moveFlag, unitA.face));
+        unitAreas.push_back(unitArea(unitB.position, blockSize, false, unitB.moveFlag, unitB.face));
 
-    //删除失效道具.
-    removeDeadItem();
+        if (true) {
+            //两个角色自动互相面对
+            if (unitA.S == stand) {
+                if (unitA.position.x > unitB.position.x) unitA.face = false;
+                else unitA.face = true;
+            }
+            if (unitB.S == stand){
+                if (unitB.position.x < unitA.position.x ) unitB.face = true;
+                else unitB.face = false;
+            }
+
+            jumpAction(unitA, fElapsedTime);
+            jumpAction(unitB, fElapsedTime);
+
+            //当按住方向键时将状态设定为奔跑。
+            runAction(unitA, fElapsedTime);
+            runAction(unitB, fElapsedTime);
 
 
-            //血条逐渐减少。
-    if (barRedLenOfA > 330 * unitA.lives / 200){
+            //两个角色的攻击
+            attackAction(unitA, fElapsedTime);
+            attackAction(unitB, fElapsedTime);
+
+            //攻击时进行移动。
+            moveUnit(unitA, fElapsedTime);
+            moveUnit(unitB, fElapsedTime);
+
+            //防御
+            defendAction(unitA, fElapsedTime);
+            defendAction(unitB, fElapsedTime);
+
+            //闪现
+            flashAction(unitA, fElapsedTime);
+            flashAction(unitB, fElapsedTime);
+
+            //远攻
+            farAttackAction(unitA, fElapsedTime);
+            farAttackAction(unitB, fElapsedTime);
+
+            //释放技能
+            skill_1_Action(unitA, fElapsedTime);
+            skill_1_Action(unitB, fElapsedTime);
+            skill_2_Action(unitA, fElapsedTime);
+            skill_2_Action(unitB, fElapsedTime);
+            skill_3_Action(unitA, fElapsedTime);
+            skill_3_Action(unitB, fElapsedTime);
+
+            //回合结束，结算是否被攻击中。如果被击中则会移动。
+            hitAction(unitA, fElapsedTime);
+            hitAction(unitB, fElapsedTime);
+
+            fallAction(unitA, fElapsedTime);
+            fallAction(unitB, fElapsedTime);
+
+            //道具移动与生效.
+            item_moveAndEffect(fElapsedTime);
+
+            collision(fElapsedTime);
+
+            recover(unitA);
+            recover(unitB);
+            //回合结束后需要删除unitArea
+            unitAreas[0].existence = false;
+            unitAreas[1].existence = false;
+            //删除所有已死的区域
+            removeDeadArea();
+            gameOver();
+        }
+
+        //删除失效道具.
+        removeDeadItem();
+        //血条逐渐减少。
+        if (barRedLenOfA > 330 * unitA.lives / 200){
             barRedLenOfA -= 35 * fElapsedTime ;
         }
-    if (barRedLenOfB > 330 * unitB.lives / 200){
+        if (barRedLenOfB > 330 * unitB.lives / 200){
             barRedLenOfB -= 35 * fElapsedTime ;
         }
+    }
+
+
     render(fElapsedTime);
     return true;
 }
 
 void Example::render(float fElapsedTime) {
-    Clear(olc::WHITE);
 
-    //画背景
-    DrawDecal(olc::vf2d(0, 0), backgroundDecal.get());
 
-    //画地板
-    for(int i = 0; i < ScreenWidth() / 16; i++){
-        floorSite.x = i * 16;
-        floorSite.y = floorPos;
-        DrawDecal(floorSite, tileDecal.get());
-    }
-    drawSignal(unitA);
-    drawSignal(unitB);
-
-    //画血条和血条架。
-    drawLivesBar(fElapsedTime);
-
-    //画查克拉条
-
-    //先画两个角色的查克拉槽.
-    FillRectDecal(olc::vf2d(posOfLivesBarA.x, posOfLivesBarA.y + 53), darkBarSize, olc::DARK_RED);
-    FillRectDecal(olc::vf2d(ScreenWidth() - 200, posOfLivesBarA.y + 53), darkBarSize, olc::DARK_RED);
-    chakraDraw(&unitA);
-    chakraDraw(&unitB);
-
-    SetPixelMode(olc::Pixel::ALPHA);
-
-    //画道具
-    itemDraw();
-
-    //如果佐助放大招,则画千鸟.
-    if (unitA.type == Sasuke) shidoiDraw(&unitA);
-    if (unitB.type == Sasuke) shidoiDraw(&unitB);
-
-    if (true){
-        //根据不同的状态画不同的图像。
-        switch (unitA.S) {
-            case jump:jumpDraw(unitA, 0, 16);break;
-            case stand:standDraw(unitA, 0, 3);break;
-            case run:runDraw(unitA, 0, 8);break;
-            case attack:attackDraw(unitA, -5, 10);break;
-            case hit:hitDraw(unitA, 0, 0);break;
-            case fall:fallDraw(unitA, 0, 0);break;
-            case defend:defendDraw(unitA, 0, 0);break;
-            case flash: flashDraw(unitA, 0, 0);break;
-            case farAttack:farAttackDraw(unitA, 0, 0);break;
-            case skill_1:skill_1_Draw(unitA, 0, 0);break;
-            case skill_2:skill_2_Draw(unitA, 0, 0);break;
-            case skill_3:skill_3_Draw(unitA, 0, 0);break;
+    Clear(olc::BLACK);
+    if (gameState == selection)
+    {
+        DrawDecal(olc::vf2d(0, 0),
+                  selectNaruto_0_D.get());
+        DrawDecal(olc::vf2d(0, 118),
+                  selectSasuke_0_D.get());
+        DrawDecal(olc::vf2d(ScreenWidth() - 205, 0),
+                  selectNaruto_0_D.get());
+        DrawDecal(olc::vf2d(ScreenWidth() - 205, 118),
+                  selectSasuke_0_D.get());
+        DrawDecal(olc::vf2d(412, 188),
+                  vs_D.get(),
+                  {1.1, 1});
+        if (choiceA == 0)//A玩家选了鸣人
+        {
+            //画木叶的标.
+            DrawDecal(olc::vf2d(0, 0),
+                      selectSignal_D.get(),
+                      {1, 1});
+            //画大图.
+            DrawDecal(olc::vf2d(0, 236),
+                      selectNaruto_1_D.get(),
+                      {0.9, 0.9}
+                      );
         }
-        switch(unitB.S){
-            case jump: jumpDraw(unitB, 0, 16);break;
-            case stand:standDraw(unitB, 0, 3);break;
-            case run:runDraw(unitB, 0, 8);break;
-            case attack:attackDraw(unitB, -5, 10);break;
-            case hit:hitDraw(unitB, 0, 0);break;
-            case fall:fallDraw(unitB, 0, 0);break;
-            case defend:defendDraw(unitB, 0, 0);break;
-            case flash:flashDraw(unitB, 0, 0);break;
-            case farAttack: farAttackDraw(unitB, 0, 0);break;
-            case skill_1:skill_1_Draw(unitB, 0, 0);break;
-            case skill_2:skill_2_Draw(unitB, 0, 0);break;
-            case skill_3:skill_3_Draw(unitB, 0, 0);break;
+        if (choiceA == 1)
+        {
+            DrawDecal(olc::vf2d(0, 118),
+                      selectSignal_D.get(),
+                      {1, 1});
+            DrawDecal(olc::vf2d(0, 236),
+                      selectSasuke_1_D.get(),
+                      {0.9, 0.9});
+        }
+        if (choiceB == 0)
+        {
+            DrawDecal(olc::vf2d(ScreenWidth() - 205, 0),
+                      selectSignal_D.get(),
+                      {1, 1});
+            DrawDecal(olc::vf2d(ScreenWidth() - 375, 236),
+                      selectNaruto_1_D.get(),
+                      {0.9, 0.9});
+        }
+        if (choiceB == 1)
+        {
+            DrawDecal(olc::vf2d(ScreenWidth() - 205, 118),
+                      selectSignal_D.get(),
+                      {1, 1});
+            DrawDecal(olc::vf2d(ScreenWidth() - 375, 236),
+                      selectSasuke_1_D.get(),
+                      {0.9, 0.9});
         }
     }
-    if (winner != unsettled){
 
-        //Render game over.
-        olc::vf2d posOfGameOver;
-        posOfGameOver.x = 152;
-        posOfGameOver.y = 150;
-        DrawDecal(posOfGameOver, gameOverDecal.get());
+    if (gameState == fight || gameState == gg || gameState == ready)
+    {
+
+        //画背景
+        DrawDecal(olc::vf2d(0, 0), backgroundDecal.get(),
+                  {1, 1.2});
+        if (gameState == ready)
+        {
+            DrawDecal(olc::vf2d(152, 150),
+                      ready_D.get());
+        }
+
+        //画地板
+        for(int i = 0; i < ScreenWidth() / 16; i++){
+            floorSite.x = i * 16;
+            floorSite.y = floorPos;
+            DrawDecal(floorSite, tileDecal.get());
+        }
+        drawSignal(unitA);
+        drawSignal(unitB);
+
+        //画血条和血条架。
+        drawLivesBar(fElapsedTime);
+
+        //画查克拉条
+
+        //先画两个角色的查克拉槽.
+        FillRectDecal(olc::vf2d(posOfLivesBarA.x, posOfLivesBarA.y + 53), darkBarSize, olc::DARK_RED);
+        FillRectDecal(olc::vf2d(ScreenWidth() - 200, posOfLivesBarA.y + 53), darkBarSize, olc::DARK_RED);
+        chakraDraw(&unitA);
+        chakraDraw(&unitB);
+
+        SetPixelMode(olc::Pixel::ALPHA);
+
+        //画道具
+        itemDraw();
+
+        //如果佐助放大招,则画千鸟.
+        if (unitA.type == Sasuke) shidoiDraw(&unitA);
+        if (unitB.type == Sasuke) shidoiDraw(&unitB);
+
+        if (true){
+            //根据不同的状态画不同的图像。
+            switch (unitA.S) {
+                case jump:jumpDraw(unitA, 0, 16);break;
+                case stand:standDraw(unitA, 0, 3);break;
+                case run:runDraw(unitA, 0, 8);break;
+                case attack:attackDraw(unitA, -5, 10);break;
+                case hit:hitDraw(unitA, 0, 0);break;
+                case fall:fallDraw(unitA, 0, 0);break;
+                case defend:defendDraw(unitA, 0, 0);break;
+                case flash: flashDraw(unitA, 0, 0);break;
+                case farAttack:farAttackDraw(unitA, 0, 0);break;
+                case skill_1:skill_1_Draw(unitA, 0, 0);break;
+                case skill_2:skill_2_Draw(unitA, 0, 0);break;
+                case skill_3:skill_3_Draw(unitA, 0, 0);break;
+            }
+            switch(unitB.S){
+                case jump: jumpDraw(unitB, 0, 16);break;
+                case stand:standDraw(unitB, 0, 3);break;
+                case run:runDraw(unitB, 0, 8);break;
+                case attack:attackDraw(unitB, -5, 10);break;
+                case hit:hitDraw(unitB, 0, 0);break;
+                case fall:fallDraw(unitB, 0, 0);break;
+                case defend:defendDraw(unitB, 0, 0);break;
+                case flash:flashDraw(unitB, 0, 0);break;
+                case farAttack: farAttackDraw(unitB, 0, 0);break;
+                case skill_1:skill_1_Draw(unitB, 0, 0);break;
+                case skill_2:skill_2_Draw(unitB, 0, 0);break;
+                case skill_3:skill_3_Draw(unitB, 0, 0);break;
+            }
+        }
+        if (gameState == gg){
+
+            //Render game over.
+            olc::vf2d posOfGameOver;
+            posOfGameOver.x = 152;
+            posOfGameOver.y = 150;
+            DrawDecal(posOfGameOver, gameOverDecal.get());
+        }
     }
+
 }
 
 //画跳跃状态的函数。true代表向右边动时的偏移量，false代表左边
@@ -1263,7 +1344,9 @@ bool Example::inBound(bool moveDirection, float positionX) {
 }
 
 void Example::gameOver(){
-    if (winner == unsettled)
+    Unit unitA = *units[0];
+    Unit unitB = *units[1];
+    if (gameState == fight)
     {
         if (unitA.lives <= 0)
         {
@@ -1271,6 +1354,7 @@ void Example::gameOver(){
             unitA.acceleration = 500;
             unitA.S = fall;
             winner = playerB;
+            gameState = gg;
             play(ggSound);
         }
         if (unitB.lives <= 0)
@@ -1279,6 +1363,7 @@ void Example::gameOver(){
             unitB.acceleration = 500;
             unitB.S = fall;
             winner = playerA;
+            gameState = gg;
             play(ggSound);
         }
         if (unitA.lives <= 0 && unitB.lives <= 0)
@@ -1290,6 +1375,7 @@ void Example::gameOver(){
             unitB.acceleration = 500;
             unitB.S = fall;
             winner = draw;
+            gameState = gg;
             play(ggSound);
         }
     }
@@ -1304,6 +1390,8 @@ void Example::drawSignal(Unit& unit) {
 }
 
 void Example::drawLivesBar(float fElapsedTime) {
+    Unit unitA = *units[0];
+    Unit unitB = *units[1];
     posOfLivesBarA.x = 0;
     posOfLivesBarA.y = 15;
     posOfLivesBarB.x = ScreenWidth() - 341;
@@ -2870,6 +2958,82 @@ void Example::shidoiDraw(Unit *unit) {
             }
         }
 
+    }
+}
+
+
+//游戏开始前,玩家选择角色.
+void Example::selectUnit() {
+
+    //使用上下键进行选择角色.
+    if (GetKey(olc::Key::W).bPressed && choiceA == 1 && !decidedA)
+    {
+        play(selectSound);//这个后期要改.
+        choiceA = 0;
+    }
+    if (GetKey(olc::Key::S).bPressed && choiceA == 0 && !decidedA)
+    {
+        play(selectSound);
+        choiceA = 1;
+    }
+    if (GetKey(olc::Key::UP).bPressed && choiceB == 1 && !decidedB)
+    {
+        play(selectSound);//这个后期要改.
+        choiceB = 0;
+    }
+    if (GetKey(olc::Key::DOWN).bPressed && choiceB == 0 && !decidedB)
+    {
+        play(selectSound);
+        choiceB = 1;
+    }
+    if (GetKey(olc::Key::R).bPressed)
+    {
+        decidedA = true;
+        play(selectSound);
+    }
+    if (GetKey(olc::Key::PGDN).bPressed)
+    {
+        decidedB = true;
+        play(selectSound);
+    }
+    //双方做好选择,进入准备阶段.
+    if (decidedA && decidedB)
+    {
+
+
+        //根据A玩家的决定加入角色.
+        switch(choiceA)
+        {
+            case 0:
+            {
+                unitA = Unit(true, Naruto);
+                unitA.position = { 1024 * 0.2 - 120, floorPos-blockSize.y + 15};
+                units.push_back(&unitA);
+
+            }break;
+            case 1:
+            {
+                unitA = Unit(true, Sasuke);
+                unitA.position = { 1024 * 0.2 - 120, floorPos-blockSize.y + 15};
+                units.push_back(&unitA);
+            }break;
+        }
+        switch(choiceB)
+        {
+            case 0:
+            {
+                unitB = Unit(false, Naruto);
+                unitB.position = {1024 * 0.8 , floorPos - blockSize.y + 15};//170是hard code上去的，是人物的高度。
+                units.push_back(&unitB);
+            }break;
+            case 1:
+            {
+                unitB = Unit(false, Sasuke);
+                unitB.position = {1024 * 0.8 , floorPos - blockSize.y + 15};//170是hard code上去的，是人物的高度。
+                units.push_back(&unitB);
+            }break;
+        }
+        gameState = ready;
     }
 }
 
