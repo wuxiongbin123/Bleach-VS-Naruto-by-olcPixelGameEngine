@@ -10,10 +10,19 @@
 #include <thread>
 #include <chrono>
 #pragma comment(lib, "winmm.lib")
-enum Sound {hitSound, ggSound, NarutoHitSound};
+enum Sound {hitSound, ggSound,
+            NarutoHitSound,
+            SasukeHitSound,
+            rasenganSound, shidoiSound,
+            selectSound, readySound};
 void play(Sound sd);
 void playHit();
 void playGg();
 void playNarutoHit();
+void playSasukeHit();
+void playRasengan();
+void playShidoi();
+void playSelect();
+void playReady();
 
 #endif //BVN_MUSIC_H

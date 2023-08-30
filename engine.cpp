@@ -10,7 +10,7 @@ Unit::Unit(bool playerSide, unitType u): S(stand), lives(200)
                                 attackNum(-1), attackFrames(0),
                                 hitFrames(0), hitNum(0),
                                 farAttackFrames(0),
-                                flashFrames(0), chakra(300),
+                                flashFrames(0), chakra(0),
                                 skill_1_Frames(0), skill_2_Frames(0),skill_3_Frames(0),
                                 fallDownFrames(0),
                                 skillHit(0), size(olc::vf2d(63, 97))
@@ -19,24 +19,24 @@ Unit::Unit(bool playerSide, unitType u): S(stand), lives(200)
     if (side){
         rightKey = olc::Key::D;
         leftKey = olc::Key::A;
-        upKey = olc::Key::W;
+        upKey = olc::Key::K;
         downKey = olc::Key::S;
-        attackKey = olc::Key::R;
-        flashKey = olc::Key::F;
-        farAttackKey = olc::Key::G;
-        skillKey = olc::Key::T;
+        attackKey = olc::Key::J;
+        flashKey = olc::Key::L;
+        farAttackKey = olc::Key::Y;
+        skillKey = olc::Key::I;
 
 
         oppoentNum = 1;
     } else {
         rightKey = olc::Key::RIGHT;
         leftKey = olc::Key::LEFT;
-        upKey = olc::Key::UP;
+        upKey = olc::Key::NP2;
         downKey = olc::Key::DOWN;
-        attackKey = olc::Key::PGDN;
-        flashKey = olc::Key::PGUP;
-        farAttackKey = olc::Key::ENTER;
-        skillKey = olc::Key::END;
+        attackKey = olc::Key::NP1;
+        flashKey = olc::Key::NP3;
+        farAttackKey = olc::Key::NP4;
+        skillKey = olc::Key::NP5;
 
         oppoentNum = 0;
     }
@@ -45,7 +45,7 @@ Unit::Unit(bool playerSide, unitType u): S(stand), lives(200)
 
 bool Example::OnUserCreate() {
 
-
+    selectBackground_P = std::make_unique<olc::Sprite>("./pic/selection/background.jpg");
     selectSignal_P = std::make_unique<olc::Sprite>("./pic/selection/signal.png");
     backgroundPic = std::make_unique<olc::Sprite>("./pic/background.jpg");
     standPicOfA = std::make_unique<olc::Sprite>("./pic/Naruto/stand_A.png");
@@ -271,7 +271,7 @@ bool Example::OnUserCreate() {
     Sasuke_skill_3_right_P = std::make_unique<olc::Sprite>("./pic/Sasuke/skill_3/right.png");
     Sasuke_skill_3_left_P = std::make_unique<olc::Sprite>("./pic/Sasuke/skill_3/left.png");
     selectNaruto_0_P = std::make_unique<olc::Sprite>("./pic/selection/Naruto_0.jpg");
-    selectNaruto_1_P = std::make_unique<olc::Sprite>("./pic/selection/Naruto_1.jpg");
+    selectNaruto_1_P = std::make_unique<olc::Sprite>("./pic/selection/Naruto_1.png");
     selectSasuke_0_P = std::make_unique<olc::Sprite>("./pic/selection/Sasuke_0.jpg");
     selectSasuke_1_P = std::make_unique<olc::Sprite>("./pic/selection/Sasuke_1.png");
     vs_P = std::make_unique<olc::Sprite>("./pic/selection/vs.png");
@@ -323,6 +323,7 @@ bool Example::OnUserCreate() {
     selectSasuke_1_D = std::make_unique<olc::Decal>(selectSasuke_1_P.get());
     vs_D = std::make_unique<olc::Decal>(vs_P.get());
     ready_D = std::make_unique<olc::Decal>(ready_P.get());
+    selectBackground_D = std::make_unique<olc::Decal>(selectBackground_P.get());
 
     return true;
 }
@@ -434,6 +435,10 @@ void Example::render(float fElapsedTime) {
     Clear(olc::BLACK);
     if (gameState == selection)
     {
+        //画背景
+        DrawDecal(olc::vf2d(0, 0),
+                  selectBackground_D.get());
+        //画四张人物的小图.
         DrawDecal(olc::vf2d(0, 0),
                   selectNaruto_0_D.get());
         DrawDecal(olc::vf2d(0, 118),
@@ -2989,12 +2994,28 @@ void Example::selectUnit() {
     if (GetKey(olc::Key::R).bPressed)
     {
         decidedA = true;
-        play(selectSound);
+        if (decidedB)
+        {
+            playSelect();//不另外给线程,这样就不会和ready声音冲突.
+        }
+        else
+        {
+            play(selectSound);
+        }
+
+
     }
     if (GetKey(olc::Key::PGDN).bPressed)
     {
         decidedB = true;
-        play(selectSound);
+        if (decidedA)
+        {
+            playSelect();//不另外给线程,这样就不会和ready声音冲突.
+        }
+        else
+        {
+            play(selectSound);
+        }
     }
     //双方做好选择,进入准备阶段.
     if (decidedA && decidedB)
@@ -3034,6 +3055,7 @@ void Example::selectUnit() {
             }break;
         }
         gameState = ready;
+        play(readySound);
     }
 }
 

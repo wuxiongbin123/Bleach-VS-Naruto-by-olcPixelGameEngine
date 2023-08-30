@@ -241,7 +241,7 @@ public:
     //decided是一个flag,用于判断玩家是否做好决定.
     bool decidedA = false;
     bool decidedB = false;
-    int readyFrames = 2000;
+    int readyFrames = 1000;
     gState gameState = selection;
     player winner = unsettled;
     int mouse;
@@ -270,6 +270,7 @@ public:
     bool OnUserUpdate(float fElapsedTime) override;
 
     // Sprites
+    std::unique_ptr<olc::Sprite> selectBackground_P;
     std::unique_ptr<olc::Sprite> ready_P;
     std::unique_ptr<olc::Sprite> vs_P;
     std::unique_ptr<olc::Sprite> selectSignal_P;
@@ -552,6 +553,7 @@ public:
     std::unique_ptr<olc::Decal> selectSignal_D;
     std::unique_ptr<olc::Decal> vs_D;
     std::unique_ptr<olc::Decal> ready_D;
+    std::unique_ptr<olc::Decal> selectBackground_D;
 
 
 
