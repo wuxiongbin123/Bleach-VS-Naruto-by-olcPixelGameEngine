@@ -1,4 +1,6 @@
 # Bleach vs Naruto by olcPixelGameEngine
+## 获取资源
+    - 本游戏游玩的所有资源都储存在bvn_release.zip中,下载后解压点击运行bvn.exe即可.
 ## 游戏简介
 ### 制作背景
     - 本游戏为上海交通大学暑期科研实习岗的实习项目.
