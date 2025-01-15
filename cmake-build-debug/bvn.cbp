@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="bvn"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="D:/LearningDocuments_D/Research/olcPixelGameEngine/Bleach-VS-Naruto-by-olcPixelGameEngine/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="C:/msys64/mingw64/bin/make.exe -f &quot;D:/LearningDocuments_D/Research/olcPixelGameEngine/Bleach-VS-Naruto-by-olcPixelGameEngine/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="C:/msys64/mingw64/bin/make.exe -f &quot;D:/LearningDocuments_D/Research/olcPixelGameEngine/Bleach-VS-Naruto-by-olcPixelGameEngine/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="C:/msys64/mingw64/bin/make.exe -f &quot;D:/LearningDocuments_D/Research/olcPixelGameEngine/Bleach-VS-Naruto-by-olcPixelGameEngine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="C:/msys64/mingw64/bin/make.exe -f &quot;D:/LearningDocuments_D/Research/olcPixelGameEngine/Bleach-VS-Naruto-by-olcPixelGameEngine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="bvn">
+				<Option output="D:/LearningDocuments_D/Research/olcPixelGameEngine/Bleach-VS-Naruto-by-olcPixelGameEngine/cmake-build-debug/bvn.exe" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="D:/LearningDocuments_D/Research/olcPixelGameEngine/Bleach-VS-Naruto-by-olcPixelGameEngine/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="C:/msys64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/13.1.0/../../../../include/c++/13.1.0"/>
+					<Add directory="C:/msys64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/13.1.0/../../../../include/c++/13.1.0/x86_64-w64-mingw32"/>
+					<Add directory="C:/msys64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/13.1.0/../../../../include/c++/13.1.0/backward"/>
+					<Add directory="C:/msys64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/13.1.0/include"/>
+					<Add directory="C:/msys64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/13.1.0/../../../../include"/>
+					<Add directory="C:/msys64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/13.1.0/include-fixed"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="C:/msys64/mingw64/bin/make.exe -f &quot;D:/LearningDocuments_D/Research/olcPixelGameEngine/Bleach-VS-Naruto-by-olcPixelGameEngine/cmake-build-debug/Makefile&quot;  VERBOSE=1 bvn"/>
+					<CompileFile command="C:/msys64/mingw64/bin/make.exe -f &quot;D:/LearningDocuments_D/Research/olcPixelGameEngine/Bleach-VS-Naruto-by-olcPixelGameEngine/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="C:/msys64/mingw64/bin/make.exe -f &quot;D:/LearningDocuments_D/Research/olcPixelGameEngine/Bleach-VS-Naruto-by-olcPixelGameEngine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="C:/msys64/mingw64/bin/make.exe -f &quot;D:/LearningDocuments_D/Research/olcPixelGameEngine/Bleach-VS-Naruto-by-olcPixelGameEngine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="bvn/fast">
+				<Option output="D:/LearningDocuments_D/Research/olcPixelGameEngine/Bleach-VS-Naruto-by-olcPixelGameEngine/cmake-build-debug/bvn.exe" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="D:/LearningDocuments_D/Research/olcPixelGameEngine/Bleach-VS-Naruto-by-olcPixelGameEngine/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="C:/msys64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/13.1.0/../../../../include/c++/13.1.0"/>
+					<Add directory="C:/msys64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/13.1.0/../../../../include/c++/13.1.0/x86_64-w64-mingw32"/>
+					<Add directory="C:/msys64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/13.1.0/../../../../include/c++/13.1.0/backward"/>
+					<Add directory="C:/msys64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/13.1.0/include"/>
+					<Add directory="C:/msys64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/13.1.0/../../../../include"/>
+					<Add directory="C:/msys64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/13.1.0/include-fixed"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="C:/msys64/mingw64/bin/make.exe -f &quot;D:/LearningDocuments_D/Research/olcPixelGameEngine/Bleach-VS-Naruto-by-olcPixelGameEngine/cmake-build-debug/Makefile&quot;  VERBOSE=1 bvn/fast"/>
+					<CompileFile command="C:/msys64/mingw64/bin/make.exe -f &quot;D:/LearningDocuments_D/Research/olcPixelGameEngine/Bleach-VS-Naruto-by-olcPixelGameEngine/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="C:/msys64/mingw64/bin/make.exe -f &quot;D:/LearningDocuments_D/Research/olcPixelGameEngine/Bleach-VS-Naruto-by-olcPixelGameEngine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="C:/msys64/mingw64/bin/make.exe -f &quot;D:/LearningDocuments_D/Research/olcPixelGameEngine/Bleach-VS-Naruto-by-olcPixelGameEngine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="D:/LearningDocuments_D/Research/olcPixelGameEngine/Bleach-VS-Naruto-by-olcPixelGameEngine/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="C:/msys64/mingw64/bin/make.exe -f &quot;D:/LearningDocuments_D/Research/olcPixelGameEngine/Bleach-VS-Naruto-by-olcPixelGameEngine/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="C:/msys64/mingw64/bin/make.exe -f &quot;D:/LearningDocuments_D/Research/olcPixelGameEngine/Bleach-VS-Naruto-by-olcPixelGameEngine/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="C:/msys64/mingw64/bin/make.exe -f &quot;D:/LearningDocuments_D/Research/olcPixelGameEngine/Bleach-VS-Naruto-by-olcPixelGameEngine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="C:/msys64/mingw64/bin/make.exe -f &quot;D:/LearningDocuments_D/Research/olcPixelGameEngine/Bleach-VS-Naruto-by-olcPixelGameEngine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="D:/LearningDocuments_D/Research/olcPixelGameEngine/Bleach-VS-Naruto-by-olcPixelGameEngine/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="C:/msys64/mingw64/bin/make.exe -f &quot;D:/LearningDocuments_D/Research/olcPixelGameEngine/Bleach-VS-Naruto-by-olcPixelGameEngine/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="C:/msys64/mingw64/bin/make.exe -f &quot;D:/LearningDocuments_D/Research/olcPixelGameEngine/Bleach-VS-Naruto-by-olcPixelGameEngine/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="C:/msys64/mingw64/bin/make.exe -f &quot;D:/LearningDocuments_D/Research/olcPixelGameEngine/Bleach-VS-Naruto-by-olcPixelGameEngine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="C:/msys64/mingw64/bin/make.exe -f &quot;D:/LearningDocuments_D/Research/olcPixelGameEngine/Bleach-VS-Naruto-by-olcPixelGameEngine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="D:/LearningDocuments_D/Research/olcPixelGameEngine/Bleach-VS-Naruto-by-olcPixelGameEngine/engine.cpp">
+			<Option target="bvn"/>
+		</Unit>
+		<Unit filename="D:/LearningDocuments_D/Research/olcPixelGameEngine/Bleach-VS-Naruto-by-olcPixelGameEngine/engine.h">
+			<Option target="bvn"/>
+		</Unit>
+		<Unit filename="D:/LearningDocuments_D/Research/olcPixelGameEngine/Bleach-VS-Naruto-by-olcPixelGameEngine/main.cpp">
+			<Option target="bvn"/>
+		</Unit>
+		<Unit filename="D:/LearningDocuments_D/Research/olcPixelGameEngine/Bleach-VS-Naruto-by-olcPixelGameEngine/music.cpp">
+			<Option target="bvn"/>
+		</Unit>
+		<Unit filename="D:/LearningDocuments_D/Research/olcPixelGameEngine/Bleach-VS-Naruto-by-olcPixelGameEngine/music.h">
+			<Option target="bvn"/>
+		</Unit>
+		<Unit filename="D:/LearningDocuments_D/Research/olcPixelGameEngine/Bleach-VS-Naruto-by-olcPixelGameEngine/olcPixelGameEngine.h">
+			<Option target="bvn"/>
+		</Unit>
+		<Unit filename="D:/LearningDocuments_D/Research/olcPixelGameEngine/Bleach-VS-Naruto-by-olcPixelGameEngine/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>
