@@ -21,22 +21,22 @@ Unit::Unit(bool playerSide, unitType u): S(stand), lives(200)
         leftKey = olc::Key::A;
         upKey = olc::Key::K;
         downKey = olc::Key::S;
-        attackKey = olc::Key::J;
-        flashKey = olc::Key::L;
-        farAttackKey = olc::Key::Y;
-        skillKey = olc::Key::I;
+        attackKey = olc::Key::R;
+        flashKey = olc::Key::F;
+        farAttackKey = olc::Key::T;
+        skillKey = olc::Key::G;
 
 
         oppoentNum = 1;
     } else {
         rightKey = olc::Key::RIGHT;
         leftKey = olc::Key::LEFT;
-        upKey = olc::Key::NP2;
+        upKey = olc::Key::UP;
         downKey = olc::Key::DOWN;
-        attackKey = olc::Key::NP1;
-        flashKey = olc::Key::NP3;
-        farAttackKey = olc::Key::NP4;
-        skillKey = olc::Key::NP5;
+        attackKey = olc::Key::PGDN;
+        flashKey = olc::Key::END;
+        farAttackKey = olc::Key::PGUP;
+        skillKey = olc::Key::ENTER;
 
         oppoentNum = 0;
     }
