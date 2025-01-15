@@ -21,10 +21,10 @@ Unit::Unit(bool playerSide, unitType u): S(stand), lives(200)
         leftKey = olc::Key::A;
         upKey = olc::Key::K;
         downKey = olc::Key::S;
-        attackKey = olc::Key::R;
-        flashKey = olc::Key::F;
-        farAttackKey = olc::Key::T;
-        skillKey = olc::Key::G;
+        attackKey = olc::Key::J;
+        flashKey = olc::Key::L;
+        farAttackKey = olc::Key::Y;
+        skillKey = olc::Key::I;
 
 
         oppoentNum = 1;
@@ -33,10 +33,10 @@ Unit::Unit(bool playerSide, unitType u): S(stand), lives(200)
         leftKey = olc::Key::LEFT;
         upKey = olc::Key::NP2;
         downKey = olc::Key::DOWN;
-        attackKey = olc::Key::PGDN;
-        flashKey = olc::Key::PGUP;
-        farAttackKey = olc::Key::END;
-        skillKey = olc::Key::ENTER;
+        attackKey = olc::Key::NP1;
+        flashKey = olc::Key::NP3;
+        farAttackKey = olc::Key::NP4;
+        skillKey = olc::Key::NP5;
 
         oppoentNum = 0;
     }
@@ -329,9 +329,7 @@ bool Example::OnUserCreate() {
 }
 
 bool Example::OnUserUpdate(float fElapsedTime) {
-    if (gameState == selection){
-        selectUnit();
-    }
+    if (gameState == selection) selectUnit();
     //ready是等待阶段,光耗费时间就行.
     if (gameState == ready)
     {

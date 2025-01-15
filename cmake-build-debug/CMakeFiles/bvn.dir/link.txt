@@ -1,3 +1,0 @@
-"C:\Users\Poker Joker\AppData\Local\JetBrains\Toolbox\apps\CLion\ch-0\232.9559.58\bin\cmake\win\x64\bin\cmake.exe" -E rm -f CMakeFiles\bvn.dir/objects.a
-C:\msys64\mingw64\bin\ar.exe qc CMakeFiles\bvn.dir/objects.a @CMakeFiles\bvn.dir\objects1.rsp
-C:\msys64\mingw64\bin\g++.exe -g -Wl,--whole-archive CMakeFiles\bvn.dir/objects.a -Wl,--no-whole-archive -o bvn.exe -Wl,--out-implib,libbvn.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\bvn.dir\linkLibs.rsp

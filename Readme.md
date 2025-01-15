@@ -1,8 +1,6 @@
 # Bleach vs Naruto by olcPixelGameEngine
 ## 获取资源
     - 本游戏游玩的所有资源都储存在bvn_release.zip中,下载后解压点击运行bvn.exe即可.
-## 编译注意
-    - 使用Clion编译时可执行文件bvn.exe会出现在cmake-build-debug文件夹下，要将拿出来，使其与pic文件夹与audio文件夹同级，否则无法读取资源。
 ## 游戏简介
 ### 制作背景
     - 本游戏为上海交通大学暑期科研实习岗的实习项目.
@@ -28,20 +26,18 @@
         - 左跑: A
         - 右跑: D
         - 上跳: K
-        - 普通攻击: R
+        - 普通攻击: J
         - 防御: S
-        - 远攻: T
-        - 闪现：F
-        - 技能: G
+        - 远攻: Y
+        - 技能: I
     - 玩家B(右侧):
         - 左跑: 方向键←
         - 右跑: 方向键→
-        - 上跳: 方向键↑
-        - 普通攻击: PgDn
+        - 上跳: 数字键盘2
+        - 普通攻击: 数字键盘1
         - 防御: 方向键↓
-        - 远攻: End
-        - 闪现：PgUp
-        - 技能: Enter
+        - 远攻: 数字键盘4
+        - 技能: 数字键盘5
 
 ## 开发工具
     - 本游戏的UI制作使用olcPixelGameEngine, 详见网址https://github.com/OneLoneCoder/olcPixelGameEngine.
